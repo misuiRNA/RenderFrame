@@ -4,8 +4,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 const std::string Cubiod::MODEL_NAME = "Simple";
-const std::string Cubiod::VS_SHADER_STR = ReadFile("/Users/nirui02/workspace/code/MisuiLib/RenderPractice/code/src/shader/Cuboid.vs");
-const std::string Cubiod::FS_SHADER_STR = ReadFile("/Users/nirui02/workspace/code/MisuiLib/RenderPractice/code/src/shader/Cuboid.fs");
+const std::string Cubiod::VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/shader/Cuboid.vs");
+const std::string Cubiod::FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/shader/Cuboid.fs");
 const std::map<std::string, int> Cubiod::TEXTURE_SLOT_NAME_MAP = {
     {"texture1", 0},
     {"texture2", 1},

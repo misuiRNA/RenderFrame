@@ -65,19 +65,19 @@ int main() {
     rectangle.setScaleRatio(0.5f);
     rectangle.setRotation(glm::radians(-45.0f));
     rectangle.setColor(Color(0.8f, 0.3f, 0.2f));
-    rectangle.setImage("/Users/nirui02/workspace/code/MisuiLib/RenderPractice/resource/awesomeface.png", true);
+    rectangle.setImage(GetCurPath() + "/resource/awesomeface.png", true);
 
     Rectangle rectangle1(1.0f, 0.5f);
     rectangle1.setPosition(-1.0, 0.0f);
     rectangle1.setColor(Color(0.8f, 0.3f, 0.2f));
-    rectangle1.setImage("/Users/nirui02/workspace/code/MisuiLib/RenderPractice/resource/container.jpeg");
+    rectangle1.setImage(GetCurPath() + "/resource/container.jpeg");
 
     Cubiod cuboid(1.0f, 1.0f, 1.0f);
     cuboid.setPosition(-0.5f, -0.5f, -0.5f);
     // cuboid.setScaleRatio(0.5f);
     cuboid.setRotationAxis({ 0.5f, 1.0f, 0.0f });
-    cuboid.addImage("/Users/nirui02/workspace/code/MisuiLib/RenderPractice/resource/container.jpeg");
-    cuboid.addImage("/Users/nirui02/workspace/code/MisuiLib/RenderPractice/resource/awesomeface.png", true);
+    cuboid.addImage(GetCurPath() + "/resource/container.jpeg");
+    cuboid.addImage(GetCurPath() + "/resource/awesomeface.png", true);
 
     while(!glfwWindowShouldClose(window))
     {

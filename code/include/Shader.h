@@ -50,6 +50,7 @@ private:
     unsigned int _progId;
 };
 
+std::string GetCurPath();
 std::string ReadFile(const std::string& path);
 
 #endif // #_HEAD_FLAG_SHADER_H

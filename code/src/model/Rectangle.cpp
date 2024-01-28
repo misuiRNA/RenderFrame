@@ -4,8 +4,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 const std::string Rectangle::MODEL_NAME = "Rectangle";
-const std::string Rectangle::VS_SHADER_STR = ReadFile("/Users/nirui02/workspace/code/MisuiLib/RenderPractice/code/src/shader/RectangleShader.vs");
-const std::string Rectangle::FS_SHADER_STR = ReadFile("/Users/nirui02/workspace/code/MisuiLib/RenderPractice/code/src/shader/RectangleShader.fs");
+const std::string Rectangle::VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/shader/RectangleShader.vs");
+const std::string Rectangle::FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/shader/RectangleShader.fs");
 const std::map<std::string, int> Rectangle::TEXTURE_SLOT_NAME_MAP = {
     {"texture1", 0},
 };

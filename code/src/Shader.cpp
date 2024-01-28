@@ -4,6 +4,7 @@
 #include "Shader.h"
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
+#include <unistd.h>
 
 RenderData::RenderData() : RenderData({}, {}) {
 
@@ -200,8 +201,20 @@ unsigned int ShaderProgram::BuildShader(const char* shaderCode, unsigned int sha
     return shderId;
 }
 
+// TODO: 优化, 1.shader字符串编译时确定，不读取文件；2.返回的路径位置应为可执行文件位置，而不是执行命令的位置 考虑使用 std::filesystem
+std::string GetCurPath() {
+    std::string path;
+    char buffer[FILENAME_MAX];
+    if (getcwd(buffer, sizeof(buffer)) != nullptr) {
+        path = buffer;
+    } else {
+        std::cerr << "get cur path error!" << std::endl;
+    }
+    return path;
+}
 
 std::string ReadFile(const std::string& path) {
+    std::string path1 = GetCurPath();
     std::string content;
     std::ifstream fileStream;
     fileStream.exceptions (std::ifstream::failbit | std::ifstream::badbit);
@@ -213,7 +226,7 @@ std::string ReadFile(const std::string& path) {
         content = contentStream.str();
     }
     catch(std::ifstream::failure e) {
-        std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+        std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ: " << path << std::endl;
     }
     return content;
 }
