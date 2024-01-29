@@ -3,26 +3,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-const std::string Rectangle::MODEL_NAME = "Rectangle";
-const std::string Rectangle::VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/shader/RectangleShader.vs");
-const std::string Rectangle::FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/shader/RectangleShader.fs");
-const std::map<std::string, int> Rectangle::TEXTURE_SLOT_NAME_MAP = {
-    {"texture1", 0},
-};
-const std::map<std::string, int> Rectangle::ATTRIBUTE_NAME_MAP ={
-    {"aPos"     , 0},
-    {"aTexCoord", 1},
-};
-
-ShaderProgram& Rectangle::getRectShaderProg() {
-    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, TEXTURE_SLOT_NAME_MAP);
-    return prog;
-}
-
-
 Rectangle::Rectangle(float width, float height)
-: _prog(getRectShaderProg())
-, _renderData(Rectangle::ATTRIBUTE_NAME_MAP, Rectangle::TEXTURE_SLOT_NAME_MAP)
+: _prog(ShaderProgram::getRectShaderProg())
+, _renderData(_prog.buildRenderData())
 , _x(0), _y(0)
 , _width(width)
 , _height(height)

@@ -26,28 +26,37 @@ private:
     int _vertexCount;
     int _indexCount;
 
-    std::map<std::string, int> _attrNameMap;
-    std::map<std::string, int> _textureSlotNameMap;
+    const std::map<std::string, int>& _attrNameMap;
+    const std::map<std::string, int>& _textureSlotNameMap;
     std::map<int, unsigned int> _textureMap;
 };
 
 struct ShaderProgram {
     ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr);
-    ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr, const std::map<std::string, int>& textureSlotNameMap);
+    ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr, const std::map<std::string, int>& attrNameMap, const std::map<std::string, int>& textureSlotNameMap);
 
     // TODO 根据需要重载setUniform函数
     void setUniform(const std::string& name, int value);
     void setUniform(const std::string& name, float value);
     void setUniform(const std::string& name, float v1, float v2, float v3, float v4);
     void setUniform(const std::string& name, unsigned int size, const float* mat);
+    RenderData buildRenderData() const;
 
     void draw(RenderData& attribute);
+
+public:
+    static ShaderProgram& getRectShaderProg();
+    static ShaderProgram& getCuboidShaderProg();
 
 private:
     static unsigned int BuildShader(const char* shaderCode, unsigned int shaderType);
 
 private:
     unsigned int _progId;
+    const RenderData _renderDataPrototype;
+
+    std::map<std::string, int> _attrNameMap;
+    std::map<std::string, int> _textureSlotNameMap;
 };
 
 std::string GetCurPath();

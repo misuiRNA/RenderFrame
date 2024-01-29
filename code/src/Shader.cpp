@@ -42,7 +42,7 @@ void RenderData::setVertices(const std::string& name, unsigned int vertexSize, c
         std::cout << "Failed to set attribute! name not found: " << name << std::endl;
         return;
     }
-    setVertices(_attrNameMap[name], vertexSize, vertices);
+    setVertices(_attrNameMap.at(name), vertexSize, vertices);
 }
 
 void RenderData::setIndices(const std::vector<unsigned int>& indices) {
@@ -83,7 +83,7 @@ void RenderData::setTexture(const std::string& name, unsigned int width, unsigne
         std::cout << "Failed to set texture! name not found: " << name << std::endl;
         return;
     }
-    setTexture(_textureSlotNameMap[name], width, height, imageData, format);
+    setTexture(_textureSlotNameMap.at(name), width, height, imageData, format);
 }
 
 void RenderData::draw() {
@@ -103,11 +103,15 @@ void RenderData::draw() {
 
 
 ShaderProgram::ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr)
-: ShaderProgram(vsShaderCodeStr, fsShaderCodeStr, {}) {
+: ShaderProgram(vsShaderCodeStr, fsShaderCodeStr, {}, {}) {
 
 }
 
-ShaderProgram::ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr, const std::map<std::string, int>& textureSlotNameMap)
+ShaderProgram::ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr, const std::map<std::string, int>& attrNameMap, const std::map<std::string, int>& textureSlotNameMap)
+: _progId(0)
+, _renderDataPrototype(attrNameMap, textureSlotNameMap)
+, _attrNameMap(attrNameMap) 
+, _textureSlotNameMap(textureSlotNameMap)
 {
     unsigned int vertexShader = BuildShader(vsShaderCodeStr.c_str(), GL_VERTEX_SHADER);
     unsigned int fragmentShader = BuildShader(fsShaderCodeStr.c_str(), GL_FRAGMENT_SHADER);
@@ -173,6 +177,10 @@ void ShaderProgram::setUniform(const std::string& name, unsigned int size, const
     }
 }
 
+RenderData ShaderProgram::buildRenderData() const {
+    return RenderData(_attrNameMap, _textureSlotNameMap);
+}
+
 void ShaderProgram::draw(RenderData& attribute) {
     glUseProgram(_progId);
     attribute.draw();
@@ -199,6 +207,38 @@ unsigned int ShaderProgram::BuildShader(const char* shaderCode, unsigned int sha
         std::cout << shaderCode << std::endl;
     }
     return shderId;
+}
+
+ShaderProgram& ShaderProgram::getRectShaderProg() {
+    static const std::string MODEL_NAME = "Rectangle";
+    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/shader/RectangleShader.vs");
+    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/shader/RectangleShader.fs");
+    static const std::map<std::string, int> ATTRIBUTE_NAME_MAP ={
+        {"aPos"     , 0},
+        {"aTexCoord", 1},
+    };
+    static const std::map<std::string, int> TEXTURE_SLOT_NAME_MAP = {
+        {"texture1", 0},
+    };
+
+    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP, TEXTURE_SLOT_NAME_MAP);
+    return prog;
+}
+
+ShaderProgram& ShaderProgram::getCuboidShaderProg() {
+    static const std::string MODEL_NAME = "Cuboid";
+    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/shader/Cuboid.vs");
+    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/shader/Cuboid.fs");
+    static const std::map<std::string, int> ATTRIBUTE_NAME_MAP ={
+        {"aPos"     , 0},
+        {"aTexCoord", 1},
+    };
+    static const std::map<std::string, int> TEXTURE_SLOT_NAME_MAP = {
+        {"texture1", 0},
+        {"texture2", 1},
+    };
+    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP, TEXTURE_SLOT_NAME_MAP);
+    return prog;
 }
 
 // TODO: 优化, 1.shader字符串编译时确定，不读取文件；2.返回的路径位置应为可执行文件位置，而不是执行命令的位置 考虑使用 std::filesystem

@@ -30,9 +30,6 @@ private:
     void buildModel();
 
 private:
-    static ShaderProgram& getRectShaderProg();
-
-private:
     // TODO: 优化 抽取出来，做成一个通用类
     ShaderProgram& _prog;
     RenderData _renderData;
@@ -46,13 +43,6 @@ private:
     Color _color;
 
     bool _imageEnable;
-
-private:
-    static const std::string MODEL_NAME;
-    static const std::string VS_SHADER_STR;
-    static const std::string FS_SHADER_STR;
-    static const std::map<std::string, int> TEXTURE_SLOT_NAME_MAP;
-    static const std::map<std::string, int> ATTRIBUTE_NAME_MAP;
 
 };
 
