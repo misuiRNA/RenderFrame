@@ -1,12 +1,11 @@
 #ifndef _HEAD_FLAG_MODEL_CUBOID_H
 #define _HEAD_FLAG_MODEL_CUBOID_H
 
+#include "model/AbstractModel.h"
 
-#include "Shader.h"
-#include "Image.h"
-
-struct Cubiod {
+struct Cubiod : AbstractModel {
     Cubiod(float size_x, float size_y, float size_z);
+    void buildModel() override;
 
     void setPosition(float x, float y, float z);
     void setSize(float size_x, float size_y, float size_z);
@@ -19,13 +18,6 @@ struct Cubiod {
     void draw();
     
 private:
-    void buildModel();
-
-private:
-    // TODO: 优化 抽取出来，做成一个通用类
-    ShaderProgram& _prog;
-    RenderData _renderData;
-
     float _x;
     float _y;
     float _z;

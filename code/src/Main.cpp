@@ -75,13 +75,22 @@ int main() {
     Cubiod cuboid(1.0f, 1.0f, 1.0f);
     cuboid.setPosition(-0.5f, -0.5f, -0.5f);
     // cuboid.setScaleRatio(0.5f);
-    cuboid.setRotationAxis({ 0.5f, 1.0f, 0.0f });
+    cuboid.setRotationAxis({ 1.0f, 1.0f, 1.0f });
     cuboid.addImage(GetCurPath() + "/resource/container.jpeg");
     cuboid.addImage(GetCurPath() + "/resource/awesomeface.png", true);
+
+    Cubiod cuboid1(1.0f, 1.0f, 1.0f);
+    cuboid1.setPosition(1.0f, 0.5f, 0.0f);
+    cuboid1.setSize(0.5f, 2.0f, 0.3f);
+    cuboid1.setScaleRatio(0.5f);
+    cuboid1.setRotationAxis({ 1.0f, 1.0f, 1.0f });
+    cuboid1.addImage(GetCurPath() + "/resource/container.jpeg");
+    cuboid1.addImage(GetCurPath() + "/resource/awesomeface.png", true);
 
     while(!glfwWindowShouldClose(window))
     {
         cuboid.setRotation((float)glfwGetTime());
+        cuboid1.setRotation((float)glfwGetTime());
 
         ProcessInput(window);
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -90,6 +99,7 @@ int main() {
         rectangle.draw();
         rectangle1.draw();
         cuboid.draw();
+        cuboid1.draw();
 
         glfwSwapBuffers(window);
         glfwPollEvents();    

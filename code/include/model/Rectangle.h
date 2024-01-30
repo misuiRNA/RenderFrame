@@ -1,8 +1,7 @@
 #ifndef _HEAD_FLAG_MODEL_RECTANGLE_H
 #define _HEAD_FLAG_MODEL_RECTANGLE_H
 
-#include "Shader.h"
-#include "Image.h"
+#include "model/AbstractModel.h"
 
 struct Color {
     Color() : Color(1.0f, 1.0f, 1.0f) { }
@@ -13,7 +12,7 @@ struct Color {
     float b;
 };
 
-struct Rectangle {
+struct Rectangle : AbstractModel {
     Rectangle(float width, float height);
 
     void setPosition(float x, float y);
@@ -30,10 +29,6 @@ private:
     void buildModel();
 
 private:
-    // TODO: 优化 抽取出来，做成一个通用类
-    ShaderProgram& _prog;
-    RenderData _renderData;
-
     float _x;
     float _y;
     float _width;

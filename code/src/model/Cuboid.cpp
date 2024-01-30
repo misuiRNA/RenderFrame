@@ -2,10 +2,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "Image.h"
 
 Cubiod::Cubiod(float size_x, float size_y, float size_z)
-: _prog(ShaderProgram::getCuboidShaderProg())
-, _renderData(_prog.buildRenderData())
+: AbstractModel(ShaderProgram::getCuboidShaderProg())
 , _size_x(size_x)
 , _size_y(size_y)
 , _size_z(size_z)
@@ -26,7 +26,6 @@ void Cubiod::setSize(float size_x, float size_y, float size_z) {
     _size_x = size_x;
     _size_y = size_y;
     _size_z = size_z;
-    buildModel();
 }
 
 void Cubiod::setScaleRatio(float scaleRatio) {
@@ -61,7 +60,7 @@ void Cubiod::draw() {
     projection = glm::perspective(glm::radians(45.0f), 1.0f * 800 / 600, 0.1f, 100.0f);
 
     glm::mat4 model;
-    model = glm::scale(model, glm::vec3(_scaleRatio, _scaleRatio, _scaleRatio));
+    model = glm::scale(model, glm::vec3(_scaleRatio * _size_x, _scaleRatio * _size_y, _scaleRatio * _size_z));
     if (_rotationAxis[0] != 0.0f || _rotationAxis[1] != 0.0f || _rotationAxis[2] != 0.0f) {
         model = glm::rotate(model, _rotation, glm::vec3(_rotationAxis[0], _rotationAxis[1], _rotationAxis[2]));
     }
@@ -71,52 +70,52 @@ void Cubiod::draw() {
     _prog.setUniform("view", view.length(), glm::value_ptr(view));
     _prog.setUniform("projection", projection.length(), glm::value_ptr(projection));
 
-    _prog.draw(_renderData);
+    AbstractModel::draw();
 }
 
 void Cubiod::buildModel() {
     _renderData.setVertices("aPos", 3, {
-        0.0f,    0.0f,    0.0f,
-        _size_x, 0.0f,    0.0f,
-        _size_x, _size_y, 0.0f,
-        _size_x, _size_y, 0.0f,
-        0.0f,    _size_y, 0.0f,
-        0.0f,    0.0f,    0.0f,
+        0.0f, 0.0f, 0.0f,
+        1.0f, 0.0f, 0.0f,
+        1.0f, 1.0f, 0.0f,
+        1.0f, 1.0f, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,
 
-        0.0f,    0.0f,    _size_z,
-        _size_x, 0.0f,    _size_z,
-        _size_x, _size_y, _size_z,
-        _size_x, _size_y, _size_z,
-        0.0f,    _size_y, _size_z,
-        0.0f,    0.0f,    _size_z,
+        0.0f, 0.0f, 1.0f,
+        1.0f, 0.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,
+        0.0f, 1.0f, 1.0f,
+        0.0f, 0.0f, 1.0f,
 
-        0.0f,    _size_y, _size_z,
-        0.0f,    _size_y, 0.0f,
-        0.0f,    0.0f,    0.0f,
-        0.0f,    0.0f,    0.0f,
-        0.0f,    0.0f,    _size_z,
-        0.0f,    _size_y, _size_z,
+        0.0f, 1.0f, 1.0f,
+        0.0f, 1.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f,
+        0.0f, 1.0f, 1.0f,
 
-        _size_x, _size_y, _size_z,
-        _size_x, _size_y, 0.0f,
-        _size_x, 0.0f,    0.0f,
-        _size_x, 0.0f,    0.0f,
-        _size_x, 0.0f,    _size_z,
-        _size_x, _size_y, _size_z,
+        1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 0.0f,
+        1.0f, 0.0f, 0.0f,
+        1.0f, 0.0f, 0.0f,
+        1.0f, 0.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,
 
-        0.0f,    0.0f,    0.0f,
-        _size_x, 0.0f,    0.0f,
-        _size_x, 0.0f,    _size_z,
-        _size_x, 0.0f,    _size_z,
-        0.0f,    0.0f,    _size_z,
-        0.0f,    0.0f,    0.0f,
+        0.0f, 0.0f, 0.0f,
+        1.0f, 0.0f, 0.0f,
+        1.0f, 0.0f, 1.0f,
+        1.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 1.0f,
+        0.0f, 0.0f, 0.0f,
 
-        0.0f,    _size_y, 0.0f,
-        _size_x, _size_y, 0.0f,
-        _size_x, _size_y, _size_z,
-        _size_x, _size_y, _size_z,
-        0.0f,    _size_y, _size_z,
-        0.0f,    _size_y, 0.0f,
+        0.0f, 1.0f, 0.0f,
+        1.0f, 1.0f, 0.0f,
+        1.0f, 1.0f, 1.0f,
+        1.0f, 1.0f, 1.0f,
+        0.0f, 1.0f, 1.0f,
+        0.0f, 1.0f, 0.0f,
     });
     _renderData.setVertices("aTexCoord", 2, {
         0.0f, 0.0f,

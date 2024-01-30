@@ -1,5 +1,5 @@
 gcc -xc++ \
- code/src/Main.cpp code/src/Shader.cpp code/src/StbImage.cpp code/src/model/Rectangle.cpp code/src/model/Cuboid.cpp\
+ code/src/Main.cpp code/src/Shader.cpp code/src/StbImage.cpp code/src/model/Rectangle.cpp code/src/model/Cuboid.cpp code/src/model/AbstractModel.cpp\
  3rd/src/glad.c \
  -I3rd/include \
  -Icode/include \
