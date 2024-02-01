@@ -5,6 +5,8 @@
 #include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include <unistd.h>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 RenderData::RenderData() : RenderData({}, {}) {
 
@@ -159,22 +161,10 @@ void ShaderProgram::setUniform(const std::string& name, float v1, float v2, floa
     glUniform4f(uniformLocation, v1, v2, v3, v4);
 }
 
-void ShaderProgram::setUniform(const std::string& name, unsigned int size, const float* mat) {
+void ShaderProgram::setUniformMat4(const std::string& name, const float* mat) {
     int uniformLocation = glGetUniformLocation(_progId, name.c_str());
     glUseProgram(_progId);
-    switch (size) {
-        case 2:
-            glUniformMatrix2fv(uniformLocation, 1, GL_FALSE, mat);
-            break;
-        case 3:
-            glUniformMatrix3fv(uniformLocation, 1, GL_FALSE, mat);
-            break;
-        case 4:
-            glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, mat);
-            break;
-        default:
-            break;
-    }
+    glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, mat);
 }
 
 RenderData ShaderProgram::buildRenderData() const {
@@ -269,4 +259,38 @@ std::string ReadFile(const std::string& path) {
         std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ: " << path << std::endl;
     }
     return content;
+}
+
+Camera& Camera::instance() {
+    static Camera inst;
+    return inst;
+}
+
+Camera::Camera()
+: _x(0.0f)
+, _y(0.0f)
+, _z(0.0f) {
+    updateMatrix();
+}
+
+void Camera::setPosition(float x, float y, float z) {
+    _x = x;
+    _y = y;
+    _z = z;
+    updateMatrix();
+}
+
+const float* Camera::getMatrix() const {
+    return _matrix;
+}
+
+void Camera::updateMatrix() {
+    glm::mat4 view;
+    view = glm::translate(view, glm::vec3(-_x, -_y, -_z));
+
+    glm::mat4 projection;
+    projection = glm::perspective(glm::radians(45.0f), 1.0f * 800 / 600, 0.1f, 100.0f);
+    view = projection * view;
+
+    memcpy(_matrix, glm::value_ptr(view), sizeof(glm::mat4));
 }

@@ -60,6 +60,9 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
 
+    Camera& camera = Camera::instance();
+    camera.setPosition(0.0f, 0.0f, 3.0f);
+
     Rectangle rectangle(1.0f, 1.0f);
     rectangle.setPosition(0.0f, -0.5f);
     rectangle.setScaleRatio(0.5f);
@@ -73,7 +76,7 @@ int main() {
     rectangle1.setImage(GetCurPath() + "/resource/container.jpeg");
 
     Cubiod cuboid(1.0f, 1.0f, 1.0f);
-    cuboid.setPosition(-0.5f, -0.5f, -0.5f);
+    cuboid.setPosition(0.0f, 0.0f, 0.0f);
     // cuboid.setScaleRatio(0.5f);
     cuboid.setRotationAxis({ 1.0f, 1.0f, 1.0f });
     cuboid.addImage(GetCurPath() + "/resource/container.jpeg");
@@ -90,7 +93,7 @@ int main() {
     while(!glfwWindowShouldClose(window))
     {
         cuboid.setRotation((float)glfwGetTime());
-        cuboid1.setRotation((float)glfwGetTime());
+        cuboid1.setRotation(-(float)glfwGetTime());
 
         ProcessInput(window);
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);

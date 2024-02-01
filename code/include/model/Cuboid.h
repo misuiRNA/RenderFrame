@@ -18,6 +18,7 @@ struct Cubiod : AbstractModel {
     void draw();
     
 private:
+    const Camera& _camera;
     float _x;
     float _y;
     float _z;
@@ -29,7 +30,6 @@ private:
     float _rotationAxis[3];
 
     int _imageCount;
-
 };
 
 #endif

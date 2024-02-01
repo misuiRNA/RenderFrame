@@ -39,7 +39,7 @@ struct ShaderProgram {
     void setUniform(const std::string& name, int value);
     void setUniform(const std::string& name, float value);
     void setUniform(const std::string& name, float v1, float v2, float v3, float v4);
-    void setUniform(const std::string& name, unsigned int size, const float* mat);
+    void setUniformMat4(const std::string& name, const float* mat);
     RenderData buildRenderData() const;
 
     void draw(RenderData& attribute);
@@ -57,6 +57,26 @@ private:
 
     std::map<std::string, int> _attrNameMap;
     std::map<std::string, int> _textureSlotNameMap;
+};
+
+struct Camera {
+    static Camera& instance();
+
+    Camera();
+    const float* getMatrix() const;
+    void setPosition(float x, float y, float z);
+
+private:
+    void updateMatrix();
+
+private:
+    float _x;
+    float _y;
+    float _z;
+
+
+    float _matrix[16] = { 0.0f };
+
 };
 
 std::string GetCurPath();
