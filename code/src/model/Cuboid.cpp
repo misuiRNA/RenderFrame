@@ -14,7 +14,6 @@ Cubiod::Cubiod(float size_x, float size_y, float size_z)
 , _rotation(0.0f)
 , _imageCount(0) {
     setRotationAxis({0.0f, 0.0f, 0.0f});
-    buildModel();
 }
 
 void Cubiod::setPosition(float x, float y, float z) {
@@ -54,7 +53,7 @@ void Cubiod::addImage(const std::string& filename, bool rgba) {
     }
 }
 
-void Cubiod::draw() {
+void Cubiod::updateUniformes() {
     glm::mat4 model;
     model = glm::translate(model, glm::vec3(_x, _y, _z));
     if (_rotationAxis[0] != 0.0f || _rotationAxis[1] != 0.0f || _rotationAxis[2] != 0.0f) {
@@ -64,11 +63,9 @@ void Cubiod::draw() {
 
     _prog.setUniformMat4("model", glm::value_ptr(model));
     _prog.setUniformMat4("camera", _camera.getMatrix());
-
-    AbstractModel::draw();
 }
 
-void Cubiod::buildModel() {
+void Cubiod::updateRenderData() {
     _renderData.setVertices("aPos", 3, {
         -0.5f, -0.5f, -0.5f,
         0.5f, -0.5f, -0.5f,

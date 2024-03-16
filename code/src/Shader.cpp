@@ -167,7 +167,7 @@ void ShaderProgram::setUniformMat4(const std::string& name, const float* mat) {
     glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, mat);
 }
 
-RenderData ShaderProgram::buildRenderData() const {
+RenderData ShaderProgram::getRenderData() const {
     return RenderData(_attrNameMap, _textureSlotNameMap);
 }
 

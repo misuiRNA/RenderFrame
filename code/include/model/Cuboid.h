@@ -5,7 +5,6 @@
 
 struct Cubiod : AbstractModel {
     Cubiod(float size_x, float size_y, float size_z);
-    void buildModel() override;
 
     void setPosition(float x, float y, float z);
     void setSize(float size_x, float size_y, float size_z);
@@ -15,8 +14,10 @@ struct Cubiod : AbstractModel {
     // TODO: 自动识别RGBA格式，不要手动传入
     void addImage(const std::string& filename, bool rgba = false);
 
-    void draw();
-    
+private:
+    void updateRenderData() override;
+    void updateUniformes() override;
+
 private:
     const Camera& _camera;
     float _x;

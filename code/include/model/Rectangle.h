@@ -23,10 +23,9 @@ struct Rectangle : AbstractModel {
     void setImage(const std::string& filename, bool rgba = false);
     void setColor(const Color& color);
 
-    void draw();
-    
 private:
-    void buildModel();
+    void updateRenderData() override;
+    void updateUniformes() override;
 
 private:
     float _x;

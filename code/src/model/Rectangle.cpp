@@ -13,7 +13,7 @@ Rectangle::Rectangle(float width, float height)
 , _scaleRatio(1.0f)
 , _rotation(0.0f)
 , _imageEnable(false) {
-    buildModel();
+
 }
 
 void Rectangle::setPosition(float x, float y) {
@@ -44,7 +44,7 @@ void Rectangle::setColor(const Color& color) {
     _color = color;
 }
 
-void Rectangle::draw() {
+void Rectangle::updateUniformes() {
     _prog.setUniform("imageEnable", _imageEnable);
     _prog.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
 
@@ -53,11 +53,9 @@ void Rectangle::draw() {
     model = glm::rotate(model, _rotation, glm::vec3(0.0f, 0.0f, 1.0f));
     model = glm::scale(model, glm::vec3(_scaleRatio * _width, _scaleRatio * _height, 1.0f));
     _prog.setUniformMat4("model", glm::value_ptr(model));
-
-    AbstractModel::draw();
 }
 
-void Rectangle::buildModel() {
+void Rectangle::updateRenderData() {
     _renderData.setVertices("aPos", 3, {
         -0.5f, -0.5f, 0.0f,
         0.5f, -0.5f, 0.0f,

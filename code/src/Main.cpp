@@ -180,13 +180,13 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // rectangle.draw();
-        // rectangle1.draw();
-        cuboid.draw();
-        cuboid1.draw();
+        // rectangle.show();
+        // rectangle1.show();
+        cuboid.show();
+        cuboid1.show();
 
         for (int index = 0; index < cuboids.size(); ++index) {
-            cuboids[index].draw();
+            cuboids[index].show();
         }
 
         glfwSwapBuffers(window);

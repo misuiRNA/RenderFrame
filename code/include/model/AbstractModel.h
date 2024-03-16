@@ -5,12 +5,16 @@
 
 struct AbstractModel {
     AbstractModel(ShaderProgram& _prog);
-    virtual void buildModel() { }
-    void draw();
+    void show();
+
+private:
+    virtual void updateRenderData() = 0;
+    virtual void updateUniformes() = 0;
 
 protected:
     ShaderProgram& _prog;
     RenderData _renderData;
+    bool _needUpdateRenderData;
 
 };
 
