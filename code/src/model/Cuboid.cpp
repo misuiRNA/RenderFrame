@@ -43,6 +43,7 @@ void Cubiod::setRotationAxis(const float (&axis)[3]) {
     _rotationAxis[2] = axis[2];
 }
 
+// TODO: 优化, 减少重复加载
 void Cubiod::addImage(const std::string& filename, bool rgba) {
     Image image(filename);
     _imageCount += 1;
