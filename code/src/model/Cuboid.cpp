@@ -6,7 +6,6 @@
 
 Cubiod::Cubiod(float size_x, float size_y, float size_z)
 : AbstractModel(ShaderProgram::getCuboidShaderProg())
-, _camera(Camera::instance())
 , _size_x(size_x)
 , _size_y(size_y)
 , _size_z(size_z)
@@ -62,7 +61,8 @@ void Cubiod::updateUniformes() {
     model = glm::scale(model, glm::vec3(_scaleRatio * _size_x, _scaleRatio * _size_y, _scaleRatio * _size_z));
 
     _prog.setUniformMat4("model", glm::value_ptr(model));
-    _prog.setUniformMat4("camera", _camera.getMatrix());
+    // 相机矩阵在camera统一设置, 解耦世界坐标系物体对相机的依赖
+    // _prog.setUniformMat4("camera", Camera::instance().getMatrix());
 }
 
 void Cubiod::updateRenderData() {

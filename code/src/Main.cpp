@@ -8,6 +8,8 @@
 
 #include "model/Rectangle.h"
 #include "model/Cuboid.h"
+#include "Camera.h"
+#include <GLFW/glfw3.h>
 
 
 static unsigned int WINDOW_WIDTH = 800;
@@ -17,11 +19,10 @@ void FramebufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-void ProcessInput(GLFWwindow *window) {
+void ProcessInput(GLFWwindow *window, Camera& camera) {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
-
 
     static float deltaTime = 0.0f; // 当前帧与上一帧的时间差
     static float lastFrame = 0.0f; // 上一帧的时间
@@ -36,7 +37,6 @@ void ProcessInput(GLFWwindow *window) {
     float cameraSpeed = 2.5f * deltaTime;
     float cameraRollSpeed = 2.5f * deltaTime * 5;
 
-    Camera& camera = Camera::instance();
     std::vector<float> frontVec = camera.getFront();
     glm::vec3 cameraFront = glm::vec3(frontVec[0], frontVec[1], frontVec[2]);
     std::vector<float> posVec = camera.getPosition();
@@ -117,7 +117,7 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
 
-    Camera& camera = Camera::instance();
+    Camera camera;
     camera.setPosition(2.0f, 0.0f, 0.0f);
 
     Rectangle rectangle(1.0f, 1.0f);
@@ -171,12 +171,12 @@ int main() {
 
     while(!glfwWindowShouldClose(window))
     {
-        ProcessInput(window);
+        ProcessInput(window, camera);
+        camera.enabel();
 
         cuboid.setRotation((float)glfwGetTime());
         cuboid1.setRotation(-(float)glfwGetTime());
 
-        ProcessInput(window);
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

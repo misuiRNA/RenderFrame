@@ -103,6 +103,7 @@ void RenderData::draw() {
     }
 }
 
+std::map<ShaderProgram*, int> ShaderProgram::_registProgramMap;
 
 ShaderProgram::ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr)
 : ShaderProgram(vsShaderCodeStr, fsShaderCodeStr, {}, {}) {
@@ -141,6 +142,8 @@ ShaderProgram::ShaderProgram(const std::string& vsShaderCodeStr, const std::stri
     for (auto& pair : textureSlotNameMap) {
         setUniform(pair.first, pair.second);
     }
+
+    _registProgramMap[this] += 1;
 }
 
 void ShaderProgram::setUniform(const std::string& name, int value) {
@@ -223,12 +226,18 @@ ShaderProgram& ShaderProgram::getCuboidShaderProg() {
         {"aPos"     , 0},
         {"aTexCoord", 1},
     };
+    // TODO: 优化, 删除 TEXTURE_SLOT_NAME_MAP, 直接在setTexture中设置
     static const std::map<std::string, int> TEXTURE_SLOT_NAME_MAP = {
         {"texture1", 0},
         {"texture2", 1},
     };
     static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP, TEXTURE_SLOT_NAME_MAP);
     return prog;
+}
+
+std::map<ShaderProgram*, int>& ShaderProgram::getAllShaderProg()
+{
+    return _registProgramMap;
 }
 
 // TODO: 优化, 1.shader字符串编译时确定，不读取文件；2.返回的路径位置应为可执行文件位置，而不是执行命令的位置 考虑使用 std::filesystem
@@ -259,96 +268,4 @@ std::string ReadFile(const std::string& path) {
         std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ: " << path << std::endl;
     }
     return content;
-}
-
-Camera& Camera::instance() {
-    static Camera inst;
-    return inst;
-}
-
-Camera::Camera()
-: _x(0.0f)
-, _y(0.0f)
-, _z(0.0f)
-, _frontX(0.0f)
-, _frontY(0.0f)
-, _frontZ(0.0f)
-, _fov(45.0f) {
-    updateMatrix();
-}
-
-void Camera::setPosition(float x, float y, float z) {
-    _x = x;
-    _y = y;
-    _z = z;
-    updateMatrix();
-}
-
-void Camera::setFront(float x, float y, float z) {
-    _frontX = x;
-    _frontY = y;
-    _frontZ = z;
-    updateMatrix();
-}
-
-void Camera::setFront(float pitch, float yaw)
-{
-    // TODO: 优化相机状态建模  当前建模 pitch=0, yaw=0 时对应 方向为(1.0, 0.0, 0.0)
-    if (pitch > 89.0f) {
-        pitch = 89.0f;
-    } else if (pitch < -89.0f) {
-        pitch = -89.0f;
-    }
-    glm::vec3 front;
-    front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
-    front.y = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-    front.z = sin(glm::radians(pitch));
-    front = glm::normalize(front);
-    setFront(front.x, front.y, front.z);
-}
-
-void Camera::setFov(float fov)
-{
-    if(fov <= 1.0f) {
-        fov = 1.0f;
-    } else if(fov >= 45.0f) {
-        fov = 45.0f;
-    }
-    _fov = fov;
-}
-
-const std::vector<float> Camera::getFront() const
-{
-    return std::vector<float>{_frontX, _frontY, _frontZ};
-}
-
-const std::vector<float> Camera::getPosition() const
-{
-    return std::vector<float>{_x, _y, _z};
-}
-
-const std::vector<float> Camera::getRight() const
-{
-    glm::vec3 cameraUp = glm::vec3(0.0f, 0.0f,  1.0f);    // Up Vector
-    glm::vec3 cameraFront = glm::vec3(_frontX, _frontY, _frontZ);
-    glm::vec3 right = glm::normalize(glm::cross(cameraFront, cameraUp));
-    return std::vector<float>{right.x, right.y, right.z};
-}
-
-const float* Camera::getMatrix() const {
-    return _matrix;
-}
-
-void Camera::updateMatrix() {
-    glm::mat4 view;
-
-    view = glm::lookAt(glm::vec3(_x, _y, _z),
-                       glm::vec3(_x + _frontX, _y + _frontY, _z + _frontZ),
-                       glm::vec3(0.0f, 0.0f, 1.0f));    // Up Vector
-
-    glm::mat4 projection;
-    projection = glm::perspective(glm::radians(_fov), 1.0f * 800 / 600, 0.1f, 100.0f);
-    view = projection * view;
-
-    memcpy(_matrix, glm::value_ptr(view), sizeof(glm::mat4));
 }

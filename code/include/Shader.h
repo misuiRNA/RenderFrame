@@ -5,7 +5,6 @@
 #include <vector>
 #include <map>
 #include <glad/glad.h>
-#include <GLFW/glfw3.h>
 
 struct RenderData {
     RenderData();
@@ -47,6 +46,7 @@ struct ShaderProgram {
 public:
     static ShaderProgram& getRectShaderProg();
     static ShaderProgram& getCuboidShaderProg();
+    static std::map<ShaderProgram*, int>& getAllShaderProg();
 
 private:
     static unsigned int BuildShader(const char* shaderCode, unsigned int shaderType);
@@ -57,37 +57,8 @@ private:
 
     std::map<std::string, int> _attrNameMap;
     std::map<std::string, int> _textureSlotNameMap;
-};
 
-struct Camera {
-    static Camera& instance();
-
-    Camera();
-    const float* getMatrix() const;
-    void setPosition(float x, float y, float z);
-    void setFront(float x, float y, float z);
-    void setFront(float pitch, float yaw);
-    void setFov(float fov);
-
-    const std::vector<float> getFront() const;
-    const std::vector<float> getPosition() const;
-    const std::vector<float> getRight() const;
-
-private:
-    void updateMatrix();
-
-private:
-    float _x;
-    float _y;
-    float _z;
-    float _frontX;
-    float _frontY;
-    float _frontZ;
-    float _fov;
-
-
-    float _matrix[16] = { 0.0f };
-
+    static std::map<ShaderProgram*, int> _registProgramMap;
 };
 
 std::string GetCurPath();

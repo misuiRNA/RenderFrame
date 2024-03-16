@@ -19,7 +19,6 @@ private:
     void updateUniformes() override;
 
 private:
-    const Camera& _camera;
     float _x;
     float _y;
     float _z;
