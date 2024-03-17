@@ -19,7 +19,7 @@ void FramebufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-void ProcessInput(GLFWwindow *window, Camera& camera) {
+void ProcessInput(GLFWwindow *window, CameraControllerFPSStyle& cameraCtrl) {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
@@ -27,56 +27,34 @@ void ProcessInput(GLFWwindow *window, Camera& camera) {
     static float deltaTime = 0.0f; // 当前帧与上一帧的时间差
     static float lastFrame = 0.0f; // 上一帧的时间
 
-    static float pitch = 0.0f;
-    static float yaw = 180.0f;
-
- 
     float currentFrame = glfwGetTime();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
-    float cameraSpeed = 2.5f * deltaTime;
-    float cameraRollSpeed = 2.5f * deltaTime * 5;
-
-    std::vector<float> frontVec = camera.getFront();
-    glm::vec3 cameraFront = glm::vec3(frontVec[0], frontVec[1], frontVec[2]);
-    std::vector<float> posVec = camera.getPosition();
-    glm::vec3 cameraPos = glm::vec3(posVec[0], posVec[1], posVec[2]);
-    std::vector<float> rightVect = camera.getRight();
-    glm::vec3 cameraRight = glm::vec3(rightVect[0], rightVect[1], rightVect[2]);
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        cameraPos += cameraSpeed * cameraFront;
+        cameraCtrl.goForward(deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        cameraPos -= cameraSpeed * cameraFront;
+        cameraCtrl.goBack(deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        cameraPos -= cameraSpeed * cameraRight;
+        cameraCtrl.goLeft(deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        cameraPos += cameraSpeed * cameraRight;
+        cameraCtrl.goRight(deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-        yaw -= cameraRollSpeed;
+        cameraCtrl.turnRight(deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-        yaw += cameraRollSpeed;
+        cameraCtrl.turnLeft(deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-        pitch += cameraRollSpeed;
-        if (pitch > 89.0f) {
-            pitch = 89.0f;
-        }
+        cameraCtrl.turnUp(deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-        pitch -= cameraRollSpeed;
-        if (pitch < -89.0f) {
-            pitch = -89.0f;
-        }
+        cameraCtrl.turnDown(deltaTime);
     }
-
-    camera.setPosition(cameraPos.x, cameraPos.y, cameraPos.z);
-    camera.setFront(pitch, yaw);
 }
 
 GLFWwindow* InitWindows() {
@@ -118,7 +96,10 @@ int main() {
     glEnable(GL_DEPTH_TEST);
 
     Camera camera;
-    camera.setPosition(2.0f, 0.0f, 0.0f);
+    CameraControllerFPSStyle cameraCtrl(camera);
+    cameraCtrl.setPosition(2.0f, 0.0f, 0.0f);
+    cameraCtrl.setAttitude(0.0f, 180.0f);
+
 
     Rectangle rectangle(1.0f, 1.0f);
     rectangle.setPosition(0.0f, -0.5f);
@@ -171,7 +152,7 @@ int main() {
 
     while(!glfwWindowShouldClose(window))
     {
-        ProcessInput(window, camera);
+        ProcessInput(window, cameraCtrl);
         camera.enabel();
 
         cuboid.setRotation((float)glfwGetTime());
