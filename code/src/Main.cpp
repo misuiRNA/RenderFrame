@@ -135,6 +135,9 @@ int main() {
         cuboids.push_back(cuboid);
     }
 
+    Cubiod light(0.5f, 0.5f, 0.5f);
+    light.setPosition(-3.0f, -2.0f, 3.0f);
+
     Cubiod cuboid(1.0f, 1.0f, 1.0f);
     cuboid.setPosition(0.0f, 2.0f, 0.0f);
     // cuboid.setScaleRatio(0.5f);
@@ -163,6 +166,7 @@ int main() {
 
         // rectangle.show();
         // rectangle1.show();
+        // light.show();
         cuboid.show();
         cuboid1.show();
 

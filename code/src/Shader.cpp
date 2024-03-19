@@ -18,6 +18,10 @@ RenderData::RenderData(const std::map<std::string, int>& attrNameMap, const std:
 , _attrNameMap(attrNameMap)
 , _textureSlotNameMap(textureSlotNameMap) {
     glGenVertexArrays(1, &_VAOId);
+    // 保证未设置纹理的 RenderData 不会使用其他 RenderData 的纹理
+    for (auto& pair : _attrNameMap) {
+        _textureMap[pair.second] = 0;
+    }
 }
 
 RenderData::~RenderData() {
