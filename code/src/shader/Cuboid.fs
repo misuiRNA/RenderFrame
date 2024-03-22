@@ -66,7 +66,7 @@ void main()
 
     if (imageEnable == 0)
     {
-        FragColor = gouraudLight;
+        FragColor = gouraudLight * color;
     }
     else
     {
