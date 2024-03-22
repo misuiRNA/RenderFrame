@@ -3,15 +3,6 @@
 
 #include "model/AbstractModel.h"
 
-struct Color {
-    Color() : Color(1.0f, 1.0f, 1.0f) { }
-    Color(float r, float g, float b) : r(r), g(g), b(b) { }
-
-    float r;
-    float g;
-    float b;
-};
-
 struct Rectangle : AbstractModel {
     Rectangle(float width, float height);
 

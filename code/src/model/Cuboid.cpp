@@ -41,6 +41,10 @@ void Cubiod::setRotationAxis(const float (&axis)[3]) {
     _rotationAxis[2] = axis[2];
 }
 
+void Cubiod::setColor(const Color& color) {
+    _color = color;
+}
+
 // TODO: 优化, 减少重复加载
 void Cubiod::addImage(const std::string& filename, bool rgba) {
     Image image(filename);
@@ -53,6 +57,9 @@ void Cubiod::addImage(const std::string& filename, bool rgba) {
 }
 
 void Cubiod::updateUniformes() {
+    _prog.setUniform("imageEnable", _imageCount);
+    _prog.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
+
     glm::mat4 model;
     model = glm::translate(model, glm::vec3(_x, _y, _z));
     if (_rotationAxis[0] != 0.0f || _rotationAxis[1] != 0.0f || _rotationAxis[2] != 0.0f) {

@@ -11,6 +11,7 @@ struct Cubiod : AbstractModel {
     void setScaleRatio(float scaleRatio);
     void setRotation(float rotation);
     void setRotationAxis(const float (&axis)[3]);
+    void setColor(const Color& color);
     // TODO: 自动识别RGBA格式，不要手动传入
     void addImage(const std::string& filename, bool rgba = false);
 
@@ -28,6 +29,7 @@ private:
     float _scaleRatio;
     float _rotation;
     float _rotationAxis[3];
+    Color _color;
 
     int _imageCount;
 };

@@ -18,4 +18,14 @@ protected:
 
 };
 
+struct Color {
+    Color() : Color(0.0f, 0.0f, 0.0f) { }
+    Color(float r, float g, float b) : r(r), g(g), b(b) { }
+
+    float r;
+    float g;
+    float b;
+};
+
+
 #endif

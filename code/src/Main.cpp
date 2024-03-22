@@ -97,9 +97,14 @@ int main() {
 
     Camera camera;
     CameraControllerFPSStyle cameraCtrl(camera);
-    cameraCtrl.setPosition(2.0f, 0.0f, 0.0f);
+    cameraCtrl.setPosition(8.0f, 0.0f, 0.0f);
     cameraCtrl.setAttitude(0.0f, 180.0f);
 
+    // Color lightColor(1.0f, 1.0f, 1.0f);
+    Color lightColor(0.33f, 0.42f, 0.18f);
+    Cubiod light(0.5f, 0.5f, 0.5f);
+    light.setPosition(-3.0f, -2.0f, 3.0f);
+    light.setColor(lightColor);
 
     Rectangle rectangle(1.0f, 1.0f);
     rectangle.setPosition(0.0f, -0.5f);
@@ -111,7 +116,7 @@ int main() {
     Rectangle rectangle1(1.0f, 0.5f);
     rectangle1.setPosition(-1.0, 0.0f);
     rectangle1.setColor(Color(0.8f, 0.3f, 0.2f));
-    rectangle1.setImage(GetCurPath() + "/resource/container.jpeg");
+    // rectangle1.setImage(GetCurPath() + "/resource/container.jpeg");
 
     float cuboidPositions[10][3] = {
         {0.0f, 0.0f, 0.0f},
@@ -135,18 +140,16 @@ int main() {
         cuboids.push_back(cuboid);
     }
 
-    Cubiod light(0.5f, 0.5f, 0.5f);
-    light.setPosition(-3.0f, -2.0f, 3.0f);
-
     Cubiod cuboid(1.0f, 1.0f, 1.0f);
     cuboid.setPosition(0.0f, 2.0f, 0.0f);
+    cuboid.setColor(Color(1.0f, 0.5f, 0.31f));
     // cuboid.setScaleRatio(0.5f);
     cuboid.setRotationAxis({ 1.0f, 1.0f, 1.0f });
-    cuboid.addImage(GetCurPath() + "/resource/container.jpeg");
-    cuboid.addImage(GetCurPath() + "/resource/awesomeface.png", true);
+    // cuboid.addImage(GetCurPath() + "/resource/container.jpeg");
+    // cuboid.addImage(GetCurPath() + "/resource/awesomeface.png", true);
 
     Cubiod cuboid1(1.0f, 1.0f, 1.0f);
-    cuboid1.setPosition(1.0f, -3.5f, 5.0f);
+    cuboid1.setPosition(1.0f, -3.5f, 0.0f);
     cuboid1.setSize(0.5f, 2.0f, 0.3f);
     cuboid1.setScaleRatio(0.5f);
     cuboid1.setRotationAxis({ 1.0f, 1.0f, 1.0f });
@@ -158,15 +161,23 @@ int main() {
         ProcessInput(window, cameraCtrl);
         camera.enabel();
 
+        for (auto itr : ShaderProgram::getAllShaderProg())
+        {
+            if (itr.first) {
+                ShaderProgram& prog = *itr.first;
+                prog.setUniform("lightColor", lightColor.r, lightColor.g, lightColor.b, 1.0f);
+            }
+        }
+
         cuboid.setRotation((float)glfwGetTime());
         cuboid1.setRotation(-(float)glfwGetTime());
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // rectangle.show();
-        // rectangle1.show();
-        // light.show();
+        rectangle.show();
+        rectangle1.show();
+        light.show();
         cuboid.show();
         cuboid1.show();
 
