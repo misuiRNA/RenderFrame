@@ -8,6 +8,7 @@ struct AbstractModel {
     void show();
 
 private:
+    void updateTextures();
     virtual void updateRenderData() = 0;
     virtual void updateUniformes() = 0;
 
@@ -27,5 +28,12 @@ struct Color {
     float b;
 };
 
+struct Position {
+    Position(float x, float y, float z) : x(x), y(y), z(z) { }
+
+    float x;
+    float y;
+    float z;
+};
 
 #endif

@@ -18,6 +18,7 @@ struct RenderData {
     void setTexture(const std::string& name, unsigned int width, unsigned int height, const unsigned char* imageData, unsigned int format = GL_RGB);
 
     void draw();
+    void useTextures();
 
 private:
     unsigned int _VAOId;
@@ -37,6 +38,7 @@ struct ShaderProgram {
     // TODO 根据需要重载setUniform函数
     void setUniform(const std::string& name, int value);
     void setUniform(const std::string& name, float value);
+    void setUniform(const std::string& name, float v1, float v2, float v3);
     void setUniform(const std::string& name, float v1, float v2, float v3, float v4);
     void setUniformMat4(const std::string& name, const float* mat);
     RenderData getRenderData() const;
@@ -46,6 +48,7 @@ struct ShaderProgram {
 public:
     static ShaderProgram& getRectShaderProg();
     static ShaderProgram& getCuboidShaderProg();
+    static ShaderProgram& getLightSourceShaderProg();
     static std::map<ShaderProgram*, int>& getAllShaderProg();
 
 private:
@@ -53,7 +56,6 @@ private:
 
 private:
     unsigned int _progId;
-    const RenderData _renderDataPrototype;
 
     std::map<std::string, int> _attrNameMap;
     std::map<std::string, int> _textureSlotNameMap;

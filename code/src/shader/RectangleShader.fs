@@ -2,7 +2,7 @@
 uniform sampler2D texture1;
 uniform vec4 color;
 uniform int imageEnable;
-uniform vec4 lightColor;
+uniform vec3 lightColor;
 
 out vec4 FragColor;
 
@@ -11,8 +11,8 @@ in vec2 TexCoord;
 void main()
 {
     if (imageEnable == 0) {
-        FragColor = color * lightColor;
+        FragColor = color * vec4(lightColor, 1.0);
     } else {
-        FragColor = texture(texture1, TexCoord) * lightColor;
+        FragColor = texture(texture1, TexCoord) * vec4(lightColor, 1.0);
     }
 }

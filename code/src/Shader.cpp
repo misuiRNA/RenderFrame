@@ -19,7 +19,7 @@ RenderData::RenderData(const std::map<std::string, int>& attrNameMap, const std:
 , _textureSlotNameMap(textureSlotNameMap) {
     glGenVertexArrays(1, &_VAOId);
     // 保证未设置纹理的 RenderData 不会使用其他 RenderData 的纹理
-    for (auto& pair : _attrNameMap) {
+    for (auto& pair : _textureSlotNameMap) {
         _textureMap[pair.second] = 0;
     }
 }
@@ -92,14 +92,17 @@ void RenderData::setTexture(const std::string& name, unsigned int width, unsigne
     setTexture(_textureSlotNameMap.at(name), width, height, imageData, format);
 }
 
-void RenderData::draw() {
-    glBindVertexArray(_VAOId);
+void RenderData::useTextures() {
     for (auto& entity : _textureMap) {
         int slotIndex = entity.first;
         unsigned int textureId = entity.second;
         glActiveTexture(GL_TEXTURE0 + slotIndex);
         glBindTexture(GL_TEXTURE_2D, textureId);
     }
+}
+
+void RenderData::draw() {
+    glBindVertexArray(_VAOId);
     if (_indexCount > 0) {
         glDrawElements(GL_TRIANGLES, _indexCount, GL_UNSIGNED_INT, 0);
     } else {
@@ -116,7 +119,6 @@ ShaderProgram::ShaderProgram(const std::string& vsShaderCodeStr, const std::stri
 
 ShaderProgram::ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr, const std::map<std::string, int>& attrNameMap, const std::map<std::string, int>& textureSlotNameMap)
 : _progId(0)
-, _renderDataPrototype(attrNameMap, textureSlotNameMap)
 , _attrNameMap(attrNameMap) 
 , _textureSlotNameMap(textureSlotNameMap)
 {
@@ -160,6 +162,12 @@ void ShaderProgram::setUniform(const std::string& name, float value) {
     int uniformLocation = glGetUniformLocation(_progId, name.c_str());
     glUseProgram(_progId);
     glUniform1f(uniformLocation, value);
+}
+
+void ShaderProgram::setUniform(const std::string& name, float v1, float v2, float v3) {
+    int uniformLocation = glGetUniformLocation(_progId, name.c_str());
+    glUseProgram(_progId);
+    glUniform3f(uniformLocation, v1, v2, v3);
 }
 
 void ShaderProgram::setUniform(const std::string& name, float v1, float v2, float v3, float v4) {
@@ -229,12 +237,26 @@ ShaderProgram& ShaderProgram::getCuboidShaderProg() {
     static const std::map<std::string, int> ATTRIBUTE_NAME_MAP ={
         {"aPos"     , 0},
         {"aTexCoord", 1},
+        {"aNormal"  , 2},
     };
     // TODO: 优化, 删除 TEXTURE_SLOT_NAME_MAP, 直接在setTexture中设置
     static const std::map<std::string, int> TEXTURE_SLOT_NAME_MAP = {
         {"texture1", 0},
         {"texture2", 1},
     };
+    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP, TEXTURE_SLOT_NAME_MAP);
+    return prog;
+}
+
+ShaderProgram& ShaderProgram::getLightSourceShaderProg() {
+    static const std::string MODEL_NAME = "LightSource";
+    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/shader/LightSource.vs");
+    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/shader/LightSource.fs");
+    static const std::map<std::string, int> ATTRIBUTE_NAME_MAP ={
+        {"aPos"     , 0},
+    };
+
+    static const std::map<std::string, int> TEXTURE_SLOT_NAME_MAP = { };
     static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP, TEXTURE_SLOT_NAME_MAP);
     return prog;
 }

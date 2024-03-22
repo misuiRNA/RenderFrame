@@ -52,7 +52,7 @@ void Rectangle::updateUniformes() {
     model = glm::translate(model, glm::vec3(_x, _y, 0.0f));
     model = glm::rotate(model, _rotation, glm::vec3(0.0f, 0.0f, 1.0f));
     model = glm::scale(model, glm::vec3(_scaleRatio * _width, _scaleRatio * _height, 1.0f));
-    _prog.setUniformMat4("model", glm::value_ptr(model));
+    _prog.setUniformMat4("modelMatrix", glm::value_ptr(model));
 }
 
 void Rectangle::updateRenderData() {

@@ -72,7 +72,8 @@ void Camera::enabel() {
     {
         if (itr.first) {
             ShaderProgram& prog = *itr.first;
-            prog.setUniformMat4("camera", getMatrix());
+            prog.setUniformMat4("cameraMatrix", getMatrix());
+            prog.setUniform("cameraPos", _x, _y, _z);
         }
 
     }

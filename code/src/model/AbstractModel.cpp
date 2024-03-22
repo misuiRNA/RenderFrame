@@ -12,6 +12,11 @@ void AbstractModel::show() {
         _needUpdateRenderData = false;
         updateRenderData();
     }
+    updateTextures();
     updateUniformes();
     _prog.draw(_renderData);
+}
+
+void AbstractModel::updateTextures() {
+    _renderData.useTextures();
 }

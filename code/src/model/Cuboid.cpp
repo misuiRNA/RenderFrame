@@ -59,6 +59,8 @@ void Cubiod::addImage(const std::string& filename, bool rgba) {
 void Cubiod::updateUniformes() {
     _prog.setUniform("imageEnable", _imageCount);
     _prog.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
+    _prog.setUniform("specularStrength", 0.5f);
+    _prog.setUniform("shininess", 32);
 
     glm::mat4 model;
     model = glm::translate(model, glm::vec3(_x, _y, _z));
@@ -67,7 +69,7 @@ void Cubiod::updateUniformes() {
     }
     model = glm::scale(model, glm::vec3(_scaleRatio * _size_x, _scaleRatio * _size_y, _scaleRatio * _size_z));
 
-    _prog.setUniformMat4("model", glm::value_ptr(model));
+    _prog.setUniformMat4("modelMatrix", glm::value_ptr(model));
     // 相机矩阵在camera统一设置, 解耦世界坐标系物体对相机的依赖
     // _prog.setUniformMat4("camera", Camera::instance().getMatrix());
 }
@@ -158,5 +160,48 @@ void Cubiod::updateRenderData() {
         1.0f, 0.0f,
         0.0f, 0.0f,
         0.0f, 1.0f
+    });
+    _renderData.setVertices("aNormal", 3, {
+        0.0f,  0.0f, -1.0f,
+        0.0f,  0.0f, -1.0f,
+        0.0f,  0.0f, -1.0f,
+        0.0f,  0.0f, -1.0f,
+        0.0f,  0.0f, -1.0f,
+        0.0f,  0.0f, -1.0f,
+
+        0.0f,  0.0f, 1.0f,
+        0.0f,  0.0f, 1.0f,
+        0.0f,  0.0f, 1.0f,
+        0.0f,  0.0f, 1.0f,
+        0.0f,  0.0f, 1.0f,
+        0.0f,  0.0f, 1.0f,
+
+        -1.0f,  0.0f,  0.0f,
+        -1.0f,  0.0f,  0.0f,
+        -1.0f,  0.0f,  0.0f,
+        -1.0f,  0.0f,  0.0f,
+        -1.0f,  0.0f,  0.0f,
+        -1.0f,  0.0f,  0.0f,
+
+        1.0f,  0.0f,  0.0f,
+        1.0f,  0.0f,  0.0f,
+        1.0f,  0.0f,  0.0f,
+        1.0f,  0.0f,  0.0f,
+        1.0f,  0.0f,  0.0f,
+        1.0f,  0.0f,  0.0f,
+
+        0.0f, -1.0f,  0.0f,
+        0.0f, -1.0f,  0.0f,
+        0.0f, -1.0f,  0.0f,
+        0.0f, -1.0f,  0.0f,
+        0.0f, -1.0f,  0.0f,
+        0.0f, -1.0f,  0.0f,
+
+        0.0f,  1.0f,  0.0f,
+        0.0f,  1.0f,  0.0f,
+        0.0f,  1.0f,  0.0f,
+        0.0f,  1.0f,  0.0f,
+        0.0f,  1.0f,  0.0f,
+        0.0f,  1.0f,  0.0f
     });
 }
