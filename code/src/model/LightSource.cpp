@@ -20,8 +20,11 @@ void LightSource::enabel() {
     {
         if (itr.first) {
             ShaderProgram& prog = *itr.first;
-            prog.setUniform("lightColor", _color.r, _color.g, _color.b);
-            prog.setUniform("lightPos", _x, _y, _z);
+
+            prog.setUniform("light.pos", _x, _y, _z);
+            prog.setUniform("light.ambient",  _color.r * 0.2f, _color.g * 0.2f, _color.b * 0.2f);
+            prog.setUniform("light.diffuse",  _color.r * 0.8f, _color.g * 0.8f, _color.b * 0.8f);
+            prog.setUniform("light.specular", _color.r * 1.0f, _color.g * 1.0f, _color.b * 1.0f);
         }
     }
 }
@@ -34,6 +37,12 @@ void LightSource::setSize(float size_x, float size_y, float size_z) {
     _size_x = size_x;
     _size_y = size_y;
     _size_z = size_z;
+}
+
+void LightSource::setPosition(const Position& pos) {
+    _x = pos.x;
+    _y = pos.y;
+    _z = pos.z;
 }
 
 Position LightSource::getPosition() const {

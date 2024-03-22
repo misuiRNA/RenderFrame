@@ -11,7 +11,8 @@ Cubiod::Cubiod(float size_x, float size_y, float size_z)
 , _size_z(size_z)
 , _scaleRatio(1.0f)
 , _rotation(0.0f)
-, _imageCount(0) {
+, _imageCount(0)
+, _color(1.0f, 1.0f, 1.0f) {
     setRotationAxis({0.0f, 0.0f, 0.0f});
 }
 
@@ -59,8 +60,10 @@ void Cubiod::addImage(const std::string& filename, bool rgba) {
 void Cubiod::updateUniformes() {
     _prog.setUniform("imageEnable", _imageCount);
     _prog.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
-    _prog.setUniform("specularStrength", 0.5f);
-    _prog.setUniform("shininess", 32);
+    _prog.setUniform("material.ambient", _color.r * 0.1f, _color.g * 0.1f, _color.b * 0.1f);
+    _prog.setUniform("material.diffuse", _color.r, _color.g, _color.b);
+    _prog.setUniform("material.specular", 0.5f, 0.5f, 0.5f);
+    _prog.setUniform("material.shininess", 32.0f);
 
     glm::mat4 model;
     model = glm::translate(model, glm::vec3(_x, _y, _z));

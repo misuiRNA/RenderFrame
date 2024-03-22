@@ -9,6 +9,7 @@ struct LightSource : AbstractModel {
     void enabel();
     void setColor(const Color& color);
     void setSize(float size_x, float size_y, float size_z);
+    void setPosition(const Position& pos);
     Position getPosition() const;
     Color getColor() const;
 
