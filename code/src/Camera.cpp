@@ -4,27 +4,19 @@
 #include <glm/gtc/type_ptr.hpp>
 
 Camera::Camera()
-: _x(0.0f)
-, _y(0.0f)
-, _z(0.0f)
-, _frontX(0.0f)
-, _frontY(0.0f)
-, _frontZ(0.0f)
+: _pos(0.0f, 0.0f, 0.0f)
+, _front(0.0f, 0.0f, 1.0f)
 , _fov(45.0f) {
     updateMatrix();
 }
 
-void Camera::setPosition(float x, float y, float z) {
-    _x = x;
-    _y = y;
-    _z = z;
+void Camera::setPosition(const Position& pos) {
+    _pos = pos;
     updateMatrix();
 }
 
-void Camera::setFront(float x, float y, float z) {
-    _frontX = x;
-    _frontY = y;
-    _frontZ = z;
+void Camera::setFront(const Vector3D& front) {
+    _front = front;
     updateMatrix();
 }
 
@@ -37,16 +29,17 @@ void Camera::setFov(float fov) {
     _fov = fov;
 }
 
-const std::vector<float> Camera::getFront() const {
-    return std::vector<float>{_frontX, _frontY, _frontZ};
+const Vector3D& Camera::getFront() const {
+    return _front;
 }
 
-const std::vector<float> Camera::getPosition() const {
-    return std::vector<float>{_x, _y, _z};
+const Position& Camera::getPosition() const {
+    return _pos;
 }
 
-const std::vector<float> Camera::getUp() const {
-    return std::vector<float> {0.0f, 0.0f,  1.0f};
+const Vector3D& Camera::getUp() const {
+    static Vector3D upVector { 0.0f, 0.0f,  1.0f };
+    return upVector;
 }
 
 const float* Camera::getMatrix() const {
@@ -56,8 +49,8 @@ const float* Camera::getMatrix() const {
 void Camera::updateMatrix() {
     glm::mat4 view;
 
-    view = glm::lookAt(glm::vec3(_x, _y, _z),
-                       glm::vec3(_x + _frontX, _y + _frontY, _z + _frontZ),
+    view = glm::lookAt(glm::vec3(_pos.x, _pos.y, _pos.z),
+                       glm::vec3(_pos.x + _front.x, _pos.y + _front.y, _pos.z + _front.z),
                        glm::vec3(0.0f, 0.0f, 1.0f));    // Up Vector
 
     glm::mat4 projection;
@@ -67,23 +60,15 @@ void Camera::updateMatrix() {
     memcpy(_matrix, glm::value_ptr(view), sizeof(glm::mat4));
 }
 
-void Camera::enabel() {
-    for (auto itr : ShaderProgram::getAllShaderProg())
-    {
-        if (itr.first) {
-            ShaderProgram& prog = *itr.first;
-            prog.setUniformMat4("cameraMatrix", getMatrix());
-            prog.setUniform("cameraPos", _x, _y, _z);
-        }
 
-    }
+static glm::vec3 XYZ2Glmvec3(const XYZ& pos) {
+    glm::vec3 res = glm::vec3(pos.x, pos.y, pos.z);
+    return res;
 }
 
-
-
-glm::vec3 CalcRightVector(const std::vector<float>& upVec, const std::vector<float>& frontVec) {
-    glm::vec3 cameraUp = glm::vec3(upVec[0], upVec[1], upVec[2]);
-    glm::vec3 cameraFront = glm::vec3(frontVec[0], frontVec[1], frontVec[2]);
+static glm::vec3 CalcRightVector(const XYZ& upVec, const XYZ& frontVec) {
+    glm::vec3 cameraUp = XYZ2Glmvec3(upVec);
+    glm::vec3 cameraFront = XYZ2Glmvec3(frontVec);
     glm::vec3 right = glm::normalize(glm::cross(cameraFront, cameraUp));
     return right;
 }
@@ -94,37 +79,31 @@ CameraControllerFPSStyle::CameraControllerFPSStyle(Camera& camera)
 , _yaw(0.0f)
 , _moveSpeed(2.5f)
 , _turnSpeed(10.0f) {
-    _camera.setPosition(0.0f, 0.0f, 0.0f);
-    _camera.setFront(1.0f, 0.0f, 0.0f);
+    _camera.setPosition({0.0f, 0.0f, 0.0f});
+    _camera.setFront({1.0f, 0.0f, 0.0f});
 }
 
 void CameraControllerFPSStyle::goForward(float moveTime) {
-    std::vector<float> frontVec = _camera.getFront();
-    glm::vec3 cameraFront = glm::vec3(frontVec[0], frontVec[1], frontVec[2]);
-    std::vector<float> posVec = _camera.getPosition();
-    glm::vec3 cameraPos = glm::vec3(posVec[0], posVec[1], posVec[2]);
+    glm::vec3 cameraFront = XYZ2Glmvec3(_camera.getFront());
+    glm::vec3 cameraPos = XYZ2Glmvec3(_camera.getPosition());
     cameraPos += moveTime * _moveSpeed * cameraFront;
     setPosition(cameraPos.x, cameraPos.y, cameraPos.z);
 }
 void CameraControllerFPSStyle::goBack(float moveTime) {
-    std::vector<float> frontVec = _camera.getFront();
-    glm::vec3 cameraFront = glm::vec3(frontVec[0], frontVec[1], frontVec[2]);
-    std::vector<float> posVec = _camera.getPosition();
-    glm::vec3 cameraPos = glm::vec3(posVec[0], posVec[1], posVec[2]);
+    glm::vec3 cameraFront = XYZ2Glmvec3(_camera.getFront());
+    glm::vec3 cameraPos = XYZ2Glmvec3(_camera.getPosition());
     cameraPos -= moveTime * _moveSpeed * cameraFront;
     setPosition(cameraPos.x, cameraPos.y, cameraPos.z);
 }
 void CameraControllerFPSStyle::goLeft(float moveTime) {
     glm::vec3 cameraRight = CalcRightVector(_camera.getUp(), _camera.getFront());
-    std::vector<float> posVec = _camera.getPosition();
-    glm::vec3 cameraPos = glm::vec3(posVec[0], posVec[1], posVec[2]);
+    glm::vec3 cameraPos = XYZ2Glmvec3(_camera.getPosition());
     cameraPos -= moveTime * _moveSpeed * cameraRight;
     setPosition(cameraPos.x, cameraPos.y, cameraPos.z);
 }
 void CameraControllerFPSStyle::goRight(float moveTime) {
     glm::vec3 cameraRight = CalcRightVector(_camera.getUp(), _camera.getFront());
-    std::vector<float> posVec = _camera.getPosition();
-    glm::vec3 cameraPos = glm::vec3(posVec[0], posVec[1], posVec[2]);
+    glm::vec3 cameraPos = XYZ2Glmvec3(_camera.getPosition());
     cameraPos += moveTime * _moveSpeed * cameraRight;
     setPosition(cameraPos.x, cameraPos.y, cameraPos.z);
 }
@@ -164,11 +143,11 @@ void CameraControllerFPSStyle::setAttitude(float pitch, float yaw) {
     front.y = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
     front.z = sin(glm::radians(pitch));
     front = glm::normalize(front);
-    _camera.setFront(front.x, front.y, front.z);
+    _camera.setFront({front.x, front.y, front.z});
 
 }
 void CameraControllerFPSStyle::setPosition(float x, float y, float z) {
-    _camera.setPosition(x, y, z);
+    _camera.setPosition({x, y, z});
 }
 
 float CameraControllerFPSStyle::normalYaw(float angel) {

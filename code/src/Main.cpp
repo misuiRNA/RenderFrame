@@ -85,6 +85,27 @@ GLFWwindow* InitWindows() {
     return window;
 }
 
+// TODO: 优化, 抽取到类中
+void SetCameraAndLightUniform(const Camera& camera, const LightSource& light) {
+    const Position& camePos = camera.getPosition();
+    const Position& lightPos = light.getPosition();
+    Color lightColor = light.getColor();
+    for (auto itr : ShaderProgram::getAllShaderProg())
+    {
+        if (!itr.first) {
+            continue;
+        }
+        ShaderProgram& prog = *itr.first;
+        prog.setUniformMat4("cameraMatrix", camera.getMatrix());
+
+        prog.setUniform("light.cameraPos", camePos.x, camePos.y, camePos.z);
+        prog.setUniform("light.pos", lightPos.x, lightPos.y, lightPos.z);
+        prog.setUniform("light.ambient",  lightColor.r * 0.2f, lightColor.g * 0.2f, lightColor.b * 0.2f);
+        prog.setUniform("light.diffuse",  lightColor.r * 0.8f, lightColor.g * 0.8f, lightColor.b * 0.8f);
+        prog.setUniform("light.specular", lightColor.r * 1.0f, lightColor.g * 1.0f, lightColor.b * 1.0f);
+    }
+}
+
 
 int main() {
     GLFWwindow* window = InitWindows();
@@ -105,19 +126,23 @@ int main() {
     light.setSize(0.5f, 0.5f, 0.5f);
     // light.setColor(Color(0.33f, 0.42f, 0.18f));
 
+    Image wallImage(GetCurPath() + "/resource/wall.jpeg");
+    Image awesomefaceImage(GetCurPath() + "/resource/awesomeface.png", true);
+    Image containerImage(GetCurPath() + "/resource/container.jpeg");
+
     Rectangle rectangle(1.0f, 1.0f);
-    rectangle.setPosition(0.0f, -0.5f);
+    rectangle.setPosition({0.0f, -0.5f});
     rectangle.setScaleRatio(0.5f);
     rectangle.setRotation(glm::radians(-45.0f));
     rectangle.setColor(Color(0.8f, 0.3f, 0.2f));
-    rectangle.setImage(GetCurPath() + "/resource/awesomeface.png", true);
+    rectangle.setImage(awesomefaceImage);
 
     Rectangle rectangle1(1.0f, 0.5f);
-    rectangle1.setPosition(-1.0, 0.0f);
+    rectangle1.setPosition({-1.0, 0.0f});
     rectangle1.setColor(Color(0.8f, 0.3f, 0.2f));
-    // rectangle1.setImage(GetCurPath() + "/resource/container.jpeg");
+    // rectangle1.setImage(containerImage);
 
-    float cuboidPositions[10][3] = {
+    Position cuboidPositions[10] = {
         {0.0f, 0.0f, 0.0f},
         {0.0f, 0.0f, 1.0f},
         {0.0f, 0.0f, 2.0f},
@@ -133,35 +158,33 @@ int main() {
     std::vector<Cubiod> cuboids;
     for (int index = 0; index < 10; ++index) {
         Cubiod cuboid(1.0f, 1.0f, 1.0f);
-        cuboid.setPosition(cuboidPositions[index][0], cuboidPositions[index][1], cuboidPositions[index][2]);
-        cuboid.addImage(GetCurPath() + "/resource/container.jpeg");
-        cuboid.addImage(GetCurPath() + "/resource/awesomeface.png", true);
+        cuboid.setPosition(cuboidPositions[index]);
+        cuboid.addImage(containerImage);
+        cuboid.addImage(awesomefaceImage);
         cuboids.push_back(cuboid);
     }
 
     Cubiod cuboid(1.0f, 1.0f, 1.0f);
-    cuboid.setPosition(0.0f, 2.0f, 0.0f);
+    cuboid.setPosition({0.0f, 2.0f, 0.0f});
     cuboid.setColor(Color(1.0f, 0.5f, 0.31f));
     // cuboid.setColor(Color(1.0f, 1.0f, 1.0f));
     cuboid.setScaleRatio(2.0f);
     cuboid.setRotationAxis({ 1.0f, 1.0f, 1.0f });
-    // cuboid.addImage(GetCurPath() + "/resource/container.jpeg");
-    // cuboid.addImage(GetCurPath() + "/resource/awesomeface.png", true);
+    // cuboid.addImage(containerImage);
+    // cuboid.addImage(awesomefaceImage);
 
     Cubiod cuboid1(1.0f, 1.0f, 1.0f);
-    cuboid1.setPosition(1.0f, -3.5f, 0.0f);
-    cuboid1.setSize(0.5f, 2.0f, 0.3f);
+    cuboid1.setPosition({1.0f, -3.5f, 0.0f});
+    cuboid1.setSize({0.5f, 2.0f, 0.3f});
     cuboid1.setScaleRatio(2.5f);
     cuboid1.setRotationAxis({ 1.0f, 1.0f, 1.0f });
-    cuboid1.addImage(GetCurPath() + "/resource/wall.jpeg");
-    // cuboid1.addImage(GetCurPath() + "/resource/awesomeface.png", true);
+    cuboid1.addImage(wallImage);
 
     float lastX = 0.0f;
     while(!glfwWindowShouldClose(window))
     {
         ProcessInput(window, cameraCtrl);
-        camera.enabel();
-        light.enabel();
+        SetCameraAndLightUniform(camera, light);
 
         // cuboid.setRotation((float)glfwGetTime());
         // cuboid1.setRotation(-(float)glfwGetTime());
@@ -170,7 +193,7 @@ int main() {
         float x = ratio * 3;
         float y = sqrt(9.0f - x * x) * (lastX - x >=0.0f ? -1.0f : 1.0f);
         lastX = x;
-        // light.setPosition(Position(x, y, 3.0f));
+        // light.setPosition({x, y, 3.0f});
         light.setColor(Color(ratio * 2.0f, (1.0f - ratio) * 0.3f, (0.5 + ratio) * 1.7f));
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);

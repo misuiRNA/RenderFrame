@@ -19,21 +19,4 @@ protected:
 
 };
 
-struct Color {
-    Color() : Color(0.0f, 0.0f, 0.0f) { }
-    Color(float r, float g, float b) : r(r), g(g), b(b) { }
-
-    float r;
-    float g;
-    float b;
-};
-
-struct Position {
-    Position(float x, float y, float z) : x(x), y(y), z(z) { }
-
-    float x;
-    float y;
-    float z;
-};
-
 #endif

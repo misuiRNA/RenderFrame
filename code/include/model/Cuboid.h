@@ -2,33 +2,30 @@
 #define _HEAD_FLAG_MODEL_CUBOID_H
 
 #include "model/AbstractModel.h"
+#include "BaseDefine.h"
+#include "Image.h"
 
 struct Cubiod : AbstractModel {
     Cubiod(float size_x, float size_y, float size_z);
 
-    void setPosition(float x, float y, float z);
-    void setSize(float size_x, float size_y, float size_z);
+    void setPosition(const Position& pos);
+    void setSize(const Size3D& size);
     void setScaleRatio(float scaleRatio);
     void setRotation(float rotation);
-    void setRotationAxis(const float (&axis)[3]);
+    void setRotationAxis(const Vector3D& axis);
     void setColor(const Color& color);
-    // TODO: 自动识别RGBA格式，不要手动传入
-    void addImage(const std::string& filename, bool rgba = false);
+    void addImage(const Image& image);
 
 private:
     void updateRenderData() override;
     void updateUniformes() override;
 
 private:
-    float _x;
-    float _y;
-    float _z;
-    float _size_x;
-    float _size_y;
-    float _size_z;
+    Position _pos;
+    Size3D _size;
     float _scaleRatio;
     float _rotation;
-    float _rotationAxis[3];
+    Vector3D _rotationAxis;
     Color _color;
 
     int _imageCount;

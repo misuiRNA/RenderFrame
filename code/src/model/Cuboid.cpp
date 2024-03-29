@@ -2,30 +2,25 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "Image.h"
 
 Cubiod::Cubiod(float size_x, float size_y, float size_z)
 : AbstractModel(ShaderProgram::getCuboidShaderProg())
-, _size_x(size_x)
-, _size_y(size_y)
-, _size_z(size_z)
+, _pos({0.0f, 0.0f, 0.0f})
+, _size(size_x, size_y, size_z)
 , _scaleRatio(1.0f)
 , _rotation(0.0f)
 , _imageCount(0)
+, _rotationAxis({0.0f, 0.0f, 1.0f})
 , _color(1.0f, 1.0f, 1.0f) {
-    setRotationAxis({0.0f, 0.0f, 0.0f});
+
 }
 
-void Cubiod::setPosition(float x, float y, float z) {
-    _x = x;
-    _y = y;
-    _z = z;
+void Cubiod::setPosition(const Position& pos) {
+    _pos = pos;
 }
 
-void Cubiod::setSize(float size_x, float size_y, float size_z) {
-    _size_x = size_x;
-    _size_y = size_y;
-    _size_z = size_z;
+void Cubiod::setSize(const Size3D& size) {
+    _size = size;
 }
 
 void Cubiod::setScaleRatio(float scaleRatio) {
@@ -36,10 +31,8 @@ void Cubiod::setRotation(float rotation) {
     _rotation = rotation;
 }
 
-void Cubiod::setRotationAxis(const float (&axis)[3]) {
-    _rotationAxis[0] = axis[0];
-    _rotationAxis[1] = axis[1];
-    _rotationAxis[2] = axis[2];
+void Cubiod::setRotationAxis(const Vector3D& axis) {
+    _rotationAxis = axis;
 }
 
 void Cubiod::setColor(const Color& color) {
@@ -47,13 +40,12 @@ void Cubiod::setColor(const Color& color) {
 }
 
 // TODO: 优化, 减少重复加载
-void Cubiod::addImage(const std::string& filename, bool rgba) {
-    Image image(filename);
+void Cubiod::addImage(const Image& image) {
     _imageCount += 1;
     if (_imageCount == 1) {
-        _renderData.setTexture("texture1", image.width(), image.height(), image.data(), rgba ? GL_RGBA : GL_RGB);
+        _renderData.setTexture("texture1", image.width(), image.height(), image.data(), image.isRBGA() ? GL_RGBA : GL_RGB);
     } else if (_imageCount == 2) {
-        _renderData.setTexture("texture2", image.width(), image.height(), image.data(), rgba ? GL_RGBA : GL_RGB);
+        _renderData.setTexture("texture2", image.width(), image.height(), image.data(), image.isRBGA() ? GL_RGBA : GL_RGB);
     }
 }
 
@@ -66,15 +58,13 @@ void Cubiod::updateUniformes() {
     _prog.setUniform("material.shininess", 32.0f);
 
     glm::mat4 model;
-    model = glm::translate(model, glm::vec3(_x, _y, _z));
-    if (_rotationAxis[0] != 0.0f || _rotationAxis[1] != 0.0f || _rotationAxis[2] != 0.0f) {
-        model = glm::rotate(model, _rotation, glm::vec3(_rotationAxis[0], _rotationAxis[1], _rotationAxis[2]));
+    model = glm::translate(model, glm::vec3(_pos.x, _pos.y, _pos.z));
+    if (_rotationAxis.x != 0.0f || _rotationAxis.y != 0.0f || _rotationAxis.z != 0.0f) {
+        model = glm::rotate(model, _rotation, glm::vec3(_rotationAxis.x, _rotationAxis.y, _rotationAxis.z));
     }
-    model = glm::scale(model, glm::vec3(_scaleRatio * _size_x, _scaleRatio * _size_y, _scaleRatio * _size_z));
+    model = glm::scale(model, glm::vec3(_scaleRatio * _size.x, _scaleRatio * _size.y, _scaleRatio * _size.z));
 
     _prog.setUniformMat4("modelMatrix", glm::value_ptr(model));
-    // 相机矩阵在camera统一设置, 解耦世界坐标系物体对相机的依赖
-    // _prog.setUniformMat4("camera", Camera::instance().getMatrix());
 }
 
 void Cubiod::updateRenderData() {

@@ -6,7 +6,8 @@
 #include <iostream> 
 
 struct Image {
-    Image(const std::string& path) {
+    // TODO: 优化, 自动识别isRBGA, 不要传参
+    Image(const std::string& path, bool isRBGA = false) : _isRBGA(isRBGA) {
         stbi_set_flip_vertically_on_load(true);
         int width, height, nrChannels;
         unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
@@ -35,7 +36,12 @@ struct Image {
         return _data;
     }
 
+    bool isRBGA() const {
+        return _isRBGA;
+    }
+
 private:
+    bool _isRBGA;
     int _width;
     int _height;
     unsigned char* _data;

@@ -2,16 +2,17 @@
 #define _HEAD_FLAG_MODEL_RECTANGLE_H
 
 #include "model/AbstractModel.h"
+#include "BaseDefine.h"
+#include "Image.h"
 
 struct Rectangle : AbstractModel {
     Rectangle(float width, float height);
 
-    void setPosition(float x, float y);
+    void setPosition(const Position& pos);
     void setSize(float width, float height);
     void setScaleRatio(float scaleRatio);
     void setRotation(float rotation);
-    // TODO: 自动识别RGBA格式，不要手动传入
-    void setImage(const std::string& filename, bool rgba = false);
+    void setImage(const Image& image);
     void setColor(const Color& color);
 
 private:
@@ -19,8 +20,7 @@ private:
     void updateUniformes() override;
 
 private:
-    float _x;
-    float _y;
+    Position _pos;
     float _width;
     float _height;
     float _scaleRatio;
