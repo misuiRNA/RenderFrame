@@ -1,7 +1,7 @@
 #ifndef _HEAD_FLAG_MODEL_ABSTRACTMODEL_H
 #define _HEAD_FLAG_MODEL_ABSTRACTMODEL_H
 
-#include "Shader.h"
+#include "ShaderProgram.h"
 
 struct AbstractModel {
     AbstractModel(ShaderProgram& _prog);

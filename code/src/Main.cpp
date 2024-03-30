@@ -1,17 +1,15 @@
 #include <iostream>
-#include "Shader.h"
 #include <math.h>
-#include "Image.h"
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
+#include "ShaderProgram.h"
 #include "model/Rectangle.h"
 #include "model/Cuboid.h"
 #include "model/LightSource.h"
 #include "Camera.h"
-#include <GLFW/glfw3.h>
+#include "Image.h"
 
 
 static unsigned int WINDOW_WIDTH = 800;

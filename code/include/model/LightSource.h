@@ -6,7 +6,7 @@
 
 struct LightSource : AbstractModel {
     LightSource(float x, float y, float z);
-    operator const RenderLight&() const;
+    operator const ShaderLight&() const;
 
     void setColor(const Color& color);
     void setPosition(const Position& pos);
@@ -19,7 +19,7 @@ private:
     void updateUniformes() override;
 
 private:
-    RenderLight _renderLight;
+    ShaderLight _shaderLight;
     Size3D _size;
 };
 

@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "BaseDefine.h"
-#include "Shader.h"
+#include "ShaderProgram.h"
 
 struct CameraFPS {
     CameraFPS();
