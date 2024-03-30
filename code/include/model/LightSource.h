@@ -8,7 +8,7 @@ struct LightSource : AbstractModel {
     LightSource(float x, float y, float z);
 
     void setColor(const Color& color);
-    void setSize(float size_x, float size_y, float size_z);
+    void setSize(const Size3D& size);
     void setPosition(const Position& pos);
     const Position& getPosition() const;
     Color getColor() const;
@@ -19,9 +19,7 @@ private:
 
 private:
     Position _pos;
-    float _size_x;
-    float _size_y;
-    float _size_z;
+    Size3D _size;
     Color _color;
 };
 

@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glad/glad.h>
 
 #include "model/Rectangle.h"
 #include "model/Cuboid.h"
@@ -20,7 +21,7 @@ void FramebufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-void ProcessInput(GLFWwindow *window, CameraControllerFPSStyle& cameraCtrl) {
+void ProcessInput(GLFWwindow *window, CameraFPS& cameraFPS) {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
     }
@@ -33,28 +34,28 @@ void ProcessInput(GLFWwindow *window, CameraControllerFPSStyle& cameraCtrl) {
     lastFrame = currentFrame;
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        cameraCtrl.goForward(deltaTime);
+        cameraFPS.goForward(deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        cameraCtrl.goBack(deltaTime);
+        cameraFPS.goBack(deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        cameraCtrl.goLeft(deltaTime);
+        cameraFPS.goLeft(deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        cameraCtrl.goRight(deltaTime);
+        cameraFPS.goRight(deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-        cameraCtrl.turnRight(deltaTime);
+        cameraFPS.turnRight(deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-        cameraCtrl.turnLeft(deltaTime);
+        cameraFPS.turnLeft(deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-        cameraCtrl.turnUp(deltaTime);
+        cameraFPS.turnUp(deltaTime);
     }
     if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-        cameraCtrl.turnDown(deltaTime);
+        cameraFPS.turnDown(deltaTime);
     }
 }
 
@@ -86,8 +87,7 @@ GLFWwindow* InitWindows() {
 }
 
 // TODO: 优化, 抽取到类中
-void SetCameraAndLightUniform(const Camera& camera, const LightSource& light) {
-    const Position& camePos = camera.getPosition();
+void SetCameraAndLightUniform(const CameraFPS& camera, const LightSource& light) {
     const Position& lightPos = light.getPosition();
     Color lightColor = light.getColor();
     for (auto itr : ShaderProgram::getAllShaderProg())
@@ -96,9 +96,8 @@ void SetCameraAndLightUniform(const Camera& camera, const LightSource& light) {
             continue;
         }
         ShaderProgram& prog = *itr.first;
-        prog.setUniformMat4("cameraMatrix", camera.getMatrix());
+        prog.setCamera(camera);
 
-        prog.setUniform("light.cameraPos", camePos.x, camePos.y, camePos.z);
         prog.setUniform("light.pos", lightPos.x, lightPos.y, lightPos.z);
         prog.setUniform("light.ambient",  lightColor.r * 0.2f, lightColor.g * 0.2f, lightColor.b * 0.2f);
         prog.setUniform("light.diffuse",  lightColor.r * 0.8f, lightColor.g * 0.8f, lightColor.b * 0.8f);
@@ -117,13 +116,12 @@ int main() {
 
     glEnable(GL_DEPTH_TEST);
 
-    Camera camera;
-    CameraControllerFPSStyle cameraCtrl(camera);
-    cameraCtrl.setPosition(1.0f, 2.0f, 2.0f);
-    cameraCtrl.setAttitude(0.0f, 180.0f);
+    CameraFPS cameraFPS;
+    cameraFPS.setPosition(1.0f, 2.0f, 2.0f);
+    cameraFPS.setAttitude(0.0f, 180.0f);
 
     LightSource light(-1.0f, 2.0f, 2.0f);
-    light.setSize(0.5f, 0.5f, 0.5f);
+    light.setSize({0.5f, 0.5f, 0.5f});
     // light.setColor(Color(0.33f, 0.42f, 0.18f));
 
     Image wallImage(GetCurPath() + "/resource/wall.jpeg");
@@ -183,8 +181,8 @@ int main() {
     float lastX = 0.0f;
     while(!glfwWindowShouldClose(window))
     {
-        ProcessInput(window, cameraCtrl);
-        SetCameraAndLightUniform(camera, light);
+        ProcessInput(window, cameraFPS);
+        SetCameraAndLightUniform(cameraFPS, light);
 
         // cuboid.setRotation((float)glfwGetTime());
         // cuboid1.setRotation(-(float)glfwGetTime());

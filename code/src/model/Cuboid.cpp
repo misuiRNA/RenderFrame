@@ -2,6 +2,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <glad/glad.h>
 
 Cubiod::Cubiod(float size_x, float size_y, float size_z)
 : AbstractModel(ShaderProgram::getCuboidShaderProg())

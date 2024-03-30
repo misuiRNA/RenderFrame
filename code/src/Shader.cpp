@@ -84,6 +84,7 @@ void RenderData::setTexture(unsigned int slotIndex, unsigned int width, unsigned
     _textureMap[slotIndex] = texture;
 }
 
+// TODO 优化, 用其他方式携带format信息不要传参
 void RenderData::setTexture(const std::string& name, unsigned int width, unsigned int height, const unsigned char* imageData, unsigned int format) {
     if (_textureSlotNameMap.find(name) == _textureSlotNameMap.end()) {
         std::cout << "Failed to set texture! name not found: " << name << std::endl;
@@ -109,6 +110,65 @@ void RenderData::draw() {
         glDrawArrays(GL_TRIANGLES, 0, _vertexCount);
     }
 }
+
+
+ShaderCamera::ShaderCamera()
+: _pos(0.0f, 0.0f, 0.0f)
+, _front(0.0f, 0.0f, 1.0f)
+, _fov(45.0f) {
+    updateMatrix();
+}
+
+void ShaderCamera::setPosition(const Position& pos) {
+    _pos = pos;
+    updateMatrix();
+}
+
+void ShaderCamera::setFront(const Vector3D& front) {
+    _front = front;
+    updateMatrix();
+}
+
+void ShaderCamera::setFov(float fov) {
+    if(fov <= 1.0f) {
+        fov = 1.0f;
+    } else if(fov >= 45.0f) {
+        fov = 45.0f;
+    }
+    _fov = fov;
+}
+
+const Vector3D& ShaderCamera::getFront() const {
+    return _front;
+}
+
+const Position& ShaderCamera::getPosition() const {
+    return _pos;
+}
+
+const Vector3D& ShaderCamera::getUp() const {
+    static Vector3D upVector { 0.0f, 0.0f,  1.0f };
+    return upVector;
+}
+
+const float* ShaderCamera::getMatrix() const {
+    return _matrix;
+}
+
+void ShaderCamera::updateMatrix() {
+    glm::mat4 view;
+
+    view = glm::lookAt(glm::vec3(_pos.x, _pos.y, _pos.z),
+                       glm::vec3(_pos.x + _front.x, _pos.y + _front.y, _pos.z + _front.z),
+                       glm::vec3(0.0f, 0.0f, 1.0f));    // Up Vector
+
+    glm::mat4 projection;
+    projection = glm::perspective(glm::radians(_fov), 1.0f * 800 / 600, 0.1f, 100.0f);
+    view = projection * view;
+
+    memcpy(_matrix, glm::value_ptr(view), sizeof(glm::mat4));
+}
+
 
 std::map<ShaderProgram*, int> ShaderProgram::_registProgramMap;
 
@@ -180,6 +240,13 @@ void ShaderProgram::setUniformMat4(const std::string& name, const float* mat) {
     int uniformLocation = glGetUniformLocation(_progId, name.c_str());
     glUseProgram(_progId);
     glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, mat);
+}
+
+void ShaderProgram::setCamera(const ShaderCamera& camera)
+{
+    setUniformMat4("cameraMatrix", camera.getMatrix());
+    const Position& camePos = camera.getPosition();
+    setUniform("cameraPos", camePos.x, camePos.y, camePos.z);
 }
 
 RenderData ShaderProgram::getRenderData() const {

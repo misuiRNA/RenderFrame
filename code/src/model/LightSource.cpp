@@ -6,9 +6,7 @@
 LightSource::LightSource(float x, float y, float z)
 : AbstractModel(ShaderProgram::getLightSourceShaderProg())
 , _pos(x, y, z)
-, _size_x(1.0f)
-, _size_y(1.0f)
-, _size_z(1.0f)
+, _size(1.0f, 1.0f, 1.0f)
 , _color(1.0f, 1.0f, 1.0f) {
 
 }
@@ -17,10 +15,8 @@ void LightSource::setColor(const Color& color) {
     _color = color;
 }
 
-void LightSource::setSize(float size_x, float size_y, float size_z) {
-    _size_x = size_x;
-    _size_y = size_y;
-    _size_z = size_z;
+void LightSource::setSize(const Size3D& size) {
+    _size = size;
 }
 
 void LightSource::setPosition(const Position& pos) {
@@ -40,7 +36,7 @@ void LightSource::updateUniformes() {
 
     glm::mat4 model;
     model = glm::translate(model, glm::vec3(_pos.x, _pos.y, _pos.z));
-    model = glm::scale(model, glm::vec3(_size_x, _size_y, _size_z));
+    model = glm::scale(model, glm::vec3(_size.x, _size.y, _size.z));
     _prog.setUniformMat4("modelMatrix", glm::value_ptr(model));
 }
 
