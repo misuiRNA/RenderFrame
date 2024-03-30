@@ -5,14 +5,16 @@
 
 LightSource::LightSource(float x, float y, float z)
 : AbstractModel(ShaderProgram::getLightSourceShaderProg())
-, _pos(x, y, z)
-, _size(1.0f, 1.0f, 1.0f)
-, _color(1.0f, 1.0f, 1.0f) {
+, _size(1.0f, 1.0f, 1.0f) {
+    _renderLight.setPosition({x, y, z});
+}
 
+LightSource::operator const RenderLight&() const {
+    return _renderLight;
 }
 
 void LightSource::setColor(const Color& color) {
-    _color = color;
+    _renderLight.setColor(color);
 }
 
 void LightSource::setSize(const Size3D& size) {
@@ -20,22 +22,24 @@ void LightSource::setSize(const Size3D& size) {
 }
 
 void LightSource::setPosition(const Position& pos) {
-    _pos = pos;
+    _renderLight.setPosition(pos);
 }
 
 const Position& LightSource::getPosition() const {
-    return _pos;
+    return _renderLight.getPosition();
 }
 
 Color LightSource::getColor() const {
-    return _color;
+    return _renderLight.getColor();
 }
 
 void LightSource::updateUniformes() {
-    _prog.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
+    const Color& orgColor = _renderLight.getColor();
+    _prog.setUniform("color", orgColor.r, orgColor.g, orgColor.b, 1.0f);
 
     glm::mat4 model;
-    model = glm::translate(model, glm::vec3(_pos.x, _pos.y, _pos.z));
+    const Position& pos = _renderLight.getPosition();
+    model = glm::translate(model, glm::vec3(pos.x, pos.y, pos.z));
     model = glm::scale(model, glm::vec3(_size.x, _size.y, _size.z));
     _prog.setUniformMat4("modelMatrix", glm::value_ptr(model));
 }

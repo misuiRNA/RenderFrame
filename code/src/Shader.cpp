@@ -170,6 +170,39 @@ void ShaderCamera::updateMatrix() {
 }
 
 
+RenderLight::RenderLight() : _pos(0.0f, 0.0f, 0.0f), _color(1.0f, 1.0f, 1.0f) {
+
+}
+
+void RenderLight::setPosition(const Position& pos) {
+    _pos = pos;
+}
+
+void RenderLight::setColor(const Color& color) {
+    _color = color;
+}
+
+const Position& RenderLight::getPosition() const {
+    return _pos;
+}
+
+const Color& RenderLight::getColor() const {
+    return _color;
+}
+
+Color RenderLight::getAmbientColor() const {
+    return _color * 0.2f;
+}
+
+Color RenderLight::getDiffuseColor() const {
+    return _color * 0.8f;
+}
+
+Color RenderLight::getSpecularColor() const {
+    return _color * 1.0f;
+}
+
+
 std::map<ShaderProgram*, int> ShaderProgram::_registProgramMap;
 
 ShaderProgram::ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr)
@@ -242,11 +275,25 @@ void ShaderProgram::setUniformMat4(const std::string& name, const float* mat) {
     glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, mat);
 }
 
-void ShaderProgram::setCamera(const ShaderCamera& camera)
-{
-    setUniformMat4("cameraMatrix", camera.getMatrix());
-    const Position& camePos = camera.getPosition();
-    setUniform("cameraPos", camePos.x, camePos.y, camePos.z);
+void ShaderProgram::setUniform(const std::string& name, const XYZ& value) {
+    setUniform(name, value.x, value.y, value.z);
+}
+
+void ShaderProgram::setUniform(const std::string& name, const Color& color) {
+    setUniform(name,  color.r, color.g, color.b);
+}
+
+void ShaderProgram::setCamera(const std::string& name, const ShaderCamera& camera) {
+    setUniformMat4(name + ".matrix", camera.getMatrix());
+    setUniform(name + ".pos", camera.getPosition());
+}
+
+void ShaderProgram::setLight(const std::string& name, const RenderLight& light) {
+    // glsl 传输结构体uniform格式如 light.pos
+    setUniform(name + ".pos", light.getPosition());
+    setUniform(name + ".ambient", light.getAmbientColor());
+    setUniform(name + ".diffuse", light.getDiffuseColor());
+    setUniform(name + ".specular", light.getSpecularColor());
 }
 
 RenderData ShaderProgram::getRenderData() const {

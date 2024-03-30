@@ -22,11 +22,11 @@ uniform vec4 color;
 uniform int imageEnable;
 uniform Material material;
 uniform lightColor light;
-uniform vec3 cameraPos;
 
 in vec2 TexCoord;
 in vec3 FragPos;
 in vec3 Normal;
+in vec3 CameraPos;
 
 out vec4 FragColor;
 
@@ -48,7 +48,7 @@ vec3 calcDiffuse()
 vec3 calcSpecular()
 {
     vec3 norm = normalize(Normal);
-    vec3 viewDir = normalize(cameraPos - FragPos);
+    vec3 viewDir = normalize(CameraPos - FragPos);
     vec3 lightDir = normalize(light.pos - FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);

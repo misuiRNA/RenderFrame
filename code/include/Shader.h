@@ -49,9 +49,21 @@ private:
     Position _pos;
     Vector3D _front;
     float _fov;
-
     float _matrix[16] = { 0.0f };
+};
 
+struct RenderLight {
+    RenderLight();
+    void setPosition(const Position& pos);
+    void setColor(const Color& color);
+    const Position& getPosition() const;
+    const Color& getColor() const;
+    Color getAmbientColor() const;
+    Color getDiffuseColor() const;
+    Color getSpecularColor() const;
+private:
+    Position _pos;
+    Color _color;
 };
 
 struct ShaderProgram {
@@ -64,7 +76,10 @@ struct ShaderProgram {
     void setUniform(const std::string& name, float v1, float v2, float v3);
     void setUniform(const std::string& name, float v1, float v2, float v3, float v4);
     void setUniformMat4(const std::string& name, const float* mat);
-    void setCamera(const ShaderCamera& camera);
+    void setUniform(const std::string& name, const XYZ& value);
+    void setUniform(const std::string& name, const Color& color);
+    void setCamera(const std::string& name, const ShaderCamera& camera);
+    void setLight(const std::string& name, const RenderLight& light);
     RenderData getRenderData() const;
 
     void draw(RenderData& attribute);

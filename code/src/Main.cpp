@@ -96,12 +96,8 @@ void SetCameraAndLightUniform(const CameraFPS& camera, const LightSource& light)
             continue;
         }
         ShaderProgram& prog = *itr.first;
-        prog.setCamera(camera);
-
-        prog.setUniform("light.pos", lightPos.x, lightPos.y, lightPos.z);
-        prog.setUniform("light.ambient",  lightColor.r * 0.2f, lightColor.g * 0.2f, lightColor.b * 0.2f);
-        prog.setUniform("light.diffuse",  lightColor.r * 0.8f, lightColor.g * 0.8f, lightColor.b * 0.8f);
-        prog.setUniform("light.specular", lightColor.r * 1.0f, lightColor.g * 1.0f, lightColor.b * 1.0f);
+        prog.setCamera("camera", camera);
+        prog.setLight("light", light);
     }
 }
 
