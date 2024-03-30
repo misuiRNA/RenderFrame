@@ -150,8 +150,8 @@ static std::string ReadFile(const std::string& path) {
 
 ShaderProgram& ShaderProgram::getRectShaderProg() {
     static const std::string MODEL_NAME = "Rectangle";
-    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/shader/RectangleShader.vs");
-    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/shader/RectangleShader.fs");
+    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/RectangleShader.vs");
+    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/RectangleShader.fs");
     static const std::map<std::string, int> ATTRIBUTE_NAME_MAP ={
         {"aPos"     , 0},
         {"aTexCoord", 1},
@@ -166,8 +166,8 @@ ShaderProgram& ShaderProgram::getRectShaderProg() {
 
 ShaderProgram& ShaderProgram::getCuboidShaderProg() {
     static const std::string MODEL_NAME = "Cuboid";
-    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/shader/Cuboid.vs");
-    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/shader/Cuboid.fs");
+    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Cuboid.vs");
+    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Cuboid.fs");
     static const std::map<std::string, int> ATTRIBUTE_NAME_MAP ={
         {"aPos"     , 0},
         {"aTexCoord", 1},
@@ -184,8 +184,8 @@ ShaderProgram& ShaderProgram::getCuboidShaderProg() {
 
 ShaderProgram& ShaderProgram::getLightSourceShaderProg() {
     static const std::string MODEL_NAME = "LightSource";
-    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/shader/LightSource.vs");
-    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/shader/LightSource.fs");
+    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/LightSource.vs");
+    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/LightSource.fs");
     static const std::map<std::string, int> ATTRIBUTE_NAME_MAP ={
         {"aPos"     , 0},
     };
