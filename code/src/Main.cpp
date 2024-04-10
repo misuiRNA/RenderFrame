@@ -121,6 +121,8 @@ int main() {
     Image wallImage(GetCurPath() + "/resource/wall.jpeg");
     Image awesomefaceImage(GetCurPath() + "/resource/awesomeface.png", true);
     Image containerImage(GetCurPath() + "/resource/container.jpeg");
+    Image containerImage2(GetCurPath() + "/resource/container2.png");
+    Image containerImage2_specular(GetCurPath() + "/resource/container2_specular.png");
 
     Rectangle rectangle(1.0f, 1.0f);
     rectangle.setPosition({0.0f, -0.5f});
@@ -158,12 +160,14 @@ int main() {
 
     Cubiod cuboid(1.0f, 1.0f, 1.0f);
     cuboid.setPosition({0.0f, 2.0f, 0.0f});
-    cuboid.setColor(Color(1.0f, 0.5f, 0.31f));
-    // cuboid.setColor(Color(1.0f, 1.0f, 1.0f));
+    // cuboid.setColor(Color(1.0f, 0.5f, 0.31f));
+    cuboid.setColor(Color(1.0f, 1.0f, 1.0f));
     cuboid.setScaleRatio(2.0f);
     cuboid.setRotationAxis({ 1.0f, 1.0f, 1.0f });
     // cuboid.addImage(containerImage);
     // cuboid.addImage(awesomefaceImage);
+    cuboid.setMaterialImage(containerImage2);
+    cuboid.setMaterialSpecularImage(containerImage2_specular);
 
     Cubiod cuboid1(1.0f, 1.0f, 1.0f);
     cuboid1.setPosition({1.0f, -3.5f, 0.0f});
@@ -186,13 +190,13 @@ int main() {
         float y = sqrt(9.0f - x * x) * (lastX - x >=0.0f ? -1.0f : 1.0f);
         lastX = x;
         // light.setPosition({x, y, 3.0f});
-        light.setColor(Color(ratio * 2.0f, (1.0f - ratio) * 0.3f, (0.5 + ratio) * 1.7f));
+        // light.setColor(Color(ratio * 2.0f, (1.0f - ratio) * 0.3f, (0.5 + ratio) * 1.7f));
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // rectangle.show();
-        // rectangle1.show();
+        rectangle.show();
+        rectangle1.show();
         light.show();
         cuboid.show();
         cuboid1.show();

@@ -2,9 +2,8 @@
 
 struct Material
 {
-    vec3 ambient;
-    vec3 diffuse;
-    vec3 specular;
+    sampler2D diffuse;
+    sampler2D specular;
     float shininess;
 };
 
@@ -30,37 +29,37 @@ in vec3 CameraPos;
 
 out vec4 FragColor;
 
-vec3 calcAmbient()
+vec3 calcAmbient(vec3 materialAmbient)
 {
-    vec3 ambient = light.ambient * material.ambient;
+    vec3 ambient = light.ambient * materialAmbient;
     return ambient;
 }
 
-vec3 calcDiffuse()
+vec3 calcDiffuse(vec3 materialDiffuse)
 {
     vec3 norm = normalize(Normal);
     vec3 lightDir = normalize(light.pos - FragPos);
     float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = light.diffuse * (diff * material.diffuse);
+    vec3 diffuse = light.diffuse * (diff * materialDiffuse);
     return diffuse;
 }
 
-vec3 calcSpecular()
+vec3 calcSpecular(vec3 materialSpecular)
 {
     vec3 norm = normalize(Normal);
     vec3 viewDir = normalize(CameraPos - FragPos);
     vec3 lightDir = normalize(light.pos - FragPos);
     vec3 reflectDir = reflect(-lightDir, norm);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-    vec3 specular = light.specular * (spec * material.specular);
+    vec3 specular = light.specular * (spec * materialSpecular);
     return specular;
 }
 
 void main()
 {
-    vec3 ambient = calcAmbient();
-    vec3 diffuse = calcDiffuse();
-    vec3 specular = calcSpecular();
+    vec3 ambient = calcAmbient(vec3(texture(material.diffuse, TexCoord)));
+    vec3 diffuse = calcDiffuse(vec3(texture(material.diffuse, TexCoord)));
+    vec3 specular = calcSpecular(vec3(texture(material.specular, TexCoord)));
 
     vec4 gouraudLight = vec4(ambient + diffuse + specular, 1.0);
 
@@ -70,6 +69,7 @@ void main()
     }
     else
     {
-        FragColor = gouraudLight * mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);
+        // FragColor = gouraudLight * mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);
+        FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);
     }
 }

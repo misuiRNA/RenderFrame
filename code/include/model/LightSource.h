@@ -3,6 +3,7 @@
 
 #include "model/AbstractModel.h"
 #include "BaseDefine.h"
+#include "ShaderLight.h"
 
 struct LightSource : AbstractModel {
     LightSource(float x, float y, float z);

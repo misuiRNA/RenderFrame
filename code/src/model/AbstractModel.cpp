@@ -1,8 +1,8 @@
 #include "model/AbstractModel.h"
 
-AbstractModel::AbstractModel(ShaderProgram& prog)
-: _prog(prog)
-, _renderData(_prog.getRenderData())
+
+AbstractModel::AbstractModel(const RenderData& renderData)
+: _renderData(renderData)
 , _needUpdateRenderData(true) {
 
 }
@@ -12,11 +12,6 @@ void AbstractModel::show() {
         _needUpdateRenderData = false;
         updateRenderData();
     }
-    updateTextures();
     updateUniformes();
-    _prog.draw(_renderData);
-}
-
-void AbstractModel::updateTextures() {
-    _renderData.useTextures();
+    _renderData.draw();
 }

@@ -3,6 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
+#include "ShaderProgram.h"
 
 Rectangle::Rectangle(float width, float height)
 : AbstractModel(ShaderProgram::getRectShaderProg())
@@ -42,14 +43,14 @@ void Rectangle::setColor(const Color& color) {
 }
 
 void Rectangle::updateUniformes() {
-    _prog.setUniform("imageEnable", _imageEnable);
-    _prog.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
+    _renderData.setUniform("imageEnable", _imageEnable);
+    _renderData.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
 
     glm::mat4 model;
     model = glm::translate(model, glm::vec3(_pos.x, _pos.y, 0.0f));
     model = glm::rotate(model, _rotation, glm::vec3(0.0f, 0.0f, 1.0f));
     model = glm::scale(model, glm::vec3(_scaleRatio * _width, _scaleRatio * _height, 1.0f));
-    _prog.setUniformMat4("modelMatrix", glm::value_ptr(model));
+    _renderData.setUniformMat4("modelMatrix", glm::value_ptr(model));
 }
 
 void Rectangle::updateRenderData() {

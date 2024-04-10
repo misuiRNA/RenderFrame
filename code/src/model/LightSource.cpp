@@ -2,6 +2,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "ShaderProgram.h"
 
 LightSource::LightSource(float x, float y, float z)
 : AbstractModel(ShaderProgram::getLightSourceShaderProg())
@@ -35,13 +36,13 @@ Color LightSource::getColor() const {
 
 void LightSource::updateUniformes() {
     const Color& orgColor = _shaderLight.getColor();
-    _prog.setUniform("color", orgColor.r, orgColor.g, orgColor.b, 1.0f);
+    _renderData.setUniform("color", orgColor.r, orgColor.g, orgColor.b, 1.0f);
 
     glm::mat4 model;
     const Position& pos = _shaderLight.getPosition();
     model = glm::translate(model, glm::vec3(pos.x, pos.y, pos.z));
     model = glm::scale(model, glm::vec3(_size.x, _size.y, _size.z));
-    _prog.setUniformMat4("modelMatrix", glm::value_ptr(model));
+    _renderData.setUniformMat4("modelMatrix", glm::value_ptr(model));
 }
 
 void LightSource::updateRenderData() {

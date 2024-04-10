@@ -3,6 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
+#include "ShaderProgram.h"
 
 Cubiod::Cubiod(float size_x, float size_y, float size_z)
 : AbstractModel(ShaderProgram::getCuboidShaderProg())
@@ -50,13 +51,22 @@ void Cubiod::addImage(const Image& image) {
     }
 }
 
+void Cubiod::setMaterialImage(const Image& image)
+{
+    _renderData.setTexture("material.diffuse", image.width(), image.height(), image.data(), image.isRBGA() ? GL_RGBA : GL_RGB);
+}
+
+void Cubiod::setMaterialSpecularImage(const Image& image)
+{
+    _renderData.setTexture("material.specular", image.width(), image.height(), image.data(), image.isRBGA() ? GL_RGBA : GL_RGB);
+}
+
 void Cubiod::updateUniformes() {
-    _prog.setUniform("imageEnable", _imageCount);
-    _prog.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
-    _prog.setUniform("material.ambient", _color.r * 0.1f, _color.g * 0.1f, _color.b * 0.1f);
-    _prog.setUniform("material.diffuse", _color.r, _color.g, _color.b);
-    _prog.setUniform("material.specular", 0.5f, 0.5f, 0.5f);
-    _prog.setUniform("material.shininess", 32.0f);
+    _renderData.setUniform("imageEnable", _imageCount);
+    _renderData.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
+
+    // _renderData.setUniform("material.specular", 0.5f, 0.5f, 0.5f);
+    _renderData.setUniform("material.shininess", 32.0f);
 
     glm::mat4 model;
     model = glm::translate(model, glm::vec3(_pos.x, _pos.y, _pos.z));
@@ -65,7 +75,7 @@ void Cubiod::updateUniformes() {
     }
     model = glm::scale(model, glm::vec3(_scaleRatio * _size.x, _scaleRatio * _size.y, _scaleRatio * _size.z));
 
-    _prog.setUniformMat4("modelMatrix", glm::value_ptr(model));
+    _renderData.setUniformMat4("modelMatrix", glm::value_ptr(model));
 }
 
 void Cubiod::updateRenderData() {

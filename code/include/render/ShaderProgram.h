@@ -5,13 +5,12 @@
 #include <vector>
 #include <map>
 #include "BaseDefine.h"
-#include "RenderData.h"
 #include "ShaderCamera.h"
 #include "ShaderLight.h"
 
 struct ShaderProgram {
     ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr);
-    ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr, const std::map<std::string, int>& attrNameMap, const std::map<std::string, int>& textureSlotNameMap);
+    ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr, const std::map<std::string, int>& attrNameMap);
 
     // TODO 根据需要重载setUniform函数
     void setUniform(const std::string& name, int value);
@@ -23,9 +22,10 @@ struct ShaderProgram {
     void setUniform(const std::string& name, const Color& color);
     void setCamera(const std::string& name, const ShaderCamera& camera);
     void setLight(const std::string& name, const ShaderLight& light);
-    RenderData getRenderData() const;
 
-    void draw(RenderData& attribute);
+    void enable();
+    bool checkVertice(const std::string& name);
+    unsigned int getVerticeSlotId(const std::string& name);
 
 public:
     static ShaderProgram& getRectShaderProg();
@@ -40,7 +40,6 @@ private:
     unsigned int _progId;
 
     std::map<std::string, int> _attrNameMap;
-    std::map<std::string, int> _textureSlotNameMap;
 
     static std::map<ShaderProgram*, int> _registProgramMap;
 };

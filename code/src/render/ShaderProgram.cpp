@@ -8,15 +8,13 @@
 std::map<ShaderProgram*, int> ShaderProgram::_registProgramMap;
 
 ShaderProgram::ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr)
-: ShaderProgram(vsShaderCodeStr, fsShaderCodeStr, {}, {}) {
+: ShaderProgram(vsShaderCodeStr, fsShaderCodeStr, {}) {
 
 }
 
-ShaderProgram::ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr, const std::map<std::string, int>& attrNameMap, const std::map<std::string, int>& textureSlotNameMap)
+ShaderProgram::ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr, const std::map<std::string, int>& attrNameMap)
 : _progId(0)
-, _attrNameMap(attrNameMap) 
-, _textureSlotNameMap(textureSlotNameMap)
-{
+, _attrNameMap(attrNameMap) {
     unsigned int vertexShader = BuildShader(vsShaderCodeStr.c_str(), GL_VERTEX_SHADER);
     unsigned int fragmentShader = BuildShader(fsShaderCodeStr.c_str(), GL_FRAGMENT_SHADER);
 
@@ -39,10 +37,6 @@ ShaderProgram::ShaderProgram(const std::string& vsShaderCodeStr, const std::stri
     glDeleteShader(fragmentShader);
 
     _progId = shaderProgram;
-
-    for (auto& pair : textureSlotNameMap) {
-        setUniform(pair.first, pair.second);
-    }
 
     _registProgramMap[this] += 1;
 }
@@ -98,13 +92,20 @@ void ShaderProgram::setLight(const std::string& name, const ShaderLight& light) 
     setUniform(name + ".specular", light.getSpecularColor());
 }
 
-RenderData ShaderProgram::getRenderData() const {
-    return RenderData(_attrNameMap, _textureSlotNameMap);
+void ShaderProgram::enable() {
+    glUseProgram(_progId);
 }
 
-void ShaderProgram::draw(RenderData& attribute) {
-    glUseProgram(_progId);
-    attribute.draw();
+bool ShaderProgram::checkVertice(const std::string& name) {
+    return _attrNameMap.find(name) != _attrNameMap.end();
+}
+
+unsigned int ShaderProgram::getVerticeSlotId(const std::string& name) {
+    if (_attrNameMap.find(name) == _attrNameMap.end()) {
+        std::cout << "Failed to get attribute index! name not found: " << name << std::endl;
+        return -1;
+    }
+    return _attrNameMap[name];
 }
 
 unsigned int ShaderProgram::BuildShader(const char* shaderCode, unsigned int shaderType) {
@@ -156,11 +157,8 @@ ShaderProgram& ShaderProgram::getRectShaderProg() {
         {"aPos"     , 0},
         {"aTexCoord", 1},
     };
-    static const std::map<std::string, int> TEXTURE_SLOT_NAME_MAP = {
-        {"texture1", 0},
-    };
 
-    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP, TEXTURE_SLOT_NAME_MAP);
+    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP);
     return prog;
 }
 
@@ -173,12 +171,7 @@ ShaderProgram& ShaderProgram::getCuboidShaderProg() {
         {"aTexCoord", 1},
         {"aNormal"  , 2},
     };
-    // TODO: 优化, 删除 TEXTURE_SLOT_NAME_MAP, 直接在setTexture中设置
-    static const std::map<std::string, int> TEXTURE_SLOT_NAME_MAP = {
-        {"texture1", 0},
-        {"texture2", 1},
-    };
-    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP, TEXTURE_SLOT_NAME_MAP);
+    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP);
     return prog;
 }
 
@@ -190,8 +183,7 @@ ShaderProgram& ShaderProgram::getLightSourceShaderProg() {
         {"aPos"     , 0},
     };
 
-    static const std::map<std::string, int> TEXTURE_SLOT_NAME_MAP = { };
-    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP, TEXTURE_SLOT_NAME_MAP);
+    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP);
     return prog;
 }
 

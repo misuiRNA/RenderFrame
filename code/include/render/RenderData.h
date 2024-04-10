@@ -2,32 +2,49 @@
 #define _HEAD_FLAG_RENDERDATA_H
 
 #include <vector>
-#include "BaseDefine.h"
 #include <map>
+#include <string>
+#include <functional>
+#include "BaseDefine.h"
+#include "ShaderProgram.h"
+
 
 struct RenderData {
-    RenderData();
-    RenderData(const std::map<std::string, int>& attrNameMap, const std::map<std::string, int>& textureSlotNameMap);
+    RenderData(ShaderProgram& prog);
     ~RenderData();
 
     void setVertices(unsigned int index, unsigned int vertexSize, const std::vector<float>& vertices);
     void setVertices(const std::string& name, unsigned int vertexSize, const std::vector<float>& vertices);
     void setIndices(const std::vector<unsigned int>& indices);
-    void setTexture(unsigned int slotIndex, unsigned int width, unsigned int height, const unsigned char* imageData, unsigned int format);
     void setTexture(const std::string& name, unsigned int width, unsigned int height, const unsigned char* imageData, unsigned int format);
 
+    // TODO 根据需要重载setUniform函数
+    void setUniform(const std::string& name, int value);
+    void setUniform(const std::string& name, float value);
+    void setUniform(const std::string& name, float v1, float v2, float v3);
+    void setUniform(const std::string& name, float v1, float v2, float v3, float v4);
+    void setUniform(const std::string& name, const XYZ& value);
+    void setUniform(const std::string& name, const Color& color);
+    void setUniformMat4(const std::string& name, const float* mat);
+
     void draw();
-    void useTextures();
 
 private:
+    void useTextures();
+    void useUniforms();
+    void drawAttributes();
+    unsigned int genTexture(unsigned int slotIndex, unsigned int width, unsigned int height, const unsigned char* imageData, unsigned int format);
+
+private:
+    ShaderProgram& _prog;
     unsigned int _VAOId;
 
     int _vertexCount;
     int _indexCount;
 
-    const std::map<std::string, int>& _attrNameMap;
-    const std::map<std::string, int>& _textureSlotNameMap;
-    std::map<int, unsigned int> _textureMap;
+    std::map<std::string, int> _textureMap;
+    std::vector<std::function<void(void)>> _uniformFunctions;
+    std::vector<std::function<void(void)>> _textureFunctions;
 };
 
 #endif // _HEAD_FLAG_RENDERDATA_H

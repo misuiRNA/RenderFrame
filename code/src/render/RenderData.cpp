@@ -1,29 +1,29 @@
 #include "RenderData.h"
 #include "glad/glad.h"
 #include <iostream>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 
-RenderData::RenderData() : RenderData({}, {}) {
+RenderData::RenderData(ShaderProgram& prog)
+: _prog(prog)
+, _VAOId(0)
+, _vertexCount(0)
+, _indexCount(0) {
 
-}
-
-RenderData::RenderData(const std::map<std::string, int>& attrNameMap, const std::map<std::string, int>& textureSlotNameMap)
-: _vertexCount(0)
-, _indexCount(0)
-, _attrNameMap(attrNameMap)
-, _textureSlotNameMap(textureSlotNameMap) {
-    glGenVertexArrays(1, &_VAOId);
-    // 保证未设置纹理的 RenderData 不会使用其他 RenderData 的纹理
-    for (auto& pair : _textureSlotNameMap) {
-        _textureMap[pair.second] = 0;
-    }
 }
 
 RenderData::~RenderData() {
-    glDeleteVertexArrays(1, &_VAOId);
+    if (_VAOId != 0)
+    {
+        glDeleteVertexArrays(1, &_VAOId);
+    }
 }
 
 void RenderData::setVertices(unsigned int index, unsigned int vertexSize, const std::vector<float>& vertices) {
+    if (_VAOId == 0) {
+        glGenVertexArrays(1, &_VAOId);
+    }
     glBindVertexArray(_VAOId);
 
     unsigned int VBO;
@@ -35,18 +35,23 @@ void RenderData::setVertices(unsigned int index, unsigned int vertexSize, const 
     glEnableVertexAttribArray(index);
 
     // TODO should release VBO manual ?
-    _vertexCount = vertices.size();
 }
 
 void RenderData::setVertices(const std::string& name, unsigned int vertexSize, const std::vector<float>& vertices) {
-    if (_attrNameMap.find(name) == _attrNameMap.end()) {
+    if (!_prog.checkVertice(name)) {
         std::cout << "Failed to set attribute! name not found: " << name << std::endl;
         return;
     }
-    setVertices(_attrNameMap.at(name), vertexSize, vertices);
+    unsigned int index = _prog.getVerticeSlotId(name);
+    setVertices(index, vertexSize, vertices);
+    _vertexCount = vertices.size();
 }
 
 void RenderData::setIndices(const std::vector<unsigned int>& indices) {
+    if (_VAOId == 0)
+    {
+        glGenVertexArrays(1, &_VAOId);
+    }
     glBindVertexArray(_VAOId);
 
     unsigned int EBO;
@@ -58,10 +63,10 @@ void RenderData::setIndices(const std::vector<unsigned int>& indices) {
     _indexCount = indices.size();
 }
 
-void RenderData::setTexture(unsigned int slotIndex, unsigned int width, unsigned int height, const unsigned char* imageData, unsigned int format) {
+unsigned int RenderData::genTexture(unsigned int slotIndex, unsigned int width, unsigned int height, const unsigned char* imageData, unsigned int format) {
     if (!imageData) {
         std::cout << "Failed to set texture! imageData is null " << std::endl;
-        return;
+        return 0;
     }
 
     glActiveTexture(GL_TEXTURE0 + slotIndex);
@@ -76,32 +81,104 @@ void RenderData::setTexture(unsigned int slotIndex, unsigned int width, unsigned
     glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, imageData);
     glGenerateMipmap(GL_TEXTURE_2D);
 
-    _textureMap[slotIndex] = texture;
+    return texture;
 }
 
 // TODO 优化, 用其他方式携带format信息不要传参
 void RenderData::setTexture(const std::string& name, unsigned int width, unsigned int height, const unsigned char* imageData, unsigned int format) {
-    if (_textureSlotNameMap.find(name) == _textureSlotNameMap.end()) {
-        std::cout << "Failed to set texture! name not found: " << name << std::endl;
-        return;
+    if (_textureMap.find(name) == _textureMap.end()) {
+        int newSlotIndex = (int)_textureMap.size();
+        _textureMap[name] = newSlotIndex;
     }
-    setTexture(_textureSlotNameMap.at(name), width, height, imageData, format);
+    int slotIndex = _textureMap[name];
+    setUniform(name, slotIndex);
+    unsigned int textureId = genTexture(slotIndex, width, height, imageData, format);
+
+    if (textureId > 0) {
+        std::function<void(void)> func = [slotIndex, textureId](void) -> void {
+                glActiveTexture(GL_TEXTURE0 + slotIndex);
+                glBindTexture(GL_TEXTURE_2D, textureId);
+        };
+        _textureFunctions.emplace_back(func);
+    }
+}
+
+void RenderData::setUniform(const std::string& name, int value) {
+    std::function<void(void)> func = [this, name, value]() -> void {
+        _prog.setUniform(name, value);
+    };
+    _uniformFunctions.emplace_back(func);
+}
+
+void RenderData::setUniform(const std::string& name, float value) {
+    std::function<void(void)> func = [this, name, value]() -> void {
+        _prog.setUniform(name, value);
+    };
+    _uniformFunctions.emplace_back(func);
+}
+
+void RenderData::setUniform(const std::string& name, float v1, float v2, float v3) {
+    std::function<void(void)> func = [this, name, v1, v2, v3]() -> void {
+        _prog.setUniform(name, v1, v2, v3);
+    };
+    _uniformFunctions.emplace_back(func);
+}
+
+void RenderData::setUniform(const std::string& name, float v1, float v2, float v3, float v4) {
+    std::function<void(void)> func = [this, name, v1, v2, v3, v4]() -> void {
+        _prog.setUniform(name, v1, v2, v3, v4);
+    };
+    _uniformFunctions.emplace_back(func);
+}
+
+void RenderData::setUniformMat4(const std::string& name, const float* mat)
+{
+    glm::mat4 matrix = glm::make_mat4(mat);
+    std::function<void(void)> func = [this, name, matrix]() -> void {
+        _prog.setUniformMat4(name, glm::value_ptr(matrix));
+    };
+    _uniformFunctions.emplace_back(func);
+}
+
+void RenderData::setUniform(const std::string& name, const XYZ& value)
+{
+    setUniform(name, value.x, value.y, value.z);
+}
+
+void RenderData::setUniform(const std::string& name, const Color& color)
+{
+    setUniform(name,  color.r, color.g, color.b);
+}
+
+void RenderData::useUniforms() {
+    for (auto& func : _uniformFunctions) {
+        func();
+    }
 }
 
 void RenderData::useTextures() {
-    for (auto& entity : _textureMap) {
-        int slotIndex = entity.first;
-        unsigned int textureId = entity.second;
-        glActiveTexture(GL_TEXTURE0 + slotIndex);
-        glBindTexture(GL_TEXTURE_2D, textureId);
+    for (auto& func : _textureFunctions) {
+        func();
     }
 }
 
-void RenderData::draw() {
+void RenderData::drawAttributes() {
+    if (_VAOId == 0) {
+        std::cout << "RenderData: draw failed, VAOId is 0!" << std::endl;
+        return;
+    }
+
     glBindVertexArray(_VAOId);
     if (_indexCount > 0) {
         glDrawElements(GL_TRIANGLES, _indexCount, GL_UNSIGNED_INT, 0);
     } else {
         glDrawArrays(GL_TRIANGLES, 0, _vertexCount);
     }
+}
+
+void RenderData::draw() {
+    useTextures();
+    _prog.enable();
+    useUniforms();
+    drawAttributes();
 }
