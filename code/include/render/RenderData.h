@@ -16,7 +16,7 @@ struct RenderData {
     void setVertices(unsigned int index, unsigned int vertexSize, const std::vector<float>& vertices);
     void setVertices(const std::string& name, unsigned int vertexSize, const std::vector<float>& vertices);
     void setIndices(const std::vector<unsigned int>& indices);
-    void setTexture(const std::string& name, unsigned int width, unsigned int height, const unsigned char* imageData, unsigned int format);
+    void setTexture(const std::string& name, unsigned int textureId);
 
     // TODO 根据需要重载setUniform函数
     void setUniform(const std::string& name, int value);
@@ -33,7 +33,6 @@ private:
     void useTextures();
     void useUniforms();
     void drawAttributes();
-    unsigned int genTexture(unsigned int slotIndex, unsigned int width, unsigned int height, const unsigned char* imageData, unsigned int format);
 
 private:
     ShaderProgram& _prog;
@@ -43,8 +42,8 @@ private:
     int _indexCount;
 
     std::map<std::string, int> _textureMap;
-    std::vector<std::function<void(void)>> _uniformFunctions;
-    std::vector<std::function<void(void)>> _textureFunctions;
+    std::map<std::string, std::function<void(void)>> _uniformFunctions;
+    std::map<std::string, std::function<void(void)>> _textureFunctions;
 };
 
 #endif // _HEAD_FLAG_RENDERDATA_H

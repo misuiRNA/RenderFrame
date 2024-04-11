@@ -63,72 +63,52 @@ void RenderData::setIndices(const std::vector<unsigned int>& indices) {
     _indexCount = indices.size();
 }
 
-unsigned int RenderData::genTexture(unsigned int slotIndex, unsigned int width, unsigned int height, const unsigned char* imageData, unsigned int format) {
-    if (!imageData) {
-        std::cout << "Failed to set texture! imageData is null " << std::endl;
-        return 0;
+void RenderData::setTexture(const std::string& name, unsigned int textureId) {
+    if (textureId == 0) {
+        std::cout << "Failed to set texture! textureId is invalid: " << textureId << std::endl;
+        return;
     }
 
-    glActiveTexture(GL_TEXTURE0 + slotIndex);
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    // 为当前绑定的纹理对象设置环绕、过滤方式
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);   
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, imageData);
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    return texture;
-}
-
-// TODO 优化, 用其他方式携带format信息不要传参
-void RenderData::setTexture(const std::string& name, unsigned int width, unsigned int height, const unsigned char* imageData, unsigned int format) {
     if (_textureMap.find(name) == _textureMap.end()) {
         int newSlotIndex = (int)_textureMap.size();
         _textureMap[name] = newSlotIndex;
     }
     int slotIndex = _textureMap[name];
     setUniform(name, slotIndex);
-    unsigned int textureId = genTexture(slotIndex, width, height, imageData, format);
 
-    if (textureId > 0) {
-        std::function<void(void)> func = [slotIndex, textureId](void) -> void {
-                glActiveTexture(GL_TEXTURE0 + slotIndex);
-                glBindTexture(GL_TEXTURE_2D, textureId);
-        };
-        _textureFunctions.emplace_back(func);
-    }
+    std::function<void(void)> func = [slotIndex, textureId](void) -> void {
+            glActiveTexture(GL_TEXTURE0 + slotIndex);
+            glBindTexture(GL_TEXTURE_2D, textureId);
+    };
+    _textureFunctions.emplace(name, func);
 }
 
 void RenderData::setUniform(const std::string& name, int value) {
     std::function<void(void)> func = [this, name, value]() -> void {
         _prog.setUniform(name, value);
     };
-    _uniformFunctions.emplace_back(func);
+    _uniformFunctions.emplace(name, func);
 }
 
 void RenderData::setUniform(const std::string& name, float value) {
     std::function<void(void)> func = [this, name, value]() -> void {
         _prog.setUniform(name, value);
     };
-    _uniformFunctions.emplace_back(func);
+    _uniformFunctions.emplace(name, func);
 }
 
 void RenderData::setUniform(const std::string& name, float v1, float v2, float v3) {
     std::function<void(void)> func = [this, name, v1, v2, v3]() -> void {
         _prog.setUniform(name, v1, v2, v3);
     };
-    _uniformFunctions.emplace_back(func);
+    _uniformFunctions.emplace(name, func);
 }
 
 void RenderData::setUniform(const std::string& name, float v1, float v2, float v3, float v4) {
     std::function<void(void)> func = [this, name, v1, v2, v3, v4]() -> void {
         _prog.setUniform(name, v1, v2, v3, v4);
     };
-    _uniformFunctions.emplace_back(func);
+    _uniformFunctions.emplace(name, func);
 }
 
 void RenderData::setUniformMat4(const std::string& name, const float* mat)
@@ -137,28 +117,36 @@ void RenderData::setUniformMat4(const std::string& name, const float* mat)
     std::function<void(void)> func = [this, name, matrix]() -> void {
         _prog.setUniformMat4(name, glm::value_ptr(matrix));
     };
-    _uniformFunctions.emplace_back(func);
+    _uniformFunctions.emplace(name, func);
 }
 
 void RenderData::setUniform(const std::string& name, const XYZ& value)
 {
-    setUniform(name, value.x, value.y, value.z);
+    std::function<void(void)> func = [this, name, value]() -> void {
+        _prog.setUniform(name, value);
+    };
+    _uniformFunctions.emplace(name, func);
 }
 
 void RenderData::setUniform(const std::string& name, const Color& color)
 {
-    setUniform(name,  color.r, color.g, color.b);
+    std::function<void(void)> func = [this, name, color]() -> void {
+        _prog.setUniform(name, color);
+    };
+    _uniformFunctions.emplace(name, func);
 }
 
 void RenderData::useUniforms() {
-    for (auto& func : _uniformFunctions) {
-        func();
+    for (auto& pair : _uniformFunctions) {
+        auto& setUniformFunc = pair.second;
+        setUniformFunc();
     }
 }
 
 void RenderData::useTextures() {
-    for (auto& func : _textureFunctions) {
-        func();
+    for (auto& pair : _textureFunctions) {
+        auto& setTextureFunc = pair.second;
+        setTextureFunc();
     }
 }
 

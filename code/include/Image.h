@@ -7,16 +7,18 @@
 struct Image {
     Image(const std::string& path, bool isRBGA = false);
     ~Image();
-    int width() const;
-    int height() const;
-    const unsigned char* data() const;
-    bool isRBGA() const;
+    unsigned int getTexture() const;
+
+private:
+    static unsigned int genTexture(const unsigned char* data, int width, int height, unsigned int format);
 
 private:
     bool _isRBGA;
     int _width;
     int _height;
     unsigned char* _data;
+
+    mutable unsigned int _textureId;
 };
 
 #endif // _HEAD_FLAG_IMAGE_H

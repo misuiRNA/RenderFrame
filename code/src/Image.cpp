@@ -1,8 +1,13 @@
 #include "Image.h"
 #include "stb_image.h"
+#include "glad/glad.h"
 
 // TODO: 优化, 自动识别isRBGA, 不要传参
-Image::Image(const std::string& path, bool isRBGA) : _isRBGA(isRBGA) {
+Image::Image(const std::string& path, bool isRBGA)
+: _isRBGA(isRBGA)
+, _width(0)
+, _height(0)
+, _textureId(0) {
     stbi_set_flip_vertically_on_load(true);
     int width, height, nrChannels;
     unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
@@ -19,22 +24,34 @@ Image::~Image() {
     stbi_image_free(_data);
 }
 
-int Image::width() const {
-    return _width;
+unsigned int Image::getTexture() const {
+    if (_textureId == 0) {
+        _textureId = genTexture(_data, _width, _height, _isRBGA ? GL_RGBA : GL_RGB);
+    }
+    return _textureId;
 }
 
-int Image::height() const {
-    return _height;
-}
+unsigned int Image::genTexture(const unsigned char* imageData, int width, int height, unsigned int format) {
+    if (!imageData) {
+        std::cout << "Failed to set texture! imageData is null " << std::endl;
+        return 0;
+    }
 
-const unsigned char* Image::data() const {
-    return _data;
-}
+    unsigned int texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    // 为当前绑定的纹理对象设置环绕、过滤方式
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);   
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, imageData);
+    glGenerateMipmap(GL_TEXTURE_2D);
 
-bool Image::isRBGA() const {
-    return _isRBGA;
-}
+    // TODO: release texture ?
 
+    return texture;
+}
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"

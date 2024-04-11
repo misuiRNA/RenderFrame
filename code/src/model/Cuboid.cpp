@@ -45,20 +45,20 @@ void Cubiod::setColor(const Color& color) {
 void Cubiod::addImage(const Image& image) {
     _imageCount += 1;
     if (_imageCount == 1) {
-        _renderData.setTexture("texture1", image.width(), image.height(), image.data(), image.isRBGA() ? GL_RGBA : GL_RGB);
+        _renderData.setTexture("texture1", image.getTexture());
     } else if (_imageCount == 2) {
-        _renderData.setTexture("texture2", image.width(), image.height(), image.data(), image.isRBGA() ? GL_RGBA : GL_RGB);
+        _renderData.setTexture("texture2", image.getTexture());
     }
 }
 
 void Cubiod::setMaterialImage(const Image& image)
 {
-    _renderData.setTexture("material.diffuse", image.width(), image.height(), image.data(), image.isRBGA() ? GL_RGBA : GL_RGB);
+    _renderData.setTexture("material.diffuse", image.getTexture());
 }
 
 void Cubiod::setMaterialSpecularImage(const Image& image)
 {
-    _renderData.setTexture("material.specular", image.width(), image.height(), image.data(), image.isRBGA() ? GL_RGBA : GL_RGB);
+    _renderData.setTexture("material.specular", image.getTexture());
 }
 
 void Cubiod::updateUniformes() {

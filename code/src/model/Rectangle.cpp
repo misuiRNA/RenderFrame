@@ -34,7 +34,7 @@ void Rectangle::setRotation(float rotation) {
 }
 
 void Rectangle::setImage(const Image& image) {
-    _renderData.setTexture("texture1", image.width(), image.height(), image.data(), image.isRBGA() ? GL_RGBA : GL_RGB);
+    _renderData.setTexture("texture1", image.getTexture());
     _imageEnable = true;
 }
 
