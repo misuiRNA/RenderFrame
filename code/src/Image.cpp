@@ -48,9 +48,13 @@ unsigned int Image::genTexture(const unsigned char* imageData, int width, int he
     glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, imageData);
     glGenerateMipmap(GL_TEXTURE_2D);
 
-    // TODO: release texture ?
+    // TODO: should release texture manual ?
 
     return texture;
+}
+
+Image::operator TextureId() const {
+    return getTexture();
 }
 
 #define STB_IMAGE_IMPLEMENTATION

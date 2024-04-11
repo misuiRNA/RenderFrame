@@ -7,6 +7,7 @@
 #include <functional>
 #include "BaseDefine.h"
 #include "ShaderProgram.h"
+#include "ShaderMaterial.h"
 
 
 struct RenderData {
@@ -25,6 +26,7 @@ struct RenderData {
     void setUniform(const std::string& name, float v1, float v2, float v3, float v4);
     void setUniform(const std::string& name, const XYZ& value);
     void setUniform(const std::string& name, const Color& color);
+    void setUniform(const std::string& name, const ShaderMaterial& material);
     void setUniformMat4(const std::string& name, const float* mat);
 
     void draw();
@@ -33,6 +35,8 @@ private:
     void useTextures();
     void useUniforms();
     void drawAttributes();
+    void setUniformFunc(const std::string& name, const std::function<void(void)>& func);
+    void setTextureFunc(const std::string& name, const std::function<void(void)>& func);
 
 private:
     ShaderProgram& _prog;

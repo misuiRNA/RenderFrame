@@ -5,12 +5,15 @@
 #include <iostream> 
 
 struct Image {
+    using TextureId = unsigned int;
+
     Image(const std::string& path, bool isRBGA = false);
     ~Image();
-    unsigned int getTexture() const;
+    TextureId getTexture() const;
+    operator TextureId() const;
 
 private:
-    static unsigned int genTexture(const unsigned char* data, int width, int height, unsigned int format);
+    static TextureId genTexture(const unsigned char* data, int width, int height, unsigned int format);
 
 private:
     bool _isRBGA;
@@ -18,7 +21,7 @@ private:
     int _height;
     unsigned char* _data;
 
-    mutable unsigned int _textureId;
+    mutable TextureId _textureId;
 };
 
 #endif // _HEAD_FLAG_IMAGE_H

@@ -2,8 +2,11 @@
 
 struct Material
 {
-    sampler2D diffuse;
-    sampler2D specular;
+    sampler2D diffuseTexture;
+    sampler2D specularTexture;
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
     float shininess;
 };
 
@@ -57,9 +60,9 @@ vec3 calcSpecular(vec3 materialSpecular)
 
 void main()
 {
-    vec3 ambient = calcAmbient(vec3(texture(material.diffuse, TexCoord)));
-    vec3 diffuse = calcDiffuse(vec3(texture(material.diffuse, TexCoord)));
-    vec3 specular = calcSpecular(vec3(texture(material.specular, TexCoord)));
+    vec3 ambient = calcAmbient(vec3(texture(material.diffuseTexture, TexCoord)) + material.ambient);
+    vec3 diffuse = calcDiffuse(vec3(texture(material.diffuseTexture, TexCoord)) + material.diffuse);
+    vec3 specular = calcSpecular(vec3(texture(material.specularTexture, TexCoord)) + material.specular);
 
     vec4 gouraudLight = vec4(ambient + diffuse + specular, 1.0);
 
@@ -69,7 +72,6 @@ void main()
     }
     else
     {
-        // FragColor = gouraudLight * mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);
-        FragColor = mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);
+        FragColor = gouraudLight * mix(texture(texture1, TexCoord), texture(texture2, TexCoord), 0.2);
     }
 }

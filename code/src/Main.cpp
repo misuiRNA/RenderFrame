@@ -158,6 +158,8 @@ int main() {
         cuboids.push_back(cuboid);
     }
 
+    ShaderMaterial material(containerImage2, containerImage2_specular);
+
     Cubiod cuboid(1.0f, 1.0f, 1.0f);
     cuboid.setPosition({0.0f, 2.0f, 0.0f});
     // cuboid.setColor(Color(1.0f, 0.5f, 0.31f));
@@ -166,8 +168,7 @@ int main() {
     cuboid.setRotationAxis({ 1.0f, 1.0f, 1.0f });
     // cuboid.addImage(containerImage);
     // cuboid.addImage(awesomefaceImage);
-    cuboid.setMaterialImage(containerImage2);
-    cuboid.setMaterialSpecularImage(containerImage2_specular);
+    cuboid.setMaterial(material);
 
     Cubiod cuboid1(1.0f, 1.0f, 1.0f);
     cuboid1.setPosition({1.0f, -3.5f, 0.0f});
@@ -175,6 +176,7 @@ int main() {
     cuboid1.setScaleRatio(2.5f);
     cuboid1.setRotationAxis({ 1.0f, 1.0f, 1.0f });
     cuboid1.addImage(wallImage);
+    // cuboid1.setMaterial(material);
 
     float lastX = 0.0f;
     while(!glfwWindowShouldClose(window))
@@ -189,7 +191,7 @@ int main() {
         float x = ratio * 3;
         float y = sqrt(9.0f - x * x) * (lastX - x >=0.0f ? -1.0f : 1.0f);
         lastX = x;
-        // light.setPosition({x, y, 3.0f});
+        light.setPosition({x, y, 3.0f});
         // light.setColor(Color(ratio * 2.0f, (1.0f - ratio) * 0.3f, (0.5 + ratio) * 1.7f));
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);

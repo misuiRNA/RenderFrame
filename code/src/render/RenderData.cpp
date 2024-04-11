@@ -64,10 +64,10 @@ void RenderData::setIndices(const std::vector<unsigned int>& indices) {
 }
 
 void RenderData::setTexture(const std::string& name, unsigned int textureId) {
-    if (textureId == 0) {
-        std::cout << "Failed to set texture! textureId is invalid: " << textureId << std::endl;
-        return;
-    }
+    // if (textureId == 0) {
+    //     std::cout << "Failed to set texture! textureId is invalid: " << name  << " value=" << textureId << std::endl;
+    //     return;
+    // }
 
     if (_textureMap.find(name) == _textureMap.end()) {
         int newSlotIndex = (int)_textureMap.size();
@@ -80,35 +80,35 @@ void RenderData::setTexture(const std::string& name, unsigned int textureId) {
             glActiveTexture(GL_TEXTURE0 + slotIndex);
             glBindTexture(GL_TEXTURE_2D, textureId);
     };
-    _textureFunctions.emplace(name, func);
+    setTextureFunc(name, func);
 }
 
 void RenderData::setUniform(const std::string& name, int value) {
     std::function<void(void)> func = [this, name, value]() -> void {
         _prog.setUniform(name, value);
     };
-    _uniformFunctions.emplace(name, func);
+    setUniformFunc(name, func);
 }
 
 void RenderData::setUniform(const std::string& name, float value) {
     std::function<void(void)> func = [this, name, value]() -> void {
         _prog.setUniform(name, value);
     };
-    _uniformFunctions.emplace(name, func);
+    setUniformFunc(name, func);
 }
 
 void RenderData::setUniform(const std::string& name, float v1, float v2, float v3) {
     std::function<void(void)> func = [this, name, v1, v2, v3]() -> void {
         _prog.setUniform(name, v1, v2, v3);
     };
-    _uniformFunctions.emplace(name, func);
+    setUniformFunc(name, func);
 }
 
 void RenderData::setUniform(const std::string& name, float v1, float v2, float v3, float v4) {
     std::function<void(void)> func = [this, name, v1, v2, v3, v4]() -> void {
         _prog.setUniform(name, v1, v2, v3, v4);
     };
-    _uniformFunctions.emplace(name, func);
+    setUniformFunc(name, func);
 }
 
 void RenderData::setUniformMat4(const std::string& name, const float* mat)
@@ -117,7 +117,7 @@ void RenderData::setUniformMat4(const std::string& name, const float* mat)
     std::function<void(void)> func = [this, name, matrix]() -> void {
         _prog.setUniformMat4(name, glm::value_ptr(matrix));
     };
-    _uniformFunctions.emplace(name, func);
+    setUniformFunc(name, func);
 }
 
 void RenderData::setUniform(const std::string& name, const XYZ& value)
@@ -125,7 +125,7 @@ void RenderData::setUniform(const std::string& name, const XYZ& value)
     std::function<void(void)> func = [this, name, value]() -> void {
         _prog.setUniform(name, value);
     };
-    _uniformFunctions.emplace(name, func);
+    setUniformFunc(name, func);
 }
 
 void RenderData::setUniform(const std::string& name, const Color& color)
@@ -133,7 +133,24 @@ void RenderData::setUniform(const std::string& name, const Color& color)
     std::function<void(void)> func = [this, name, color]() -> void {
         _prog.setUniform(name, color);
     };
-    _uniformFunctions.emplace(name, func);
+    setUniformFunc(name, func);
+}
+
+void RenderData::setUniform(const std::string& name, const ShaderMaterial& material) {
+    setTexture(name + ".diffuseTexture", material.diffuseTexture);
+    setTexture(name + ".specularTexture", material.specularTexture);
+    setUniform(name + ".ambient", material.ambient);
+    setUniform(name + ".diffuse", material.diffuse);
+    setUniform(name + ".specular", material.specular);
+    setUniform(name + ".shininess", material.shininess);
+}
+
+void RenderData::setUniformFunc(const std::string& name, const std::function<void(void)>& func) {
+    _uniformFunctions[name] = func;
+}
+
+void RenderData::setTextureFunc(const std::string& name, const std::function<void(void)>& func) {
+    _textureFunctions[name] = func;
 }
 
 void RenderData::useUniforms() {

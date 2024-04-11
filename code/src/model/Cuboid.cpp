@@ -14,7 +14,10 @@ Cubiod::Cubiod(float size_x, float size_y, float size_z)
 , _imageCount(0)
 , _rotationAxis({0.0f, 0.0f, 1.0f})
 , _color(1.0f, 1.0f, 1.0f) {
-
+    // TODO: 优化, 优化uniform的初始化方式, 不强制要求_renderData的客户手动初始化 uniform, 容易遗漏初始化代码
+    _renderData.setTexture("texture1", 0);
+    _renderData.setTexture("texture2", 0);
+    _renderData.setUniform("material", ShaderMaterial(_color * 0.2f, _color * 0.8f, _color * 1.0f));
 }
 
 void Cubiod::setPosition(const Position& pos) {
@@ -51,22 +54,13 @@ void Cubiod::addImage(const Image& image) {
     }
 }
 
-void Cubiod::setMaterialImage(const Image& image)
-{
-    _renderData.setTexture("material.diffuse", image.getTexture());
-}
-
-void Cubiod::setMaterialSpecularImage(const Image& image)
-{
-    _renderData.setTexture("material.specular", image.getTexture());
+void Cubiod::setMaterial(const ShaderMaterial& material) {
+    _renderData.setUniform("material", material);
 }
 
 void Cubiod::updateUniformes() {
     _renderData.setUniform("imageEnable", _imageCount);
     _renderData.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
-
-    // _renderData.setUniform("material.specular", 0.5f, 0.5f, 0.5f);
-    _renderData.setUniform("material.shininess", 32.0f);
 
     glm::mat4 model;
     model = glm::translate(model, glm::vec3(_pos.x, _pos.y, _pos.z));
