@@ -85,7 +85,7 @@ GLFWwindow* InitWindows() {
 }
 
 // TODO: 优化, 抽取到类中
-void SetCameraAndLightUniform(const CameraFPS& camera, const LightSource& light) {
+void SetCameraAndLightUniform(const CameraFPS& camera, const LightSource& light, const ShaderParallelLight& parallelLight) {
     const Position& lightPos = light.getPosition();
     Color lightColor = light.getColor();
     for (auto itr : ShaderProgram::getAllShaderProg())
@@ -96,6 +96,8 @@ void SetCameraAndLightUniform(const CameraFPS& camera, const LightSource& light)
         ShaderProgram& prog = *itr.first;
         prog.setCamera("camera", camera);
         prog.setLight("light", light);
+
+        prog.setParallelLight("parallelLight", parallelLight);
     }
 }
 
@@ -116,13 +118,23 @@ int main() {
 
     LightSource light(-1.0f, 2.0f, 2.0f);
     light.setSize({0.5f, 0.5f, 0.5f});
+    light.setDirection(Position(0.0f, 0.0f, 0.0f) - light.getPosition());
     // light.setColor(Color(0.33f, 0.42f, 0.18f));
+    light.setSpotFacor(45.0f);
+    light.setReach(50.0f);
+
+    // TODO: 优化, 进一步封装 ShaderParallelLight, 逻辑上对齐 LightSource
+    ShaderParallelLight parallelLight;
+    parallelLight.setColor({1.0f, 0.0f, 0.0f});
+    parallelLight.setDirection({-1.0f, 1.0f, -1.0f});
 
     Image wallImage(GetCurPath() + "/resource/wall.jpeg");
     Image awesomefaceImage(GetCurPath() + "/resource/awesomeface.png", true);
     Image containerImage(GetCurPath() + "/resource/container.jpeg");
     Image containerImage2(GetCurPath() + "/resource/container2.png");
-    Image containerImage2_specular(GetCurPath() + "/resource/container2_specular.png");
+    // Image containerImage2_specular(GetCurPath() + "/resource/container2_specular.png");
+    Image containerImage2_specular(GetCurPath() + "/resource/lighting_maps_specular_color.png", true);
+    Image matrixImage(GetCurPath() + "/resource/matrix.jpeg");
 
     Rectangle rectangle(1.0f, 1.0f);
     rectangle.setPosition({0.0f, -0.5f});
@@ -153,8 +165,9 @@ int main() {
     for (int index = 0; index < 10; ++index) {
         Cubiod cuboid(1.0f, 1.0f, 1.0f);
         cuboid.setPosition(cuboidPositions[index]);
-        cuboid.addImage(containerImage);
         cuboid.addImage(awesomefaceImage);
+        cuboid.addImage(containerImage);
+        // cuboid.addImage(matrixImage);
         cuboids.push_back(cuboid);
     }
 
@@ -182,7 +195,7 @@ int main() {
     while(!glfwWindowShouldClose(window))
     {
         ProcessInput(window, cameraFPS);
-        SetCameraAndLightUniform(cameraFPS, light);
+        SetCameraAndLightUniform(cameraFPS, light, parallelLight);
 
         // cuboid.setRotation((float)glfwGetTime());
         // cuboid1.setRotation(-(float)glfwGetTime());
@@ -190,8 +203,11 @@ int main() {
         
         float x = ratio * 3;
         float y = sqrt(9.0f - x * x) * (lastX - x >=0.0f ? -1.0f : 1.0f);
+        float z = ratio * 3;
         lastX = x;
-        light.setPosition({x, y, 3.0f});
+        // light.setPosition({x, y, 3.0f});
+        // light.setPosition({3.0f, 2.0f, z + 3.0f});
+        // light.setDirection(Position(0.0f, -0.0f, z + light.getPosition().z) - light.getPosition());
         // light.setColor(Color(ratio * 2.0f, (1.0f - ratio) * 0.3f, (0.5 + ratio) * 1.7f));
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);

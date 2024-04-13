@@ -21,6 +21,8 @@ struct XYZ {
         if (it != list.end()) y = *it++; else y = 0.0;
         if (it != list.end()) z = *it;   else z = 0.0;
     }
+    XYZ operator-(const XYZ& oth) const { return XYZ(x - oth.x, y - oth.y, z - oth.z); }
+    XYZ operator+(const XYZ& oth) const { return XYZ(x + oth.x, y + oth.y, z + oth.z); }
 
     float x;
     float y;
@@ -28,5 +30,12 @@ struct XYZ {
 };
 
 typedef XYZ Position, Vector3D, Size3D;
+
+
+// math units
+
+struct MathUtils {
+    static float AngleCos(float angel);
+};
 
 #endif // _HEAD_FLAG_MODEL_BASEDEFINE_H

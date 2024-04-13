@@ -22,6 +22,7 @@ struct ShaderProgram {
     void setUniform(const std::string& name, const Color& color);
     void setCamera(const std::string& name, const ShaderCamera& camera);
     void setLight(const std::string& name, const ShaderLight& light);
+    void setParallelLight(const std::string& name, const ShaderParallelLight& light);
 
     void enable();
     bool checkVertice(const std::string& name);

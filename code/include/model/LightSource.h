@@ -11,7 +11,10 @@ struct LightSource : AbstractModel {
 
     void setColor(const Color& color);
     void setPosition(const Position& pos);
+    void setDirection(const Vector3D& dir);
     void setSize(const Size3D& size);
+    void setSpotFacor(float angle, float expandSmoothRatio = 0.1f);
+    void setReach(float distance);
     const Position& getPosition() const;
     Color getColor() const;
 

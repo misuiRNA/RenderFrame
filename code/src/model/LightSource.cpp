@@ -22,8 +22,21 @@ void LightSource::setSize(const Size3D& size) {
     _size = size;
 }
 
+void LightSource::setSpotFacor(float angle, float expandSmoothRatio) {
+    _shaderLight.setSpotAngle(angle);
+    _shaderLight.setSpotOuterRatio(expandSmoothRatio);
+}
+
 void LightSource::setPosition(const Position& pos) {
     _shaderLight.setPosition(pos);
+}
+
+void LightSource::setDirection(const Vector3D& dir) {
+    _shaderLight.setSpotDirection(dir);
+}
+
+void LightSource::setReach(float distance) {
+    _shaderLight.setReach(distance);
 }
 
 const Position& LightSource::getPosition() const {

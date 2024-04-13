@@ -90,6 +90,20 @@ void ShaderProgram::setLight(const std::string& name, const ShaderLight& light) 
     setUniform(name + ".ambient", light.getAmbientColor());
     setUniform(name + ".diffuse", light.getDiffuseColor());
     setUniform(name + ".specular", light.getSpecularColor());
+    setUniform(name + ".attenuationKC", light.getAttenuationFactor().x);
+    setUniform(name + ".attenuationKL", light.getAttenuationFactor().y);
+    setUniform(name + ".attenuationKQ", light.getAttenuationFactor().z);
+    setUniform(name + ".spotDirection", light.getSpotDirection());
+    setUniform(name + ".spotCos",  MathUtils::AngleCos(light.getSpotAngle()));
+    setUniform(name + ".spotOuterCos", MathUtils::AngleCos(light.getSpotOuterAngle()));
+}
+
+void ShaderProgram::setParallelLight(const std::string& name, const ShaderParallelLight& light)
+{
+    setUniform(name + ".direction", light.getDirection());
+    setUniform(name + ".ambient", light.getAmbientColor());
+    setUniform(name + ".diffuse", light.getDiffuseColor());
+    setUniform(name + ".specular", light.getSpecularColor());
 }
 
 void ShaderProgram::enable() {
