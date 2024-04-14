@@ -7,5 +7,6 @@ gcc -xc++ \
  -L3rd/lib \
  -lglfw.3 \
  -lstdc++ \
+ -ldl -lm -lX11 -lpthread \
  -std=c++11 \
  -o bin/Render

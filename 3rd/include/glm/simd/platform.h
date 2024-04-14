@@ -286,7 +286,7 @@
 #	elif (__GNUC__ >= 8)
 #		define GLM_COMPILER (GLM_COMPILER_GCC80)
 #	else
-#		define GLM_COMPILER (GLM_COMPILER_GCC)
+#		define GLM_COMPILER (GLM_COMPILER_GCC70)
 #	endif
 
 #else
