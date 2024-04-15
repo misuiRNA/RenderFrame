@@ -6,7 +6,7 @@
 #include "ShaderLight.h"
 
 struct LightSource : AbstractModel {
-    LightSource(float x, float y, float z);
+    LightSource(const Position& pos);
     operator const ShaderLight&() const;
 
     void setColor(const Color& color);

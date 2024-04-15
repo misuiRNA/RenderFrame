@@ -85,9 +85,7 @@ GLFWwindow* InitWindows() {
 }
 
 // TODO: 优化, 抽取到类中
-void SetCameraAndLightUniform(const CameraFPS& camera, const LightSource& light, const ShaderParallelLight& parallelLight) {
-    const Position& lightPos = light.getPosition();
-    Color lightColor = light.getColor();
+void SetCameraAndLightUniform(const CameraFPS& camera, const LightSource& light1, const LightSource& light2, const ShaderParallelLight& parallelLight) {
     for (auto itr : ShaderProgram::getAllShaderProg())
     {
         if (!itr.first) {
@@ -95,9 +93,11 @@ void SetCameraAndLightUniform(const CameraFPS& camera, const LightSource& light,
         }
         ShaderProgram& prog = *itr.first;
         prog.setCamera("camera", camera);
-        prog.setLight("light", light);
-
         prog.setParallelLight("parallelLight", parallelLight);
+        prog.setLight("light", light1);
+        prog.setLight("light[0]", light1);
+        prog.setLight("light[1]", light2);
+
     }
 }
 
@@ -116,16 +116,25 @@ int main() {
     cameraFPS.setPosition(1.0f, 2.0f, 2.0f);
     cameraFPS.setAttitude(0.0f, 180.0f);
 
-    LightSource light(-1.0f, 2.0f, 2.0f);
+    LightSource light({-1.0f, 2.0f, 2.0f});
     light.setSize({0.5f, 0.5f, 0.5f});
     light.setDirection(Position(0.0f, 0.0f, 0.0f) - light.getPosition());
     // light.setColor(Color(0.33f, 0.42f, 0.18f));
+    light.setColor(Color(1.0f, 0.0f, 0.0f));
     light.setSpotFacor(45.0f);
     light.setReach(50.0f);
 
+    LightSource light1({1.0f, -2.0f, 2.0f});
+    light1.setSize({0.5f, 0.5f, 0.5f});
+    light1.setDirection(Position(0.0f, 0.0f, 2.0f) - light1.getPosition());
+    light1.setColor(Color(0.0f, 1.0f, 0.0f));
+    light1.setSpotFacor(12.0f);
+    light1.setReach(100.0f);
+
+
     // TODO: 优化, 进一步封装 ShaderParallelLight, 逻辑上对齐 LightSource
     ShaderParallelLight parallelLight;
-    parallelLight.setColor({1.0f, 0.0f, 0.0f});
+    // parallelLight.setColor({1.0f, 0.0f, 0.0f});
     parallelLight.setDirection({-1.0f, 1.0f, -1.0f});
 
     Image wallImage(GetCurPath() + "/resource/wall.jpeg");
@@ -195,7 +204,7 @@ int main() {
     while(!glfwWindowShouldClose(window))
     {
         ProcessInput(window, cameraFPS);
-        SetCameraAndLightUniform(cameraFPS, light, parallelLight);
+        SetCameraAndLightUniform(cameraFPS, light, light1, parallelLight);
 
         // cuboid.setRotation((float)glfwGetTime());
         // cuboid1.setRotation(-(float)glfwGetTime());
@@ -207,15 +216,19 @@ int main() {
         lastX = x;
         // light.setPosition({x, y, 3.0f});
         // light.setPosition({3.0f, 2.0f, z + 3.0f});
-        // light.setDirection(Position(0.0f, -0.0f, z + light.getPosition().z) - light.getPosition());
+        // light.setDirection(Position(0.0f, 0.0f, z + light.getPosition().z) - light.getPosition());
         // light.setColor(Color(ratio * 2.0f, (1.0f - ratio) * 0.3f, (0.5 + ratio) * 1.7f));
+
+        // light1.setPosition({x, y, 1.0f});
+        // light1.setDirection(Position(0.0f, 0.0f, z + light1.getPosition().z) - light1.getPosition());
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        rectangle.show();
-        rectangle1.show();
+        // rectangle.show();
+        // rectangle1.show();
         light.show();
+        light1.show();
         cuboid.show();
         cuboid1.show();
 

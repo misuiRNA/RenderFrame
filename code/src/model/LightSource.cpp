@@ -4,10 +4,10 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "ShaderProgram.h"
 
-LightSource::LightSource(float x, float y, float z)
+LightSource::LightSource(const Position& pos)
 : AbstractModel(ShaderProgram::getLightSourceShaderProg())
 , _size(1.0f, 1.0f, 1.0f) {
-    _shaderLight.setPosition({x, y, z});
+    _shaderLight.setPosition(pos);
 }
 
 LightSource::operator const ShaderLight&() const {
