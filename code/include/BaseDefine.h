@@ -14,6 +14,7 @@ struct Color {
 };
 
 struct XYZ {
+    XYZ() : XYZ(0.0f, 0.0f, 0.0f) { }
     XYZ(float x, float y, float z) : x(x), y(y), z(z) { }
     XYZ(std::initializer_list<double> list) {
         auto it = list.begin();

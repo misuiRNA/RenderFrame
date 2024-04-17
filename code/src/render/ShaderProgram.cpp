@@ -79,12 +79,17 @@ void ShaderProgram::setUniform(const std::string& name, const Color& color) {
     setUniform(name,  color.r, color.g, color.b);
 }
 
-void ShaderProgram::setCamera(const std::string& name, const ShaderCamera& camera) {
+void ShaderProgram::setUniform(const std::string& name, const ShaderCamera& camera) {
     setUniformMat4(name + ".matrix", camera.getMatrix());
     setUniform(name + ".pos", camera.getPosition());
 }
 
-void ShaderProgram::setLight(const std::string& name, const ShaderLight& light) {
+void ShaderProgram::setCamera(const std::string& name, const ShaderCamera& camera) {
+    setUniform(name, camera);
+}
+
+// TODO 优化, 使用组合模式封装 unigform 配置自定义结构体的复杂性, 设计思路可参考 nlohmann json
+void ShaderProgram::setUniform(const std::string& name, const ShaderLight& light) {
     // glsl 传输结构体uniform格式如 light.pos
     setUniform(name + ".pos", light.getPosition());
     setUniform(name + ".ambient", light.getAmbientColor());
@@ -98,12 +103,20 @@ void ShaderProgram::setLight(const std::string& name, const ShaderLight& light) 
     setUniform(name + ".spotOuterCos", MathUtils::AngleCos(light.getSpotOuterAngle()));
 }
 
-void ShaderProgram::setParallelLight(const std::string& name, const ShaderParallelLight& light)
-{
+void ShaderProgram::setLight(const std::string& name, const ShaderLight& light) {
+    setUniform(name, light);
+}
+
+void ShaderProgram::setUniform(const std::string& name, const ShaderParallelLight& light) {
     setUniform(name + ".direction", light.getDirection());
     setUniform(name + ".ambient", light.getAmbientColor());
     setUniform(name + ".diffuse", light.getDiffuseColor());
     setUniform(name + ".specular", light.getSpecularColor());
+}
+
+void ShaderProgram::setParallelLight(const std::string& name, const ShaderParallelLight& light)
+{
+    setUniform(name, light);
 }
 
 void ShaderProgram::enable() {

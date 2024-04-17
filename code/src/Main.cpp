@@ -86,6 +86,10 @@ GLFWwindow* InitWindows() {
 
 // TODO: 优化, 抽取到类中
 void SetCameraAndLightUniform(const CameraFPS& camera, const LightSource& light1, const LightSource& light2, const ShaderParallelLight& parallelLight) {
+    std::vector<LightSource> lights;
+    lights.push_back(light1);
+    lights.push_back(light2);
+
     for (auto itr : ShaderProgram::getAllShaderProg())
     {
         if (!itr.first) {
@@ -95,9 +99,7 @@ void SetCameraAndLightUniform(const CameraFPS& camera, const LightSource& light1
         prog.setCamera("camera", camera);
         prog.setParallelLight("parallelLight", parallelLight);
         prog.setLight("light", light1);
-        prog.setLight("light[0]", light1);
-        prog.setLight("light[1]", light2);
-
+        SetUniforms(prog, "light", lights);
     }
 }
 
