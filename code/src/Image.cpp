@@ -3,16 +3,26 @@
 #include "glad/glad.h"
 
 // TODO: 优化, 自动识别isRBGA, 不要传参
-Image::Image(const std::string& path, bool isRBGA)
-: _isRBGA(isRBGA)
-, _width(0)
+Image::Image(const std::string& path)
+: _width(0)
 , _height(0)
+, _format(GL_RGB)
 , _textureId(0) {
     stbi_set_flip_vertically_on_load(true);
     int width, height, nrChannels;
     unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
     if (!data) {
         std::cout << "Failed to load texture " << path << std::endl;
+    }
+
+    if (nrChannels == 1) {
+        _format = GL_RED;
+    }
+    else if (nrChannels == 3) {
+        _format = GL_RGB;
+    }
+    else if (nrChannels == 4) {
+        _format = GL_RGBA;
     }
 
     _width = width;
@@ -26,7 +36,7 @@ Image::~Image() {
 
 unsigned int Image::getTexture() const {
     if (_textureId == 0) {
-        _textureId = genTexture(_data, _width, _height, _isRBGA ? GL_RGBA : GL_RGB);
+        _textureId = genTexture(_data, _width, _height, _format);
     }
     return _textureId;
 }

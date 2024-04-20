@@ -153,6 +153,10 @@ void RenderData::setTextureFunc(const std::string& name, const std::function<voi
     _textureFunctions[name] = func;
 }
 
+void RenderData::setMeshes(const std::vector<Mesh>& meshes) {
+    _meshes = meshes;
+}
+
 void RenderData::useUniforms() {
     for (auto& pair : _uniformFunctions) {
         auto& setUniformFunc = pair.second;
@@ -169,7 +173,7 @@ void RenderData::useTextures() {
 
 void RenderData::drawAttributes() {
     if (_VAOId == 0) {
-        std::cout << "RenderData: draw failed, VAOId is 0!" << std::endl;
+        // std::cout << "RenderData: draw failed, VAOId is 0!" << std::endl;
         return;
     }
 
@@ -179,11 +183,57 @@ void RenderData::drawAttributes() {
     } else {
         glDrawArrays(GL_TRIANGLES, 0, _vertexCount);
     }
+
+    // always good practice to set everything back to defaults once configured.
+    // glBindVertexArray(0);
+    glActiveTexture(GL_TEXTURE0);
 }
 
 void RenderData::draw() {
     useTextures();
     _prog.enable();
     useUniforms();
+
     drawAttributes();
+    drawMeshes();
+}
+
+void RenderData::drawMeshes() {
+    auto UseTextures = [this](const std::vector<Texture>& textures) {
+        // bind appropriate textures
+        unsigned int diffuseNr  = 1;
+        unsigned int specularNr = 1;
+        unsigned int normalNr   = 1;
+        unsigned int heightNr   = 1;
+        for(unsigned int i = 0; i < textures.size(); i++)
+        {
+            // retrieve texture number (the N in diffuse_textureN)
+            std::string number;
+            std::string name = textures[i].type;
+            if(name == "texture_diffuse") {
+                number = std::to_string(diffuseNr++);
+            }
+            else if(name == "texture_specular") {
+                number = std::to_string(specularNr++); // transfer unsigned int to string
+            }
+            else if(name == "texture_normal") {
+                number = std::to_string(normalNr++); // transfer unsigned int to string
+            }
+            else if(name == "texture_height") {
+                number = std::to_string(heightNr++); // transfer unsigned int to string
+            }
+
+            const std::string uniformName = (name + number).c_str();
+            int slotIndex = i;
+            unsigned int textureId = textures[i].id;
+            _prog.setUniform(uniformName, slotIndex);
+            glActiveTexture(GL_TEXTURE0 + slotIndex);
+            glBindTexture(GL_TEXTURE_2D, textureId);
+        }
+    };
+    _prog.enable();
+    for(unsigned int i = 0; i < _meshes.size(); i++) {
+        UseTextures(_meshes[i].textures);
+        _meshes[i].Draw();
+    }
 }

@@ -32,6 +32,16 @@ struct XYZ {
 
 typedef XYZ Position, Vector3D, Size3D;
 
+struct XY {
+    XY() : XY(0.0f, 0.0f) { }
+    XY(float x, float y) : x(x), y(y) { }
+
+    float x;
+    float y;
+};
+
+typedef XY Vector2D;
+
 
 // math units
 

@@ -36,6 +36,7 @@ public:
     static ShaderProgram& getRectShaderProg();
     static ShaderProgram& getCuboidShaderProg();
     static ShaderProgram& getLightSourceShaderProg();
+    static ShaderProgram& getMeshShaderProg();
     static std::map<ShaderProgram*, int>& getAllShaderProg();
 
 private:

@@ -8,6 +8,7 @@
 #include "model/Rectangle.h"
 #include "model/Cuboid.h"
 #include "model/LightSource.h"
+#include "model/Model3D.h"
 #include "Camera.h"
 #include "Image.h"
 
@@ -140,11 +141,11 @@ int main() {
     parallelLight.setDirection({-1.0f, 1.0f, -1.0f});
 
     Image wallImage(GetCurPath() + "/resource/wall.jpeg");
-    Image awesomefaceImage(GetCurPath() + "/resource/awesomeface.png", true);
+    Image awesomefaceImage(GetCurPath() + "/resource/awesomeface.png");
     Image containerImage(GetCurPath() + "/resource/container.jpeg");
     Image containerImage2(GetCurPath() + "/resource/container2.png");
     // Image containerImage2_specular(GetCurPath() + "/resource/container2_specular.png");
-    Image containerImage2_specular(GetCurPath() + "/resource/lighting_maps_specular_color.png", true);
+    Image containerImage2_specular(GetCurPath() + "/resource/lighting_maps_specular_color.png");
     Image matrixImage(GetCurPath() + "/resource/matrix.jpeg");
 
     Rectangle rectangle(1.0f, 1.0f);
@@ -202,6 +203,10 @@ int main() {
     cuboid1.addImage(wallImage);
     // cuboid1.setMaterial(material);
 
+    Model3D l3DModel(GetCurPath() + "/resource/models/nanosuit/nanosuit.obj");
+    l3DModel.setScale(0.1);
+    l3DModel.setPosition({0.0f, 1.5f, 1.5f});
+
     float lastX = 0.0f;
     while(!glfwWindowShouldClose(window))
     {
@@ -224,15 +229,23 @@ int main() {
         // light1.setPosition({x, y, 1.0f});
         // light1.setDirection(Position(0.0f, 0.0f, z + light1.getPosition().z) - light1.getPosition());
 
+        // l3DModel.setPosition({x, y, 1.5f});
+        // l3DModel.setFront({x, y, 0.0f});
+        l3DModel.setFront({x, y, 0.0f});
+
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // rectangle.show();
         // rectangle1.show();
+
+        // TODO: fix bug 如果不绘制cuboid则light也不出现
         light.show();
         light1.show();
         cuboid.show();
         cuboid1.show();
+
+        l3DModel.show();
 
         for (int index = 0; index < cuboids.size(); ++index) {
             cuboids[index].show();

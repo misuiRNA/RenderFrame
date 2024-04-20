@@ -8,6 +8,7 @@
 #include "BaseDefine.h"
 #include "ShaderProgram.h"
 #include "ShaderMaterial.h"
+#include "Mesh.h"
 
 
 struct RenderData {
@@ -29,7 +30,10 @@ struct RenderData {
     void setUniform(const std::string& name, const ShaderMaterial& material);
     void setUniformMat4(const std::string& name, const float* mat);
 
+    void setMeshes(const std::vector<Mesh>& meshes);
+
     void draw();
+    void drawMeshes();
 
 private:
     void useTextures();
@@ -44,6 +48,8 @@ private:
 
     int _vertexCount;
     int _indexCount;
+
+    std::vector<Mesh> _meshes;
 
     std::map<std::string, int> _textureMap;
     std::map<std::string, std::function<void(void)>> _uniformFunctions;
