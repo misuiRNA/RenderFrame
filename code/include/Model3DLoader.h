@@ -5,6 +5,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <map>
 
 struct Model3DLoader {
     Model3DLoader(bool gammaCorrection = false) : _gammaCorrection(gammaCorrection) { }
@@ -13,13 +14,13 @@ struct Model3DLoader {
 private:
     void processNode(aiNode* node, const aiScene* scene);
     Mesh processMesh(aiMesh* mesh, const aiScene* scene);
-    std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+    std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType aiType, Texture::Type type);
 
 private:
-    std::vector<Texture> _texturesLoaded;
+    bool _gammaCorrection;
     std::vector<Mesh> _meshes;
     std::string _directory;
-    bool _gammaCorrection;
+    std::map<std::string, Texture> _texturesLoadedMap;
 };
 
 

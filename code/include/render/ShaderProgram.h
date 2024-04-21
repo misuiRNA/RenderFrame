@@ -33,6 +33,7 @@ struct ShaderProgram {
     unsigned int getVerticeSlotId(const std::string& name);
 
 public:
+    static std::string UniformArrayName(const std::string& name, int index);
     static ShaderProgram& getRectShaderProg();
     static ShaderProgram& getCuboidShaderProg();
     static ShaderProgram& getLightSourceShaderProg();
@@ -54,7 +55,7 @@ private:
 template<typename T>
 void SetUniforms(ShaderProgram& prog, const std::string& name, const std::vector<T>& items) {
     for (int i = 0; i < items.size(); ++i) {
-        std::string itemName = name + "[" + std::to_string(i) + "]";
+        std::string itemName = ShaderProgram::UniformArrayName(name, i);
         prog.setUniform(itemName, items[i]);
     }
 }

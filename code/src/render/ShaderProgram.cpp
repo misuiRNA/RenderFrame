@@ -158,6 +158,10 @@ unsigned int ShaderProgram::BuildShader(const char* shaderCode, unsigned int sha
     return shderId;
 }
 
+std::string ShaderProgram::UniformArrayName(const std::string& name, int index) {
+    return name + "[" + std::to_string(index) + "]";
+}
+
 static std::string ReadFile(const std::string& path) {
     std::string path1 = GetCurPath();
     std::string content;

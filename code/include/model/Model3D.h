@@ -10,6 +10,7 @@ struct Model3D : AbstractModel {
     Model3D(std::string const& path);
     void setPosition(const Position& pos);
     void setFront(const Vector3D& front);
+    void setUp(const Vector3D& up);
     void setScale(float scale);
 
 private:

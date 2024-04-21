@@ -200,40 +200,44 @@ void RenderData::draw() {
 
 void RenderData::drawMeshes() {
     auto UseTextures = [this](const std::vector<Texture>& textures) {
-        // bind appropriate textures
-        unsigned int diffuseNr  = 1;
-        unsigned int specularNr = 1;
-        unsigned int normalNr   = 1;
-        unsigned int heightNr   = 1;
-        for(unsigned int i = 0; i < textures.size(); i++)
-        {
-            // retrieve texture number (the N in diffuse_textureN)
-            std::string number;
-            std::string name = textures[i].type;
-            if(name == "texture_diffuse") {
-                number = std::to_string(diffuseNr++);
-            }
-            else if(name == "texture_specular") {
-                number = std::to_string(specularNr++); // transfer unsigned int to string
-            }
-            else if(name == "texture_normal") {
-                number = std::to_string(normalNr++); // transfer unsigned int to string
-            }
-            else if(name == "texture_height") {
-                number = std::to_string(heightNr++); // transfer unsigned int to string
+        unsigned int diffuseNr  = 0;
+        unsigned int specularNr = 0;
+        unsigned int normalNr   = 0;
+        unsigned int heightNr   = 0;
+        for(unsigned int index = 0; index < textures.size(); index++) {
+            std::string uniformName;
+            switch (textures[index].type) {
+                case Texture::Type::DIFFUSE: {
+                    uniformName = ShaderProgram::UniformArrayName("diffuseTexture", diffuseNr++);
+                    break;
+                }
+                case Texture::Type::SPECULAR: {
+                    uniformName = ShaderProgram::UniformArrayName("specularTexture", specularNr++);
+                    break;
+                }
+                case Texture::Type::NORMAL: {
+                    uniformName = ShaderProgram::UniformArrayName("normalTexture", normalNr++);
+                    break;
+                }
+                case Texture::Type::HEIGHT: {
+                    uniformName = ShaderProgram::UniformArrayName("heightTexture", heightNr++);
+                    break;
+                }
+                default:
+                    // error log
+                    break;
             }
 
-            const std::string uniformName = (name + number).c_str();
-            int slotIndex = i;
-            unsigned int textureId = textures[i].id;
-            _prog.setUniform(uniformName, slotIndex);
-            glActiveTexture(GL_TEXTURE0 + slotIndex);
+            unsigned int textureId = textures[index].id;
+            _prog.setUniform(uniformName, (int)index);
+            glActiveTexture(GL_TEXTURE0 + index);
             glBindTexture(GL_TEXTURE_2D, textureId);
         }
     };
+
     _prog.enable();
-    for(unsigned int i = 0; i < _meshes.size(); i++) {
-        UseTextures(_meshes[i].textures);
-        _meshes[i].Draw();
+    for(unsigned int index = 0; index < _meshes.size(); index++) {
+        UseTextures(_meshes[index].textures);
+        _meshes[index].Draw();
     }
 }

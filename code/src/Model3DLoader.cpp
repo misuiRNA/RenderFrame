@@ -33,20 +33,20 @@ Mesh Model3DLoader::processMesh(aiMesh* mesh, const aiScene* scene) {
     std::vector<Vertex> vertices;
     for(unsigned int i = 0; i < mesh->mNumVertices; i++) {
         Vertex vertex;
-        vertex.Position = Vector3D(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
+        vertex.position = Vector3D(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
 
         if (mesh->HasNormals()) {
-            vertex.Normal = Vector3D(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
+            vertex.normal = Vector3D(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
         }
 
         if(mesh->mTextureCoords[0]) {
             // a vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't 
             // use models where a vertex can have multiple texture coordinates so we always take the first set (0).
-            vertex.TexCoords = Vector2D(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
-            vertex.Tangent = Vector3D(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z);
-            vertex.Bitangent = Vector3D(mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z);
+            vertex.texCoords = Vector2D(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
+            vertex.tangent = Vector3D(mesh->mTangents[i].x, mesh->mTangents[i].y, mesh->mTangents[i].z);
+            vertex.bitangent = Vector3D(mesh->mBitangents[i].x, mesh->mBitangents[i].y, mesh->mBitangents[i].z);
         } else {
-            vertex.TexCoords = Vector2D(0.0f, 0.0f);
+            vertex.texCoords = Vector2D(0.0f, 0.0f);
         }
 
         vertices.push_back(vertex);
@@ -70,46 +70,35 @@ Mesh Model3DLoader::processMesh(aiMesh* mesh, const aiScene* scene) {
     // normal: texture_normalN
 
     // 1. diffuse maps
-    std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, "texture_diffuse");
+    std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, Texture::Type::DIFFUSE);
     textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
     // 2. specular maps
-    std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
+    std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, Texture::Type::SPECULAR);
     textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
     // 3. normal maps
-    std::vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, "texture_normal");
+    std::vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, Texture::Type::NORMAL);
     textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
     // 4. height maps
-    std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, "texture_height");
+    std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, Texture::Type::HEIGHT);
     textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
     return Mesh(vertices, indices, textures);
 }
 
-std::vector<Texture> Model3DLoader::loadMaterialTextures(aiMaterial *mat, aiTextureType type, std::string typeName) {
+std::vector<Texture> Model3DLoader::loadMaterialTextures(aiMaterial* mat, aiTextureType aiType, Texture::Type type) {
     std::vector<Texture> textures;
-    for(unsigned int i = 0; i < mat->GetTextureCount(type); i++)
-    {
-        aiString textureName;
-        mat->GetTexture(type, i, &textureName);
-        bool skip = false;
-        for(unsigned int j = 0; j < _texturesLoaded.size(); j++) {
-            if(std::strcmp(_texturesLoaded[j].path.data(), textureName.C_Str()) == 0)
-            {
-                textures.push_back(_texturesLoaded[j]);
-                skip = true;
-                break;
-            }
-        }
-        if(!skip) {
-            Image image(_directory + "/" + textureName.C_Str());
-            Texture texture;
+    for(unsigned int index = 0; index < mat->GetTextureCount(aiType); index++) {
+        aiString aiTextureName;
+        mat->GetTexture(aiType, index, &aiTextureName);
+        std::string textureName = aiTextureName.C_Str();
+        if (_texturesLoadedMap.find(textureName) == _texturesLoadedMap.end()) {
+            Texture& texture = _texturesLoadedMap[textureName];
+            Image image(_directory + "/" + textureName);
             texture.id = image.getTexture();
-            texture.type = typeName;
-            texture.path = textureName.C_Str();
-            textures.push_back(texture);
-
-            _texturesLoaded.push_back(texture);
+            texture.type = type;
+            texture.key = textureName;
         }
+        textures.push_back(_texturesLoadedMap[textureName]);
     }
     return textures;
 }

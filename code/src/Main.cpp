@@ -203,9 +203,16 @@ int main() {
     cuboid1.addImage(wallImage);
     // cuboid1.setMaterial(material);
 
-    Model3D l3DModel(GetCurPath() + "/resource/models/nanosuit/nanosuit.obj");
-    l3DModel.setScale(0.1);
-    l3DModel.setPosition({0.0f, 1.5f, 1.5f});
+    Model3D nanosuit(GetCurPath() + "/resource/models/nanosuit/nanosuit.obj");
+    nanosuit.setScale(0.1);
+    nanosuit.setPosition({0.0f, 1.5f, 1.5f});
+    nanosuit.setFront({1.0f, 0.0f, 0.0f});
+
+    Model3D airplan(GetCurPath() + "/resource/models/Airplane/11803_Airplane_v1_l1.obj");
+    airplan.setScale(0.001);
+    airplan.setPosition({0.0f, 5.0f, 1.5f});
+    airplan.setUp({0.0f, 1.0f, 0.0f});
+    airplan.setFront({0.0f, 0.0f, 1.0f});
 
     float lastX = 0.0f;
     while(!glfwWindowShouldClose(window))
@@ -231,7 +238,7 @@ int main() {
 
         // l3DModel.setPosition({x, y, 1.5f});
         // l3DModel.setFront({x, y, 0.0f});
-        l3DModel.setFront({x, y, 0.0f});
+        // airplan.setFront({0.0f, y, x});
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -245,9 +252,12 @@ int main() {
         cuboid.show();
         cuboid1.show();
 
-        l3DModel.show();
+        nanosuit.show();
+        airplan.show();
 
         for (int index = 0; index < cuboids.size(); ++index) {
+            nanosuit.setPosition({-index + 0.1f, 1.5f, 1.5f});
+            nanosuit.show();
             cuboids[index].show();
         }
 
