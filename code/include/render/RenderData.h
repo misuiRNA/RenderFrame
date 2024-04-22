@@ -60,7 +60,7 @@ private:
     void useTextures();
     void useUniforms();
     void drawAttributes();
-    void setUniformFunc(const std::string& name, const std::function<void(void)>& func);
+    void setUniformFunc(const std::string& name, const std::function<void(ShaderProgram& prog)>& func);
     void setTextureFunc(const std::string& name, const std::function<void(void)>& func);
 
 public:
@@ -99,7 +99,7 @@ private:
 
     std::vector<RenderData> _children;
     std::map<std::string, int> _textureMap;
-    std::map<std::string, std::function<void(void)>> _uniformFunctions;
+    std::map<std::string, std::function<void(ShaderProgram& prog)>> _uniformFunctions;
     std::map<std::string, std::function<void(void)>> _textureFunctions;
 };
 

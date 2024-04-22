@@ -90,29 +90,29 @@ void RenderData::setTexture(const std::string& name, unsigned int textureId) {
 }
 
 void RenderData::setUniform(const std::string& name, int value) {
-    std::function<void(void)> func = [this, name, value]() -> void {
-        _prog.setUniform(name, value);
+    std::function<void(ShaderProgram& prog)> func = [name, value](ShaderProgram& prog) -> void {
+        prog.setUniform(name, value);
     };
     setUniformFunc(name, func);
 }
 
 void RenderData::setUniform(const std::string& name, float value) {
-    std::function<void(void)> func = [this, name, value]() -> void {
-        _prog.setUniform(name, value);
+    std::function<void(ShaderProgram& prog)> func = [name, value](ShaderProgram& prog) -> void {
+        prog.setUniform(name, value);
     };
     setUniformFunc(name, func);
 }
 
 void RenderData::setUniform(const std::string& name, float v1, float v2, float v3) {
-    std::function<void(void)> func = [this, name, v1, v2, v3]() -> void {
-        _prog.setUniform(name, v1, v2, v3);
+    std::function<void(ShaderProgram& prog)> func = [name, v1, v2, v3](ShaderProgram& prog) -> void {
+        prog.setUniform(name, v1, v2, v3);
     };
     setUniformFunc(name, func);
 }
 
 void RenderData::setUniform(const std::string& name, float v1, float v2, float v3, float v4) {
-    std::function<void(void)> func = [this, name, v1, v2, v3, v4]() -> void {
-        _prog.setUniform(name, v1, v2, v3, v4);
+    std::function<void(ShaderProgram& prog)> func = [name, v1, v2, v3, v4](ShaderProgram& prog) -> void {
+        prog.setUniform(name, v1, v2, v3, v4);
     };
     setUniformFunc(name, func);
 }
@@ -120,24 +120,24 @@ void RenderData::setUniform(const std::string& name, float v1, float v2, float v
 void RenderData::setUniformMat4(const std::string& name, const float* mat)
 {
     glm::mat4 matrix = glm::make_mat4(mat);
-    std::function<void(void)> func = [this, name, matrix]() -> void {
-        _prog.setUniformMat4(name, glm::value_ptr(matrix));
+    std::function<void(ShaderProgram& prog)> func = [name, matrix](ShaderProgram& prog) -> void {
+        prog.setUniformMat4(name, glm::value_ptr(matrix));
     };
     setUniformFunc(name, func);
 }
 
 void RenderData::setUniform(const std::string& name, const XYZ& value)
 {
-    std::function<void(void)> func = [this, name, value]() -> void {
-        _prog.setUniform(name, value);
+    std::function<void(ShaderProgram& prog)> func = [name, value](ShaderProgram& prog) -> void {
+        prog.setUniform(name, value);
     };
     setUniformFunc(name, func);
 }
 
 void RenderData::setUniform(const std::string& name, const Color& color)
 {
-    std::function<void(void)> func = [this, name, color]() -> void {
-        _prog.setUniform(name, color);
+    std::function<void(ShaderProgram& prog)> func = [name, color](ShaderProgram& prog) -> void {
+        prog.setUniform(name, color);
     };
     setUniformFunc(name, func);
 }
@@ -151,7 +151,7 @@ void RenderData::setUniform(const std::string& name, const ShaderMaterial& mater
     setUniform(name + ".shininess", material.shininess);
 }
 
-void RenderData::setUniformFunc(const std::string& name, const std::function<void(void)>& func) {
+void RenderData::setUniformFunc(const std::string& name, const std::function<void(ShaderProgram& prog)>& func) {
     _uniformFunctions[name] = func;
 }
 
@@ -170,7 +170,7 @@ RenderData RenderData::genChild() {
 void RenderData::useUniforms() {
     for (auto& pair : _uniformFunctions) {
         auto& setUniformFunc = pair.second;
-        setUniformFunc();
+        setUniformFunc(_prog);
     }
 }
 
