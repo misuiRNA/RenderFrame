@@ -14,6 +14,7 @@ struct Color {
 };
 
 struct XYZ {
+    XYZ() : XYZ(0.0f, 0.0f, 0.0f) { }
     XYZ(float x, float y, float z) : x(x), y(y), z(z) { }
     XYZ(std::initializer_list<double> list) {
         auto it = list.begin();
@@ -30,6 +31,16 @@ struct XYZ {
 };
 
 typedef XYZ Position, Vector3D, Size3D;
+
+struct XY {
+    XY() : XY(0.0f, 0.0f) { }
+    XY(float x, float y) : x(x), y(y) { }
+
+    float x;
+    float y;
+};
+
+typedef XY Vector2D;
 
 
 // math units

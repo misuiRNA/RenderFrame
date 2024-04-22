@@ -14,9 +14,11 @@ RenderData::RenderData(ShaderProgram& prog)
 }
 
 RenderData::~RenderData() {
-    if (_VAOId != 0)
-    {
-        glDeleteVertexArrays(1, &_VAOId);
+    if (_VAOId != 0) {
+        // TODO: delete _needFreeVAOSelf, 临时方案
+        if (_needFreeVAOSelf) {
+            glDeleteVertexArrays(1, &_VAOId);
+        }
     }
 }
 
@@ -34,6 +36,9 @@ void RenderData::setVertices(unsigned int index, unsigned int vertexSize, const 
     glVertexAttribPointer(index, vertexSize, GL_FLOAT, GL_FALSE, vertexSize * sizeof(float), (void*)0);
     glEnableVertexAttribArray(index);
 
+    _needFreeVAOSelf = true;
+
+    // glBindVertexArray(0);
     // TODO should release VBO manual ?
 }
 
@@ -59,6 +64,7 @@ void RenderData::setIndices(const std::vector<unsigned int>& indices) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
 
+    // glBindVertexArray(0);
     // TODO should release EBO manual ?
     _indexCount = indices.size();
 }
@@ -153,6 +159,14 @@ void RenderData::setTextureFunc(const std::string& name, const std::function<voi
     _textureFunctions[name] = func;
 }
 
+void RenderData::setChildren(const std::vector<RenderData>& children) {
+    _children = children;
+}
+
+RenderData RenderData::genChild() {
+    return RenderData(_prog);
+}
+
 void RenderData::useUniforms() {
     for (auto& pair : _uniformFunctions) {
         auto& setUniformFunc = pair.second;
@@ -169,7 +183,7 @@ void RenderData::useTextures() {
 
 void RenderData::drawAttributes() {
     if (_VAOId == 0) {
-        std::cout << "RenderData: draw failed, VAOId is 0!" << std::endl;
+        // std::cout << "RenderData: draw failed, VAOId is 0!" << std::endl;
         return;
     }
 
@@ -179,11 +193,19 @@ void RenderData::drawAttributes() {
     } else {
         glDrawArrays(GL_TRIANGLES, 0, _vertexCount);
     }
+
+    // always good practice to set everything back to defaults once configured.
+    // glBindVertexArray(0);
+    glActiveTexture(GL_TEXTURE0);
 }
 
 void RenderData::draw() {
     useTextures();
     _prog.enable();
     useUniforms();
+
     drawAttributes();
+    for (RenderData& child : _children) {
+        child.draw();
+    }
 }

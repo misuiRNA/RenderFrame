@@ -41,7 +41,7 @@ uniform sampler2D texture2;
 uniform vec4 color;
 uniform int imageEnable;
 uniform Material material;
-uniform Light light;
+uniform Light light[2];
 uniform ParallelLight parallelLight;
 
 in vec2 TexCoord;
@@ -50,6 +50,9 @@ in vec3 Normal;
 in vec3 CameraPos;
 
 out vec4 FragColor;
+
+
+// TODO: 优化 1.消除各个函数对全局变量的依赖; 2.光照计算抽取到单独文件中, 方便复用;
 
 float calcSpotIntensity(Light pLight)
 {
@@ -96,9 +99,19 @@ vec3 calcSpecular(vec3 materialSpecular, vec3 pLightDir, vec3 pLightSpecular)
     return specular;
 }
 
+bool isLightOn(Light pLight)
+{
+    return pLight.attenuationKC == 0.0;
+}
+
 // 计算点光源的光照
 vec4 pointLight_getGouraudLight(Light pLight, vec3 materialAmbient, vec3 materialDiffuse, vec3 materialSpecular)
 {
+    // 未设置光源
+    if (isLightOn(pLight))
+    {
+        return vec4(0.0, 0.0, 0.0, 1.0);
+    }
     vec3 pointLightDir = normalize(FragPos - pLight.pos);
     vec3 ambient = calcAmbient(materialAmbient, pLight.ambient);
     vec3 diffuse = calcDiffuse(materialDiffuse, pointLightDir, pLight.diffuse);
@@ -120,6 +133,10 @@ vec4 pointLight_getGouraudLight(Light pLight, vec3 materialAmbient, vec3 materia
 // 计算平行光源的光照
 vec4 parallelLight_getGouraudLight(ParallelLight pLight, vec3 materialAmbient, vec3 materialDiffuse, vec3 materialSpecular)
 {
+    if (pLight.direction == vec3(0, 0, 0))
+    {
+        return vec4(0.0, 0.0, 0.0, 1.0);
+    }
     vec3 paralletLightDir = normalize(parallelLight.direction);
     vec3 ambient = calcAmbient(materialAmbient, parallelLight.ambient);
     vec3 diffuse = calcDiffuse(materialDiffuse, paralletLightDir, parallelLight.diffuse);
@@ -136,8 +153,9 @@ void main()
     vec3 materialDiffuse = vec3(texture(material.diffuseTexture, TexCoord)) + material.diffuse;
     vec3 materialSpecular = vec3(texture(material.specularTexture, TexCoord)) + material.specular;
 
-    vec4 gouraudLight = pointLight_getGouraudLight(light, materialAmbient, materialDiffuse, materialSpecular);
-    // vec4 gouraudLight = parallelLight_getGouraudLight(parallelLight, materialAmbient, materialDiffuse, materialSpecular);
+    vec4 gouraudLight = parallelLight_getGouraudLight(parallelLight, materialAmbient, materialDiffuse, materialSpecular);
+    gouraudLight += pointLight_getGouraudLight(light[0], materialAmbient, materialDiffuse, materialSpecular);
+    gouraudLight += pointLight_getGouraudLight(light[1], materialAmbient, materialDiffuse, materialSpecular);
 
     if (imageEnable == 0)
     {

@@ -79,12 +79,17 @@ void ShaderProgram::setUniform(const std::string& name, const Color& color) {
     setUniform(name,  color.r, color.g, color.b);
 }
 
-void ShaderProgram::setCamera(const std::string& name, const ShaderCamera& camera) {
+void ShaderProgram::setUniform(const std::string& name, const ShaderCamera& camera) {
     setUniformMat4(name + ".matrix", camera.getMatrix());
     setUniform(name + ".pos", camera.getPosition());
 }
 
-void ShaderProgram::setLight(const std::string& name, const ShaderLight& light) {
+void ShaderProgram::setCamera(const std::string& name, const ShaderCamera& camera) {
+    setUniform(name, camera);
+}
+
+// TODO 优化, 使用组合模式封装 unigform 配置自定义结构体的复杂性, 设计思路可参考 nlohmann json
+void ShaderProgram::setUniform(const std::string& name, const ShaderLight& light) {
     // glsl 传输结构体uniform格式如 light.pos
     setUniform(name + ".pos", light.getPosition());
     setUniform(name + ".ambient", light.getAmbientColor());
@@ -98,12 +103,20 @@ void ShaderProgram::setLight(const std::string& name, const ShaderLight& light) 
     setUniform(name + ".spotOuterCos", MathUtils::AngleCos(light.getSpotOuterAngle()));
 }
 
-void ShaderProgram::setParallelLight(const std::string& name, const ShaderParallelLight& light)
-{
+void ShaderProgram::setLight(const std::string& name, const ShaderLight& light) {
+    setUniform(name, light);
+}
+
+void ShaderProgram::setUniform(const std::string& name, const ShaderParallelLight& light) {
     setUniform(name + ".direction", light.getDirection());
     setUniform(name + ".ambient", light.getAmbientColor());
     setUniform(name + ".diffuse", light.getDiffuseColor());
     setUniform(name + ".specular", light.getSpecularColor());
+}
+
+void ShaderProgram::setParallelLight(const std::string& name, const ShaderParallelLight& light)
+{
+    setUniform(name, light);
 }
 
 void ShaderProgram::enable() {
@@ -145,6 +158,10 @@ unsigned int ShaderProgram::BuildShader(const char* shaderCode, unsigned int sha
     return shderId;
 }
 
+std::string ShaderProgram::UniformArrayName(const std::string& name, int index) {
+    return name + "[" + std::to_string(index) + "]";
+}
+
 static std::string ReadFile(const std::string& path) {
     std::string path1 = GetCurPath();
     std::string content;
@@ -167,7 +184,7 @@ ShaderProgram& ShaderProgram::getRectShaderProg() {
     static const std::string MODEL_NAME = "Rectangle";
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/RectangleShader.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/RectangleShader.fs");
-    static const std::map<std::string, int> ATTRIBUTE_NAME_MAP ={
+    static const std::map<std::string, int> ATTRIBUTE_NAME_MAP = {
         {"aPos"     , 0},
         {"aTexCoord", 1},
     };
@@ -180,7 +197,7 @@ ShaderProgram& ShaderProgram::getCuboidShaderProg() {
     static const std::string MODEL_NAME = "Cuboid";
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Cuboid.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Cuboid.fs");
-    static const std::map<std::string, int> ATTRIBUTE_NAME_MAP ={
+    static const std::map<std::string, int> ATTRIBUTE_NAME_MAP = {
         {"aPos"     , 0},
         {"aTexCoord", 1},
         {"aNormal"  , 2},
@@ -193,8 +210,22 @@ ShaderProgram& ShaderProgram::getLightSourceShaderProg() {
     static const std::string MODEL_NAME = "LightSource";
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/LightSource.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/LightSource.fs");
-    static const std::map<std::string, int> ATTRIBUTE_NAME_MAP ={
+    static const std::map<std::string, int> ATTRIBUTE_NAME_MAP = {
         {"aPos"     , 0},
+    };
+
+    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP);
+    return prog;
+}
+
+ShaderProgram& ShaderProgram::getMeshShaderProg() {
+    static const std::string MODEL_NAME = "Model3D";
+    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Model3DlShader.vs");
+    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Model3DlShader.fs");
+    static const std::map<std::string, int> ATTRIBUTE_NAME_MAP = {
+        {"aPos"      , 0},
+        {"aNormal"   , 1},
+        {"aTexCoords", 2},
     };
 
     static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP);

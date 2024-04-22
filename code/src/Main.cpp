@@ -8,6 +8,7 @@
 #include "model/Rectangle.h"
 #include "model/Cuboid.h"
 #include "model/LightSource.h"
+#include "model/Model3D.h"
 #include "Camera.h"
 #include "Image.h"
 
@@ -85,9 +86,11 @@ GLFWwindow* InitWindows() {
 }
 
 // TODO: 优化, 抽取到类中
-void SetCameraAndLightUniform(const CameraFPS& camera, const LightSource& light, const ShaderParallelLight& parallelLight) {
-    const Position& lightPos = light.getPosition();
-    Color lightColor = light.getColor();
+void SetCameraAndLightUniform(const CameraFPS& camera, const LightSource& light1, const LightSource& light2, const ShaderParallelLight& parallelLight) {
+    std::vector<LightSource> lights;
+    lights.push_back(light1);
+    lights.push_back(light2);
+
     for (auto itr : ShaderProgram::getAllShaderProg())
     {
         if (!itr.first) {
@@ -95,9 +98,9 @@ void SetCameraAndLightUniform(const CameraFPS& camera, const LightSource& light,
         }
         ShaderProgram& prog = *itr.first;
         prog.setCamera("camera", camera);
-        prog.setLight("light", light);
-
         prog.setParallelLight("parallelLight", parallelLight);
+        prog.setLight("light", light1);
+        SetUniforms(prog, "light", lights);
     }
 }
 
@@ -116,24 +119,33 @@ int main() {
     cameraFPS.setPosition(1.0f, 2.0f, 2.0f);
     cameraFPS.setAttitude(0.0f, 180.0f);
 
-    LightSource light(-1.0f, 2.0f, 2.0f);
+    LightSource light({-1.0f, 2.0f, 2.0f});
     light.setSize({0.5f, 0.5f, 0.5f});
     light.setDirection(Position(0.0f, 0.0f, 0.0f) - light.getPosition());
     // light.setColor(Color(0.33f, 0.42f, 0.18f));
+    light.setColor(Color(1.0f, 0.0f, 0.0f));
     light.setSpotFacor(45.0f);
     light.setReach(50.0f);
 
+    LightSource light1({1.0f, -2.0f, 2.0f});
+    light1.setSize({0.5f, 0.5f, 0.5f});
+    light1.setDirection(Position(0.0f, 0.0f, 2.0f) - light1.getPosition());
+    light1.setColor(Color(0.0f, 1.0f, 0.0f));
+    light1.setSpotFacor(12.0f);
+    light1.setReach(100.0f);
+
+
     // TODO: 优化, 进一步封装 ShaderParallelLight, 逻辑上对齐 LightSource
     ShaderParallelLight parallelLight;
-    parallelLight.setColor({1.0f, 0.0f, 0.0f});
+    // parallelLight.setColor({1.0f, 0.0f, 0.0f});
     parallelLight.setDirection({-1.0f, 1.0f, -1.0f});
 
     Image wallImage(GetCurPath() + "/resource/wall.jpeg");
-    Image awesomefaceImage(GetCurPath() + "/resource/awesomeface.png", true);
+    Image awesomefaceImage(GetCurPath() + "/resource/awesomeface.png");
     Image containerImage(GetCurPath() + "/resource/container.jpeg");
     Image containerImage2(GetCurPath() + "/resource/container2.png");
     // Image containerImage2_specular(GetCurPath() + "/resource/container2_specular.png");
-    Image containerImage2_specular(GetCurPath() + "/resource/lighting_maps_specular_color.png", true);
+    Image containerImage2_specular(GetCurPath() + "/resource/lighting_maps_specular_color.png");
     Image matrixImage(GetCurPath() + "/resource/matrix.jpeg");
 
     Rectangle rectangle(1.0f, 1.0f);
@@ -191,11 +203,22 @@ int main() {
     cuboid1.addImage(wallImage);
     // cuboid1.setMaterial(material);
 
+    Model3D nanosuit(GetCurPath() + "/resource/models/nanosuit/nanosuit.obj");
+    nanosuit.setScale(0.1);
+    nanosuit.setPosition({0.0f, 1.5f, 1.5f});
+    nanosuit.setFront({1.0f, 0.0f, 0.0f});
+
+    Model3D airplan(GetCurPath() + "/resource/models/Airplane/11803_Airplane_v1_l1.obj");
+    airplan.setScale(0.001);
+    airplan.setPosition({0.0f, 5.0f, 1.5f});
+    airplan.setUp({0.0f, 1.0f, 0.0f});
+    airplan.setFront({0.0f, 0.0f, 1.0f});
+
     float lastX = 0.0f;
     while(!glfwWindowShouldClose(window))
     {
         ProcessInput(window, cameraFPS);
-        SetCameraAndLightUniform(cameraFPS, light, parallelLight);
+        SetCameraAndLightUniform(cameraFPS, light, light1, parallelLight);
 
         // cuboid.setRotation((float)glfwGetTime());
         // cuboid1.setRotation(-(float)glfwGetTime());
@@ -207,19 +230,34 @@ int main() {
         lastX = x;
         // light.setPosition({x, y, 3.0f});
         // light.setPosition({3.0f, 2.0f, z + 3.0f});
-        // light.setDirection(Position(0.0f, -0.0f, z + light.getPosition().z) - light.getPosition());
+        // light.setDirection(Position(0.0f, 0.0f, z + light.getPosition().z) - light.getPosition());
         // light.setColor(Color(ratio * 2.0f, (1.0f - ratio) * 0.3f, (0.5 + ratio) * 1.7f));
+
+        // light1.setPosition({x, y, 1.0f});
+        // light1.setDirection(Position(0.0f, 0.0f, z + light1.getPosition().z) - light1.getPosition());
+
+        // l3DModel.setPosition({x, y, 1.5f});
+        // l3DModel.setFront({x, y, 0.0f});
+        // airplan.setFront({0.0f, y, x});
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        rectangle.show();
-        rectangle1.show();
+        // rectangle.show();
+        // rectangle1.show();
+
+        // TODO: fix bug 如果不绘制cuboid则light也不出现
         light.show();
+        light1.show();
         cuboid.show();
         cuboid1.show();
 
+        nanosuit.show();
+        airplan.show();
+
         for (int index = 0; index < cuboids.size(); ++index) {
+            nanosuit.setPosition({-index + 0.1f, 1.5f, 1.5f});
+            nanosuit.show();
             cuboids[index].show();
         }
 
