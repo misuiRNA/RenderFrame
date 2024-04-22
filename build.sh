@@ -8,7 +8,7 @@ gcc -xc++ \
  -lassimp.5 \
  -lglfw.3 \
  -lstdc++ \
- -ldl -lm -lX11 -lpthread \
+ -ldl -lm -lX11 -lpthread -lz \
  -std=c++11 \
  -o bin/Render
 
