@@ -14,9 +14,11 @@ RenderData::RenderData(ShaderProgram& prog)
 }
 
 RenderData::~RenderData() {
-    if (_VAOId != 0)
-    {
-        glDeleteVertexArrays(1, &_VAOId);
+    if (_VAOId != 0) {
+        // TODO: delete _needFreeVAOSelf, 临时方案
+        if (_needFreeVAOSelf) {
+            glDeleteVertexArrays(1, &_VAOId);
+        }
     }
 }
 
@@ -34,6 +36,9 @@ void RenderData::setVertices(unsigned int index, unsigned int vertexSize, const 
     glVertexAttribPointer(index, vertexSize, GL_FLOAT, GL_FALSE, vertexSize * sizeof(float), (void*)0);
     glEnableVertexAttribArray(index);
 
+    _needFreeVAOSelf = true;
+
+    // glBindVertexArray(0);
     // TODO should release VBO manual ?
 }
 
@@ -59,6 +64,7 @@ void RenderData::setIndices(const std::vector<unsigned int>& indices) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
 
+    // glBindVertexArray(0);
     // TODO should release EBO manual ?
     _indexCount = indices.size();
 }
@@ -153,8 +159,12 @@ void RenderData::setTextureFunc(const std::string& name, const std::function<voi
     _textureFunctions[name] = func;
 }
 
-void RenderData::setMeshes(const std::vector<Mesh>& meshes) {
-    _meshes = meshes;
+void RenderData::setChildren(const std::vector<RenderData>& children) {
+    _children = children;
+}
+
+RenderData RenderData::genChild() {
+    return RenderData(_prog);
 }
 
 void RenderData::useUniforms() {
@@ -195,49 +205,7 @@ void RenderData::draw() {
     useUniforms();
 
     drawAttributes();
-    drawMeshes();
-}
-
-void RenderData::drawMeshes() {
-    auto UseTextures = [this](const std::vector<Texture>& textures) {
-        unsigned int diffuseNr  = 0;
-        unsigned int specularNr = 0;
-        unsigned int normalNr   = 0;
-        unsigned int heightNr   = 0;
-        for(unsigned int index = 0; index < textures.size(); index++) {
-            std::string uniformName;
-            switch (textures[index].type) {
-                case Texture::Type::DIFFUSE: {
-                    uniformName = ShaderProgram::UniformArrayName("diffuseTexture", diffuseNr++);
-                    break;
-                }
-                case Texture::Type::SPECULAR: {
-                    uniformName = ShaderProgram::UniformArrayName("specularTexture", specularNr++);
-                    break;
-                }
-                case Texture::Type::NORMAL: {
-                    uniformName = ShaderProgram::UniformArrayName("normalTexture", normalNr++);
-                    break;
-                }
-                case Texture::Type::HEIGHT: {
-                    uniformName = ShaderProgram::UniformArrayName("heightTexture", heightNr++);
-                    break;
-                }
-                default:
-                    // error log
-                    break;
-            }
-
-            unsigned int textureId = textures[index].id;
-            _prog.setUniform(uniformName, (int)index);
-            glActiveTexture(GL_TEXTURE0 + index);
-            glBindTexture(GL_TEXTURE_2D, textureId);
-        }
-    };
-
-    _prog.enable();
-    for(unsigned int index = 0; index < _meshes.size(); index++) {
-        UseTextures(_meshes[index].textures);
-        _meshes[index].Draw();
+    for (RenderData& child : _children) {
+        child.draw();
     }
 }

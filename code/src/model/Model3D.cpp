@@ -50,8 +50,68 @@ void Model3D::updateUniformes() {
     _renderData.setUniformMat4("model", glm::value_ptr(model));
 }
 
+static std::map<std::string, unsigned int> TextureList2Map(const std::vector<Texture>& textures) {
+    std::map<std::string, unsigned int> textureMap;
+    unsigned int diffuseNr  = 0;
+    unsigned int specularNr = 0;
+    unsigned int normalNr   = 0;
+    unsigned int heightNr   = 0;
+    for(unsigned int index = 0; index < textures.size(); index++) {
+        std::string uniformName;
+        switch (textures[index].type) {
+            case Texture::Type::DIFFUSE: {
+                uniformName = ShaderProgram::UniformArrayName("diffuseTexture", diffuseNr++);
+                break;
+            }
+            case Texture::Type::SPECULAR: {
+                uniformName = ShaderProgram::UniformArrayName("specularTexture", specularNr++);
+                break;
+            }
+            case Texture::Type::NORMAL: {
+                uniformName = ShaderProgram::UniformArrayName("normalTexture", normalNr++);
+                break;
+            }
+            case Texture::Type::HEIGHT: {
+                uniformName = ShaderProgram::UniformArrayName("heightTexture", heightNr++);
+                break;
+            }
+            default:
+                // error log
+                break;
+        }
+        textureMap[uniformName] = textures[index].id;
+    }
+    return textureMap;
+}
+
 void Model3D::updateRenderData() {
+    auto buildRenderData = [this](const Mesh& mesh) {
+        RenderData data = _renderData.genChild();
+        data.setVertices(mesh.vertices);
+        data.setIndices(mesh.indices);
+        std::map<std::string, unsigned int> textureMap = TextureList2Map(mesh.textures);
+        for (const auto& itr : textureMap) {
+            data.setTexture(itr.first, itr.second);
+        }
+        return data;
+    };
+
     Model3DLoader loader;
     const std::vector<Mesh>& meshes = loader.loadModel(_modelPath);
-    _renderData.setMeshes(meshes);
+    std::vector<RenderData> renderDatas;
+    for (const Mesh& mesh : meshes) {
+        renderDatas.push_back(buildRenderData(mesh));
+    }
+    _renderData.setChildren(renderDatas);
 }
+
+
+std::vector<ShaderAttribDescriptor> Vertex::descriptor = {
+    {0, 3, (void*)offsetof(Vertex, position)},
+    {1, 3, (void*)offsetof(Vertex, normal)},
+    {2, 2, (void*)offsetof(Vertex, texCoords)},
+    {3, 3, (void*)offsetof(Vertex, tangent)},
+    {4, 3, (void*)offsetof(Vertex, bitangent)},
+    {5, 4, (void*)offsetof(Vertex, boneIds)},
+    {6, 4, (void*)offsetof(Vertex, weights)},
+};

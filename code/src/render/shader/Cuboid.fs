@@ -51,6 +51,9 @@ in vec3 CameraPos;
 
 out vec4 FragColor;
 
+
+// TODO: 优化 1.消除各个函数对全局变量的依赖; 2.光照计算抽取到单独文件中, 方便复用;
+
 float calcSpotIntensity(Light pLight)
 {
     // 点光源才会聚光
