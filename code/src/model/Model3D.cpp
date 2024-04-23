@@ -88,14 +88,24 @@ void Model3D::updateRenderData() {
     Model3DLoader loader;
     const std::vector<Mesh>& meshes = loader.loadModel(_modelPath);
     std::vector<RenderData> renderDatas;
+    renderDatas.reserve(meshes.size());
     for (const Mesh& mesh : meshes) {
-        RenderData& data = _renderData.genChild();
+        RenderData data(_renderData.getShaderProgram());
         data.setVertices(mesh.vertices);
         data.setIndices(mesh.indices);
         std::map<std::string, unsigned int> textureMap = TextureList2Map(mesh.textures);
         for (const auto& itr : textureMap) {
             data.setTexture(itr.first, itr.second);
         }
+        renderDatas.push_back(std::move(data));
+    }
+    _meshRenderDatas = std::move(renderDatas);
+}
+
+void Model3D::doDraw() {
+    _renderData.draw();
+    for (RenderData& data : _meshRenderDatas) {
+        data.draw();
     }
 }
 

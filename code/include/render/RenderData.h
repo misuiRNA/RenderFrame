@@ -26,6 +26,8 @@ struct RenderData {
     RenderData(RenderData&& oth) noexcept;    // remind: 声明为 noexcept 系统才会优先使用移动构造函数
     ~RenderData();
 
+    RenderData& operator=(RenderData&& oth) noexcept;
+
     void setVertices(unsigned int index, unsigned int vertexSize, const std::vector<float>& vertices);
     void setVertices(const std::string& name, unsigned int vertexSize, const std::vector<float>& vertices);
     void setIndices(const std::vector<unsigned int>& indices);
@@ -41,8 +43,7 @@ struct RenderData {
     void setUniform(const std::string& name, const ShaderMaterial& material);
     void setUniformMat4(const std::string& name, const float* mat);
 
-    void setChildren(const std::vector<RenderData>& children);
-    RenderData& genChild();
+    ShaderProgram& getShaderProgram();
 
     void draw();
 
@@ -86,7 +87,6 @@ private:
     int _vertexCount;
     int _indexCount;
 
-    std::vector<RenderData> _children;
     std::map<std::string, int> _textureMap;
     std::map<std::string, std::function<void(ShaderProgram& prog)>> _uniformFunctions;
 };

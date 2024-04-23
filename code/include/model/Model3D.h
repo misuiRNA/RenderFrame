@@ -16,6 +16,7 @@ struct Model3D : AbstractModel {
 private:
     void updateRenderData() override;
     void updateUniformes() override;
+    void doDraw() override;
 
 private:
     Position _pos;
@@ -24,6 +25,7 @@ private:
     float _scaleRatio;
 
     std::string _modelPath;
+    std::vector<RenderData> _meshRenderDatas;
 };
 
 #endif

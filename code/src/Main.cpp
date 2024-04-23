@@ -174,6 +174,7 @@ int main() {
     };
 
     std::vector<Cubiod> cuboids;
+    cuboids.reserve(10);
     for (int index = 0; index < 10; ++index) {
         cuboids.emplace_back(1.0f, 1.0f, 1.0f);
         Cubiod& cuboid = cuboids.back();

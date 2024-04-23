@@ -23,7 +23,6 @@ RenderData::RenderData(RenderData&& oth) noexcept
 , _VAOId(oth._VAOId)
 , _vertexCount(oth._vertexCount)
 , _indexCount(oth._indexCount)
-, _children(std::move(oth._children))
 , _textureMap(std::move(oth._textureMap))
 , _uniformFunctions(std::move(oth._uniformFunctions)) {
     oth._VAOId = 0;
@@ -35,6 +34,22 @@ RenderData::~RenderData() {
     if (_VAOId != 0) {
         glDeleteVertexArrays(1, &_VAOId);
     }
+}
+
+RenderData& RenderData::operator=(RenderData&& oth) noexcept {
+    if (this != &oth) {
+        _prog = oth._prog;
+        _VAOId = oth._VAOId;
+        _vertexCount = oth._vertexCount;
+        _indexCount = oth._indexCount;
+        _textureMap = std::move(oth._textureMap);
+        _uniformFunctions = std::move(oth._uniformFunctions);
+
+        oth._VAOId = 0;
+        oth._vertexCount = 0;
+        oth._indexCount = 0;
+    }
+    return *this;
 }
 
 void RenderData::setVertices(unsigned int index, unsigned int vertexSize, const std::vector<float>& vertices) {
@@ -156,13 +171,8 @@ void RenderData::setUniformFunc(const std::string& name, const std::function<voi
     _uniformFunctions[name] = func;
 }
 
-void RenderData::setChildren(const std::vector<RenderData>& children) {
-    // _children = children;
-}
-
-RenderData& RenderData::genChild() {
-    _children.emplace_back(_prog);
-    return _children.back();
+ShaderProgram& RenderData::getShaderProgram() {
+    return _prog;
 }
 
 void RenderData::useUniforms() {
@@ -223,8 +233,4 @@ void RenderData::draw() {
     useUniforms();
     drawAttributes();
     resetTextures();
-
-    for (RenderData& child : _children) {
-        child.draw();
-    }
 }

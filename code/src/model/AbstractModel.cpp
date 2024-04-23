@@ -13,5 +13,10 @@ void AbstractModel::show() {
         updateRenderData();
     }
     updateUniformes();
+
+    doDraw();
+}
+
+void AbstractModel::doDraw() {
     _renderData.draw();
 }

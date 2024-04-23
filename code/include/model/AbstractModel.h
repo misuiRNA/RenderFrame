@@ -8,9 +8,12 @@ struct AbstractModel {
     AbstractModel(const RenderData& renderData);
     void show();
 
+    virtual ~AbstractModel() { }
+
 private:
     virtual void updateRenderData() = 0;
     virtual void updateUniformes() = 0;
+    virtual void doDraw();
 
 protected:
     RenderData _renderData;
