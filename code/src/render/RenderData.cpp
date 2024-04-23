@@ -13,12 +13,27 @@ RenderData::RenderData(ShaderProgram& prog)
 
 }
 
+RenderData::RenderData(const RenderData& oth)
+: RenderData(oth._prog) {
+
+}
+
+RenderData::RenderData(RenderData&& oth) noexcept
+: _prog(oth._prog)
+, _VAOId(oth._VAOId)
+, _vertexCount(oth._vertexCount)
+, _indexCount(oth._indexCount)
+, _children(std::move(oth._children))
+, _textureMap(std::move(oth._textureMap))
+, _uniformFunctions(std::move(oth._uniformFunctions)) {
+    oth._VAOId = 0;
+    oth._vertexCount = 0;
+    oth._indexCount = 0;
+}
+
 RenderData::~RenderData() {
     if (_VAOId != 0) {
-        // TODO: delete _needFreeVAOSelf, 临时方案
-        if (_needFreeVAOSelf) {
-            glDeleteVertexArrays(1, &_VAOId);
-        }
+        glDeleteVertexArrays(1, &_VAOId);
     }
 }
 
@@ -36,10 +51,8 @@ void RenderData::setVertices(unsigned int index, unsigned int vertexSize, const 
     glVertexAttribPointer(index, vertexSize, GL_FLOAT, GL_FALSE, vertexSize * sizeof(float), (void*)0);
     glEnableVertexAttribArray(index);
 
-    _needFreeVAOSelf = true;
-
-    // glBindVertexArray(0);
     // TODO should release VBO manual ?
+    glBindVertexArray(0);
 }
 
 void RenderData::setVertices(const std::string& name, unsigned int vertexSize, const std::vector<float>& vertices) {
@@ -64,8 +77,8 @@ void RenderData::setIndices(const std::vector<unsigned int>& indices) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
 
-    // glBindVertexArray(0);
     // TODO should release EBO manual ?
+    glBindVertexArray(0);
     _indexCount = indices.size();
 }
 
@@ -74,19 +87,7 @@ void RenderData::setTexture(const std::string& name, unsigned int textureId) {
     //     std::cout << "Failed to set texture! textureId is invalid: " << name  << " value=" << textureId << std::endl;
     //     return;
     // }
-
-    if (_textureMap.find(name) == _textureMap.end()) {
-        int newSlotIndex = (int)_textureMap.size();
-        _textureMap[name] = newSlotIndex;
-    }
-    int slotIndex = _textureMap[name];
-    setUniform(name, slotIndex);
-
-    std::function<void(void)> func = [slotIndex, textureId](void) -> void {
-            glActiveTexture(GL_TEXTURE0 + slotIndex);
-            glBindTexture(GL_TEXTURE_2D, textureId);
-    };
-    setTextureFunc(name, func);
+    _textureMap[name] = textureId;
 }
 
 void RenderData::setUniform(const std::string& name, int value) {
@@ -155,16 +156,13 @@ void RenderData::setUniformFunc(const std::string& name, const std::function<voi
     _uniformFunctions[name] = func;
 }
 
-void RenderData::setTextureFunc(const std::string& name, const std::function<void(void)>& func) {
-    _textureFunctions[name] = func;
-}
-
 void RenderData::setChildren(const std::vector<RenderData>& children) {
-    _children = children;
+    // _children = children;
 }
 
-RenderData RenderData::genChild() {
-    return RenderData(_prog);
+RenderData& RenderData::genChild() {
+    _children.emplace_back(_prog);
+    return _children.back();
 }
 
 void RenderData::useUniforms() {
@@ -175,9 +173,28 @@ void RenderData::useUniforms() {
 }
 
 void RenderData::useTextures() {
-    for (auto& pair : _textureFunctions) {
-        auto& setTextureFunc = pair.second;
-        setTextureFunc();
+    int textureSlotIdx = 0;
+    for (auto& itr : _textureMap) {
+        const std::string& name = itr.first;
+        unsigned int textureId = itr.second;
+
+        _prog.setUniform(name, textureSlotIdx);
+        glActiveTexture(GL_TEXTURE0 + textureSlotIdx);
+        glBindTexture(GL_TEXTURE_2D, textureId);
+        textureSlotIdx++;
+    }
+}
+
+void RenderData::resetTextures() {
+    int textureSlotIdx = 0;
+    for (auto& itr : _textureMap) {
+        const std::string& name = itr.first;
+        unsigned int textureId = itr.second;
+
+        _prog.setUniform(name, 0);
+        glActiveTexture(GL_TEXTURE0 + textureSlotIdx);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        textureSlotIdx++;
     }
 }
 
@@ -195,16 +212,18 @@ void RenderData::drawAttributes() {
     }
 
     // always good practice to set everything back to defaults once configured.
-    // glBindVertexArray(0);
+    glBindVertexArray(0);
     glActiveTexture(GL_TEXTURE0);
 }
 
 void RenderData::draw() {
-    useTextures();
     _prog.enable();
-    useUniforms();
 
+    useTextures();
+    useUniforms();
     drawAttributes();
+    resetTextures();
+
     for (RenderData& child : _children) {
         child.draw();
     }

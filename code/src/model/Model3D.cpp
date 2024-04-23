@@ -85,24 +85,18 @@ static std::map<std::string, unsigned int> TextureList2Map(const std::vector<Tex
 }
 
 void Model3D::updateRenderData() {
-    auto buildRenderData = [this](const Mesh& mesh) {
-        RenderData data = _renderData.genChild();
+    Model3DLoader loader;
+    const std::vector<Mesh>& meshes = loader.loadModel(_modelPath);
+    std::vector<RenderData> renderDatas;
+    for (const Mesh& mesh : meshes) {
+        RenderData& data = _renderData.genChild();
         data.setVertices(mesh.vertices);
         data.setIndices(mesh.indices);
         std::map<std::string, unsigned int> textureMap = TextureList2Map(mesh.textures);
         for (const auto& itr : textureMap) {
             data.setTexture(itr.first, itr.second);
         }
-        return data;
-    };
-
-    Model3DLoader loader;
-    const std::vector<Mesh>& meshes = loader.loadModel(_modelPath);
-    std::vector<RenderData> renderDatas;
-    for (const Mesh& mesh : meshes) {
-        renderDatas.push_back(buildRenderData(mesh));
     }
-    _renderData.setChildren(renderDatas);
 }
 
 

@@ -22,19 +22,9 @@ struct ShaderAttribDescriptor {
 
 struct RenderData {
     RenderData(ShaderProgram& prog);
+    RenderData(const RenderData& oth);
+    RenderData(RenderData&& oth) noexcept;    // remind: 声明为 noexcept 系统才会优先使用移动构造函数
     ~RenderData();
-    RenderData& operator= (const RenderData& oth) {
-        _prog = oth._prog;
-        _VAOId = oth._VAOId;
-        _vertexCount = oth._vertexCount;
-        _indexCount = oth._indexCount;
-        // _needFreeVAOSelf = oth._needFreeVAOSelf;
-        _children = oth._children;
-        _textureMap = oth._textureMap;
-        _uniformFunctions = oth._uniformFunctions;
-        _textureFunctions = oth._textureFunctions;
-        return *this;
-    }
 
     void setVertices(unsigned int index, unsigned int vertexSize, const std::vector<float>& vertices);
     void setVertices(const std::string& name, unsigned int vertexSize, const std::vector<float>& vertices);
@@ -52,16 +42,16 @@ struct RenderData {
     void setUniformMat4(const std::string& name, const float* mat);
 
     void setChildren(const std::vector<RenderData>& children);
-    RenderData genChild();
+    RenderData& genChild();
 
     void draw();
 
 private:
     void useTextures();
+    void resetTextures();
     void useUniforms();
     void drawAttributes();
     void setUniformFunc(const std::string& name, const std::function<void(ShaderProgram& prog)>& func);
-    void setTextureFunc(const std::string& name, const std::function<void(void)>& func);
 
 public:
 
@@ -95,12 +85,10 @@ private:
 
     int _vertexCount;
     int _indexCount;
-    bool _needFreeVAOSelf = false;    // TODO: 优化, 临时方案, 需要进一步考虑VAO与RenderData的关系
 
     std::vector<RenderData> _children;
     std::map<std::string, int> _textureMap;
     std::map<std::string, std::function<void(ShaderProgram& prog)>> _uniformFunctions;
-    std::map<std::string, std::function<void(void)>> _textureFunctions;
 };
 
 #endif // _HEAD_FLAG_RENDERDATA_H
