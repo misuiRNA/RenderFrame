@@ -5,67 +5,99 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
+static void VAODeleter(unsigned int* VAOPtr) {
+    if (*VAOPtr != 0) {
+        printf("delete VAO: %d\n", *VAOPtr);
+        glDeleteVertexArrays(1, VAOPtr);
+        *VAOPtr = 0;
+        // delete VBO
+        // delete EBO
+    }
+}
+
 RenderData::RenderData(ShaderProgram& prog)
 : _prog(prog)
 , _VAOId(0)
+, _VAOHolder(&_VAOId, VAODeleter)
 , _vertexCount(0)
 , _indexCount(0) {
 
 }
 
-RenderData::~RenderData() {
-    if (_VAOId != 0) {
-        // TODO: delete _needFreeVAOSelf, 临时方案
-        if (_needFreeVAOSelf) {
-            glDeleteVertexArrays(1, &_VAOId);
-        }
-    }
+// remind: 浅拷贝VAO, 拷贝构造对象共用VAO
+RenderData::RenderData(const RenderData& oth)
+: _prog(oth._prog)
+, _VAOId(oth._VAOId)
+, _VAOHolder(oth._VAOHolder)
+, _vertexCount(oth._vertexCount)
+, _indexCount(oth._indexCount)
+, _textureMap(oth._textureMap)
+, _uniformFunctions(oth._uniformFunctions) {
+
 }
 
-void RenderData::setVertices(unsigned int index, unsigned int vertexSize, const std::vector<float>& vertices) {
+RenderData::RenderData(RenderData&& oth) noexcept
+: _prog(oth._prog)
+, _VAOId(oth._VAOId)
+, _VAOHolder(std::move(oth._VAOHolder))
+, _vertexCount(oth._vertexCount)
+, _indexCount(oth._indexCount)
+, _textureMap(std::move(oth._textureMap))
+, _uniformFunctions(std::move(oth._uniformFunctions)) {
+    oth._VAOId = 0;
+    oth._vertexCount = 0;
+    oth._indexCount = 0;
+    oth._VAOHolder.reset();
+}
+
+RenderData::~RenderData() {
+    // remind: VAO 等 gl 资源释放交给 _VAOHolder 管理
+    _textureMap.clear();
+    _uniformFunctions.clear();
+}
+
+RenderData& RenderData::operator=(RenderData&& oth) noexcept {
+    if (this != &oth) {
+        _prog = oth._prog;
+        _VAOId = oth._VAOId;
+        _vertexCount = oth._vertexCount;
+        _indexCount = oth._indexCount;
+        _textureMap = std::move(oth._textureMap);
+        _uniformFunctions = std::move(oth._uniformFunctions);
+
+        oth._VAOId = 0;
+        oth._vertexCount = 0;
+        oth._indexCount = 0;
+    }
+    return *this;
+}
+
+void RenderData::setVertices(unsigned int VBO, const std::vector<ShaderAttribDescriptor>& descs) {
     if (_VAOId == 0) {
         glGenVertexArrays(1, &_VAOId);
     }
     glBindVertexArray(_VAOId);
-
-    unsigned int VBO;
-    glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
-
-    glVertexAttribPointer(index, vertexSize, GL_FLOAT, GL_FALSE, vertexSize * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(index);
-
-    _needFreeVAOSelf = true;
-
-    // glBindVertexArray(0);
-    // TODO should release VBO manual ?
-}
-
-void RenderData::setVertices(const std::string& name, unsigned int vertexSize, const std::vector<float>& vertices) {
-    if (!_prog.checkVertice(name)) {
-        std::cout << "Failed to set attribute! name not found: " << name << std::endl;
-        return;
+    for (const ShaderAttribDescriptor& desc : descs)
+    {
+        glVertexAttribPointer(desc.index, desc.size, GL_FLOAT, GL_FALSE, desc.stride, desc.pointer);
+        glEnableVertexAttribArray(desc.index);
     }
-    unsigned int index = _prog.getVerticeSlotId(name);
-    setVertices(index, vertexSize, vertices);
-    _vertexCount = vertices.size();
+    glBindVertexArray(0);
 }
 
 void RenderData::setIndices(const std::vector<unsigned int>& indices) {
+    unsigned int EBO = CreateEBO(indices);
+
     if (_VAOId == 0)
     {
         glGenVertexArrays(1, &_VAOId);
     }
+
     glBindVertexArray(_VAOId);
-
-    unsigned int EBO;
-    glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
 
-    // glBindVertexArray(0);
-    // TODO should release EBO manual ?
+    glBindVertexArray(0);
     _indexCount = indices.size();
 }
 
@@ -74,19 +106,7 @@ void RenderData::setTexture(const std::string& name, unsigned int textureId) {
     //     std::cout << "Failed to set texture! textureId is invalid: " << name  << " value=" << textureId << std::endl;
     //     return;
     // }
-
-    if (_textureMap.find(name) == _textureMap.end()) {
-        int newSlotIndex = (int)_textureMap.size();
-        _textureMap[name] = newSlotIndex;
-    }
-    int slotIndex = _textureMap[name];
-    setUniform(name, slotIndex);
-
-    std::function<void(void)> func = [slotIndex, textureId](void) -> void {
-            glActiveTexture(GL_TEXTURE0 + slotIndex);
-            glBindTexture(GL_TEXTURE_2D, textureId);
-    };
-    setTextureFunc(name, func);
+    _textureMap[name] = textureId;
 }
 
 void RenderData::setUniform(const std::string& name, int value) {
@@ -155,16 +175,8 @@ void RenderData::setUniformFunc(const std::string& name, const std::function<voi
     _uniformFunctions[name] = func;
 }
 
-void RenderData::setTextureFunc(const std::string& name, const std::function<void(void)>& func) {
-    _textureFunctions[name] = func;
-}
-
-void RenderData::setChildren(const std::vector<RenderData>& children) {
-    _children = children;
-}
-
-RenderData RenderData::genChild() {
-    return RenderData(_prog);
+ShaderProgram& RenderData::getShaderProgram() const {
+    return _prog;
 }
 
 void RenderData::useUniforms() {
@@ -175,9 +187,28 @@ void RenderData::useUniforms() {
 }
 
 void RenderData::useTextures() {
-    for (auto& pair : _textureFunctions) {
-        auto& setTextureFunc = pair.second;
-        setTextureFunc();
+    int textureSlotIdx = 0;
+    for (auto& itr : _textureMap) {
+        const std::string& name = itr.first;
+        unsigned int textureId = itr.second;
+
+        _prog.setUniform(name, textureSlotIdx);
+        glActiveTexture(GL_TEXTURE0 + textureSlotIdx);
+        glBindTexture(GL_TEXTURE_2D, textureId);
+        textureSlotIdx++;
+    }
+}
+
+void RenderData::resetTextures() {
+    int textureSlotIdx = 0;
+    for (auto& itr : _textureMap) {
+        const std::string& name = itr.first;
+        unsigned int textureId = itr.second;
+
+        _prog.setUniform(name, 0);
+        glActiveTexture(GL_TEXTURE0 + textureSlotIdx);
+        glBindTexture(GL_TEXTURE_2D, 0);
+        textureSlotIdx++;
     }
 }
 
@@ -195,17 +226,39 @@ void RenderData::drawAttributes() {
     }
 
     // always good practice to set everything back to defaults once configured.
-    // glBindVertexArray(0);
+    glBindVertexArray(0);
     glActiveTexture(GL_TEXTURE0);
 }
 
 void RenderData::draw() {
-    useTextures();
     _prog.enable();
-    useUniforms();
 
+    useTextures();
+    useUniforms();
     drawAttributes();
-    for (RenderData& child : _children) {
-        child.draw();
-    }
+    resetTextures();
+}
+
+
+unsigned int RenderData::CreateVBO(size_t size, const void* data) {
+    unsigned int VBO;
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    // A great thing about structs is that their memory layout is sequential for all its items.
+    // The effect is that we can simply pass a pointer to the struct and it translates perfectly to a glm::vec3/2 array which
+    // again translates to 3/2 floats which translates to a byte array.
+    glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+
+    // TODO should release VBO manual ?
+    return VBO;
+}
+
+unsigned int RenderData::CreateEBO(const std::vector<unsigned int>& indices) {
+    unsigned int EBO;
+    glGenBuffers(1, &EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+
+    // TODO should release EBO manual ?
+    return EBO;
 }

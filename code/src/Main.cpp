@@ -174,13 +174,14 @@ int main() {
     };
 
     std::vector<Cubiod> cuboids;
+    cuboids.reserve(10);
     for (int index = 0; index < 10; ++index) {
-        Cubiod cuboid(1.0f, 1.0f, 1.0f);
+        cuboids.emplace_back(1.0f, 1.0f, 1.0f);
+        Cubiod& cuboid = cuboids.back();
         cuboid.setPosition(cuboidPositions[index]);
         cuboid.addImage(awesomefaceImage);
         cuboid.addImage(containerImage);
         // cuboid.addImage(matrixImage);
-        cuboids.push_back(cuboid);
     }
 
     ShaderMaterial material(containerImage2, containerImage2_specular);
@@ -243,8 +244,8 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // rectangle.show();
-        // rectangle1.show();
+        rectangle.show();
+        rectangle1.show();
 
         // TODO: fix bug 如果不绘制cuboid则light也不出现
         light.show();
@@ -256,9 +257,9 @@ int main() {
         airplan.show();
 
         for (int index = 0; index < cuboids.size(); ++index) {
+            cuboids[index].show();
             nanosuit.setPosition({-index + 0.1f, 1.5f, 1.5f});
             nanosuit.show();
-            cuboids[index].show();
         }
 
         glfwSwapBuffers(window);

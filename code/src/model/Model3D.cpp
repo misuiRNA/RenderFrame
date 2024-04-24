@@ -85,33 +85,37 @@ static std::map<std::string, unsigned int> TextureList2Map(const std::vector<Tex
 }
 
 void Model3D::updateRenderData() {
-    auto buildRenderData = [this](const Mesh& mesh) {
-        RenderData data = _renderData.genChild();
+    Model3DLoader loader;
+    const std::vector<Mesh>& meshes = loader.loadModel(_modelPath);
+    std::vector<RenderData> renderDatas;
+    renderDatas.reserve(meshes.size());
+    for (const Mesh& mesh : meshes) {
+        RenderData data(_renderData.getShaderProgram());
         data.setVertices(mesh.vertices);
         data.setIndices(mesh.indices);
         std::map<std::string, unsigned int> textureMap = TextureList2Map(mesh.textures);
         for (const auto& itr : textureMap) {
             data.setTexture(itr.first, itr.second);
         }
-        return data;
-    };
-
-    Model3DLoader loader;
-    const std::vector<Mesh>& meshes = loader.loadModel(_modelPath);
-    std::vector<RenderData> renderDatas;
-    for (const Mesh& mesh : meshes) {
-        renderDatas.push_back(buildRenderData(mesh));
+        renderDatas.push_back(std::move(data));
     }
-    _renderData.setChildren(renderDatas);
+    _meshRenderDatas = std::move(renderDatas);
+}
+
+void Model3D::doDraw() {
+    _renderData.draw();
+    for (RenderData& data : _meshRenderDatas) {
+        data.draw();
+    }
 }
 
 
 std::vector<ShaderAttribDescriptor> Vertex::descriptor = {
-    {0, 3, (void*)offsetof(Vertex, position)},
-    {1, 3, (void*)offsetof(Vertex, normal)},
-    {2, 2, (void*)offsetof(Vertex, texCoords)},
-    {3, 3, (void*)offsetof(Vertex, tangent)},
-    {4, 3, (void*)offsetof(Vertex, bitangent)},
-    {5, 4, (void*)offsetof(Vertex, boneIds)},
-    {6, 4, (void*)offsetof(Vertex, weights)},
+    {0, sizeof(position) / sizeof(float),  sizeof(Vertex), (void*)offsetof(Vertex, position)},
+    {1, sizeof(normal) / sizeof(float),    sizeof(Vertex), (void*)offsetof(Vertex, normal)},
+    {2, sizeof(texCoords) / sizeof(float), sizeof(Vertex), (void*)offsetof(Vertex, texCoords)},
+    {3, sizeof(tangent) / sizeof(float),   sizeof(Vertex), (void*)offsetof(Vertex, tangent)},
+    {4, sizeof(bitangent) / sizeof(float), sizeof(Vertex), (void*)offsetof(Vertex, bitangent)},
+    {5, sizeof(boneIds) / sizeof(float),   sizeof(Vertex), (void*)offsetof(Vertex, boneIds)},
+    {6, sizeof(weights) / sizeof(float),   sizeof(Vertex), (void*)offsetof(Vertex, weights)},
 };

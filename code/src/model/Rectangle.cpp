@@ -54,17 +54,17 @@ void Rectangle::updateUniformes() {
 }
 
 void Rectangle::updateRenderData() {
-    _renderData.setVertices("aPos", 3, {
-        -0.5f, -0.5f, 0.0f,
-        0.5f, -0.5f, 0.0f,
-        0.5f, 0.5f, 0.0f,
-        -0.5f, 0.5f, 0.0f
+    _renderData.setVertices<Vector3D>("aPos", {
+        {-0.5f, -0.5f, 0.0f},
+        {0.5f, -0.5f, 0.0f},
+        {0.5f, 0.5f, 0.0f},
+        {-0.5f, 0.5f, 0.0f},
     });
-    _renderData.setVertices("aTexCoord", 2, {
-        0.0f, 0.0f,
-        1.0f, 0.0f,
-        1.0f, 1.0f,
-        0.0f, 1.0f
+    _renderData.setVertices<Vector2D>("aTexCoord", {
+        {0.0f, 0.0f},
+        {1.0f, 0.0f},
+        {1.0f, 1.0f},
+        {0.0f, 1.0f},
     });
     _renderData.setIndices({
         0, 1, 2,
