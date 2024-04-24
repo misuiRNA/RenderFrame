@@ -5,22 +5,40 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
+static auto VAODeleter = [](unsigned int* VAOPtr) {
+    if (*VAOPtr != 0) {
+        glDeleteVertexArrays(1, VAOPtr);
+        *VAOPtr = 0;
+        // delete VBO
+        // delete EBO
+    }
+};
+
 RenderData::RenderData(ShaderProgram& prog)
 : _prog(prog)
 , _VAOId(0)
+, _VAOHolder(&_VAOId, VAODeleter)
 , _vertexCount(0)
 , _indexCount(0) {
 
 }
 
+// remind: 浅拷贝VAO, 拷贝构造对象共用VAO
 RenderData::RenderData(const RenderData& oth)
-: RenderData(oth._prog) {
+: _prog(oth._prog)
+, _VAOId(oth._VAOId)
+, _VAOHolder(oth._VAOHolder)
+, _vertexCount(oth._vertexCount)
+, _indexCount(oth._indexCount)
+, _textureMap(oth._textureMap)
+, _uniformFunctions(oth._uniformFunctions) {
 
 }
 
 RenderData::RenderData(RenderData&& oth) noexcept
 : _prog(oth._prog)
 , _VAOId(oth._VAOId)
+, _VAOHolder(std::move(oth._VAOHolder))
 , _vertexCount(oth._vertexCount)
 , _indexCount(oth._indexCount)
 , _textureMap(std::move(oth._textureMap))
@@ -28,12 +46,13 @@ RenderData::RenderData(RenderData&& oth) noexcept
     oth._VAOId = 0;
     oth._vertexCount = 0;
     oth._indexCount = 0;
+    oth._VAOHolder.reset();
 }
 
 RenderData::~RenderData() {
-    if (_VAOId != 0) {
-        glDeleteVertexArrays(1, &_VAOId);
-    }
+    // remind: VAO 等 gl 资源释放交给 _VAOHolder 管理
+    _textureMap.clear();
+    _uniformFunctions.clear();
 }
 
 RenderData& RenderData::operator=(RenderData&& oth) noexcept {
@@ -171,7 +190,7 @@ void RenderData::setUniformFunc(const std::string& name, const std::function<voi
     _uniformFunctions[name] = func;
 }
 
-ShaderProgram& RenderData::getShaderProgram() {
+ShaderProgram& RenderData::getShaderProgram() const {
     return _prog;
 }
 

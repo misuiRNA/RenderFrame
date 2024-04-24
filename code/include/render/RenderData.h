@@ -9,6 +9,7 @@
 #include "ShaderProgram.h"
 #include "ShaderMaterial.h"
 #include "glad/glad.h"
+#include <shared_mutex>
 
 
 struct ShaderAttribDescriptor {
@@ -43,7 +44,7 @@ struct RenderData {
     void setUniform(const std::string& name, const ShaderMaterial& material);
     void setUniformMat4(const std::string& name, const float* mat);
 
-    ShaderProgram& getShaderProgram();
+    ShaderProgram& getShaderProgram() const;
 
     void draw();
 
@@ -83,6 +84,7 @@ public:
 private:
     ShaderProgram& _prog;
     unsigned int _VAOId;
+    std::shared_ptr<unsigned int> _VAOHolder;
 
     int _vertexCount;
     int _indexCount;
