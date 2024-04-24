@@ -111,11 +111,11 @@ void Model3D::doDraw() {
 
 
 std::vector<ShaderAttribDescriptor> Vertex::descriptor = {
-    {0, 3, (void*)offsetof(Vertex, position)},
-    {1, 3, (void*)offsetof(Vertex, normal)},
-    {2, 2, (void*)offsetof(Vertex, texCoords)},
-    {3, 3, (void*)offsetof(Vertex, tangent)},
-    {4, 3, (void*)offsetof(Vertex, bitangent)},
-    {5, 4, (void*)offsetof(Vertex, boneIds)},
-    {6, 4, (void*)offsetof(Vertex, weights)},
+    {0, sizeof(position) / sizeof(float),  sizeof(Vertex), (void*)offsetof(Vertex, position)},
+    {1, sizeof(normal) / sizeof(float),    sizeof(Vertex), (void*)offsetof(Vertex, normal)},
+    {2, sizeof(texCoords) / sizeof(float), sizeof(Vertex), (void*)offsetof(Vertex, texCoords)},
+    {3, sizeof(tangent) / sizeof(float),   sizeof(Vertex), (void*)offsetof(Vertex, tangent)},
+    {4, sizeof(bitangent) / sizeof(float), sizeof(Vertex), (void*)offsetof(Vertex, bitangent)},
+    {5, sizeof(boneIds) / sizeof(float),   sizeof(Vertex), (void*)offsetof(Vertex, boneIds)},
+    {6, sizeof(weights) / sizeof(float),   sizeof(Vertex), (void*)offsetof(Vertex, weights)},
 };

@@ -5,14 +5,15 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
-static auto VAODeleter = [](unsigned int* VAOPtr) {
+static void VAODeleter(unsigned int* VAOPtr) {
     if (*VAOPtr != 0) {
+        printf("delete VAO: %d\n", *VAOPtr);
         glDeleteVertexArrays(1, VAOPtr);
         *VAOPtr = 0;
         // delete VBO
         // delete EBO
     }
-};
+}
 
 RenderData::RenderData(ShaderProgram& prog)
 : _prog(prog)
@@ -71,47 +72,31 @@ RenderData& RenderData::operator=(RenderData&& oth) noexcept {
     return *this;
 }
 
-void RenderData::setVertices(unsigned int index, unsigned int vertexSize, const std::vector<float>& vertices) {
+void RenderData::setVertices(unsigned int VBO, const std::vector<ShaderAttribDescriptor>& descs) {
     if (_VAOId == 0) {
         glGenVertexArrays(1, &_VAOId);
     }
     glBindVertexArray(_VAOId);
-
-    unsigned int VBO;
-    glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float) * vertices.size(), vertices.data(), GL_STATIC_DRAW);
-
-    glVertexAttribPointer(index, vertexSize, GL_FLOAT, GL_FALSE, vertexSize * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(index);
-
-    // TODO should release VBO manual ?
+    for (const ShaderAttribDescriptor& desc : descs)
+    {
+        glVertexAttribPointer(desc.index, desc.size, GL_FLOAT, GL_FALSE, desc.stride, desc.pointer);
+        glEnableVertexAttribArray(desc.index);
+    }
     glBindVertexArray(0);
 }
 
-void RenderData::setVertices(const std::string& name, unsigned int vertexSize, const std::vector<float>& vertices) {
-    if (!_prog.checkVertice(name)) {
-        std::cout << "Failed to set attribute! name not found: " << name << std::endl;
-        return;
-    }
-    unsigned int index = _prog.getVerticeSlotId(name);
-    setVertices(index, vertexSize, vertices);
-    _vertexCount = vertices.size();
-}
-
 void RenderData::setIndices(const std::vector<unsigned int>& indices) {
+    unsigned int EBO = CreateEBO(indices);
+
     if (_VAOId == 0)
     {
         glGenVertexArrays(1, &_VAOId);
     }
+
     glBindVertexArray(_VAOId);
-
-    unsigned int EBO;
-    glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indices.size(), indices.data(), GL_STATIC_DRAW);
 
-    // TODO should release EBO manual ?
     glBindVertexArray(0);
     _indexCount = indices.size();
 }
@@ -252,4 +237,28 @@ void RenderData::draw() {
     useUniforms();
     drawAttributes();
     resetTextures();
+}
+
+
+unsigned int RenderData::CreateVBO(size_t size, const void* data) {
+    unsigned int VBO;
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    // A great thing about structs is that their memory layout is sequential for all its items.
+    // The effect is that we can simply pass a pointer to the struct and it translates perfectly to a glm::vec3/2 array which
+    // again translates to 3/2 floats which translates to a byte array.
+    glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+
+    // TODO should release VBO manual ?
+    return VBO;
+}
+
+unsigned int RenderData::CreateEBO(const std::vector<unsigned int>& indices) {
+    unsigned int EBO;
+    glGenBuffers(1, &EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), indices.data(), GL_STATIC_DRAW);
+
+    // TODO should release EBO manual ?
+    return EBO;
 }
