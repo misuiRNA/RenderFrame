@@ -13,13 +13,23 @@
 
 
 struct ShaderAttribDescriptor {
-    ShaderAttribDescriptor(unsigned int index, unsigned int size, unsigned int stride, const void* pointer) : index(index), size(size), stride(stride), pointer(pointer) { }
+    ShaderAttribDescriptor(std::string name, unsigned int index, unsigned int size, unsigned int stride, const void* pointer)
+    : name(name)
+    , index(index)
+    , size(size)
+    , stride(stride)
+    , pointer(pointer) { }
 
+    std::string name;
     unsigned int index;
     unsigned int size;
     unsigned int stride;
     const void* pointer;
 };
+
+// remind: 要求MEMBER是float紧密填充的, 否则计算出的size不准
+#define DESC(NAME, INDEX, TYPE, MEMBER) ShaderAttribDescriptor(NAME, INDEX, sizeof(MEMBER) / sizeof(float), sizeof(TYPE), (void*)offsetof(TYPE, MEMBER))
+
 
 
 struct RenderData {
@@ -71,7 +81,7 @@ public:
 
         unsigned int size = sizeof(T) / sizeof(float);    // TODO: 优化, T不一定完全是float组成的
         unsigned int stride = sizeof(T);
-        ShaderAttribDescriptor desc(index, size, stride, (void*)0);
+        ShaderAttribDescriptor desc(name, index, size, stride, (void*)0);
 
         unsigned int VBO = CreateVBO(vertices.size() * sizeof(T), vertices.data());
         setVertices(VBO, {desc});

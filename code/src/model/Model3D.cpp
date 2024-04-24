@@ -86,7 +86,7 @@ static std::map<std::string, unsigned int> TextureList2Map(const std::vector<Tex
 
 void Model3D::updateRenderData() {
     Model3DLoader loader;
-    const std::vector<Mesh>& meshes = loader.loadModel(_modelPath);
+    const std::vector<Mesh>& meshes = loader.loadModelAsMeshes(_modelPath);
     std::vector<RenderData> renderDatas;
     renderDatas.reserve(meshes.size());
     for (const Mesh& mesh : meshes) {
@@ -108,14 +108,3 @@ void Model3D::doDraw() {
         data.draw();
     }
 }
-
-
-std::vector<ShaderAttribDescriptor> Vertex::descriptor = {
-    {0, sizeof(position) / sizeof(float),  sizeof(Vertex), (void*)offsetof(Vertex, position)},
-    {1, sizeof(normal) / sizeof(float),    sizeof(Vertex), (void*)offsetof(Vertex, normal)},
-    {2, sizeof(texCoords) / sizeof(float), sizeof(Vertex), (void*)offsetof(Vertex, texCoords)},
-    {3, sizeof(tangent) / sizeof(float),   sizeof(Vertex), (void*)offsetof(Vertex, tangent)},
-    {4, sizeof(bitangent) / sizeof(float), sizeof(Vertex), (void*)offsetof(Vertex, bitangent)},
-    {5, sizeof(boneIds) / sizeof(float),   sizeof(Vertex), (void*)offsetof(Vertex, boneIds)},
-    {6, sizeof(weights) / sizeof(float),   sizeof(Vertex), (void*)offsetof(Vertex, weights)},
-};
