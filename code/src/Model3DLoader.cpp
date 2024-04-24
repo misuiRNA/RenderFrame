@@ -3,7 +3,26 @@
 #include "Image.h"
 
 
-const std::vector<Mesh>& Model3DLoader::loadModel(std::string const& path) {
+std::vector<ShaderAttribDescriptor> Mesh::Vertex::descriptor = {
+    DESC("aPos",       0, Vertex, position),
+    DESC("aNormal",    1, Vertex, normal),
+    DESC("aTexCoords", 2, Vertex, texCoords),
+    DESC("tangent",    3, Vertex, tangent),
+    DESC("bitangent",  4, Vertex, bitangent),
+    DESC("boneIds",    5, Vertex, boneIds),
+    DESC("weights",    6, Vertex, weights),
+};
+
+Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<Texture>& textures)
+: vertices(vertices)
+, indices(indices)
+, textures(textures) {
+
+}
+
+const std::vector<Mesh>& Model3DLoader::loadModelAsMeshes(std::string const& path) {
+    _meshes.clear();
+    _directory.clear();
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
     if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
@@ -30,9 +49,9 @@ void Model3DLoader::processNode(aiNode* node, const aiScene* scene) {
 }
 
 Mesh Model3DLoader::processMesh(aiMesh* mesh, const aiScene* scene) {
-    std::vector<Vertex> vertices;
+    std::vector<Mesh::Vertex> vertices;
     for(unsigned int i = 0; i < mesh->mNumVertices; i++) {
-        Vertex vertex;
+        Mesh::Vertex vertex;
         vertex.position = Vector3D(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
 
         if (mesh->HasNormals()) {
