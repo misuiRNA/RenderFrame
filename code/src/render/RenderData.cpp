@@ -72,7 +72,9 @@ RenderData& RenderData::operator=(RenderData&& oth) noexcept {
     return *this;
 }
 
-void RenderData::setVertices(unsigned int VBO, const std::vector<ShaderAttribDescriptor>& descs) {
+void RenderData::setVertices(size_t vertexCount, size_t verticeStride, const void* data, const std::vector<ShaderAttribDescriptor>& descs) {
+    unsigned int VBO = CreateVBO(vertexCount * verticeStride, data);
+
     if (_VAOId == 0) {
         glGenVertexArrays(1, &_VAOId);
     }
@@ -84,6 +86,8 @@ void RenderData::setVertices(unsigned int VBO, const std::vector<ShaderAttribDes
         glEnableVertexAttribArray(desc.index);
     }
     glBindVertexArray(0);
+
+    _vertexCount = vertexCount;
 }
 
 void RenderData::setIndices(const std::vector<unsigned int>& indices) {

@@ -58,7 +58,7 @@ struct RenderData {
     void draw();
 
 private:
-    void setVertices(unsigned int VBO, const std::vector<ShaderAttribDescriptor>& descs);
+    void setVertices(size_t vertexCount, size_t verticeStride, const void* data, const std::vector<ShaderAttribDescriptor>& descs);
     void useTextures();
     void resetTextures();
     void useUniforms();
@@ -77,22 +77,16 @@ public:
             std::cout << "Failed to set attribute! name not found: " << name << std::endl;
             return;
         }
-        unsigned int index = _prog.getVerticeSlotId(name);
 
-        unsigned int size = sizeof(T) / sizeof(float);    // TODO: 优化, T不一定完全是float组成的
-        unsigned int stride = sizeof(T);
-        ShaderAttribDescriptor desc(name, index, size, stride, (void*)0);
-
-        unsigned int VBO = CreateVBO(vertices.size() * sizeof(T), vertices.data());
-        setVertices(VBO, {desc});
-        _vertexCount = vertices.size();
+        // TODO: 优化 ShaderAttribDescriptor.size 计算方式, T不一定完全是float组成的
+        std::vector<ShaderAttribDescriptor> descs = {{name, _prog.getVerticeSlotId(name), sizeof(T) / sizeof(float), sizeof(T), (void*)0}};
+        setVertices(vertices.size(), sizeof(T), vertices.data(), descs);
     }
 
     template <typename T>
     void setVertices(const std::vector<T>& vertices) {
-        unsigned int VBO = CreateVBO(vertices.size() * sizeof(T), vertices.data());
-        setVertices(VBO, T::descriptor);
-        _vertexCount = vertices.size();
+        const std::vector<ShaderAttribDescriptor>& descs = T::descriptor;
+        setVertices(vertices.size(), sizeof(T), vertices.data(), descs);
     }
 
 
