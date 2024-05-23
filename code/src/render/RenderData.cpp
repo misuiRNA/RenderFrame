@@ -13,12 +13,23 @@ static void VAODeleter(unsigned int* VAOPtr) {
         // delete VBO
         // delete EBO
     }
+    delete VAOPtr;
+}
+
+static void VBODeleter(std::map<unsigned int, std::vector<ShaderAttribDescriptor>>* VBOsPtr) {
+    for (auto& pair : *VBOsPtr) {
+        unsigned int VBOId = pair.first;
+        printf("delete VBO: %u\n", VBOId);
+        // glDeleteBuffers(1, &VBOId);
+    }
+    (*VBOsPtr).clear();
+    delete VBOsPtr;
 }
 
 RenderData::RenderData(ShaderProgram& prog)
 : _prog(prog)
-, _VAOId(0)
-, _VAOHolder(&_VAOId, VAODeleter)
+, _VAOHolder(new unsigned int (0), VAODeleter)
+, _VBOsHolder(new std::map<unsigned int, std::vector<ShaderAttribDescriptor>>, VBODeleter)
 , _vertexCount(0)
 , _indexCount(0) {
 
@@ -27,8 +38,8 @@ RenderData::RenderData(ShaderProgram& prog)
 // remind: 浅拷贝VAO, 拷贝构造对象共用VAO
 RenderData::RenderData(const RenderData& oth)
 : _prog(oth._prog)
-, _VAOId(oth._VAOId)
 , _VAOHolder(oth._VAOHolder)
+, _VBOsHolder(oth._VBOsHolder)
 , _vertexCount(oth._vertexCount)
 , _indexCount(oth._indexCount)
 , _textureMap(oth._textureMap)
@@ -38,20 +49,20 @@ RenderData::RenderData(const RenderData& oth)
 
 RenderData::RenderData(RenderData&& oth) noexcept
 : _prog(oth._prog)
-, _VAOId(oth._VAOId)
 , _VAOHolder(std::move(oth._VAOHolder))
+, _VBOsHolder(std::move(oth._VBOsHolder))
 , _vertexCount(oth._vertexCount)
 , _indexCount(oth._indexCount)
 , _textureMap(std::move(oth._textureMap))
 , _uniformFunctions(std::move(oth._uniformFunctions)) {
-    oth._VAOId = 0;
     oth._vertexCount = 0;
     oth._indexCount = 0;
     oth._VAOHolder.reset();
+    oth._VBOsHolder.reset();
 }
 
 RenderData::~RenderData() {
-    // remind: VAO 等 gl 资源释放交给 _VAOHolder 管理
+    // remind: VAO 等 gl 资源释放交给 _VAOHolder _VBOsHolder 管理
     _textureMap.clear();
     _uniformFunctions.clear();
 }
@@ -59,13 +70,12 @@ RenderData::~RenderData() {
 RenderData& RenderData::operator=(RenderData&& oth) noexcept {
     if (this != &oth) {
         _prog = oth._prog;
-        _VAOId = oth._VAOId;
+        _VAOHolder = std::move(oth._VAOHolder);
         _vertexCount = oth._vertexCount;
         _indexCount = oth._indexCount;
         _textureMap = std::move(oth._textureMap);
         _uniformFunctions = std::move(oth._uniformFunctions);
 
-        oth._VAOId = 0;
         oth._vertexCount = 0;
         oth._indexCount = 0;
     }
@@ -75,10 +85,11 @@ RenderData& RenderData::operator=(RenderData&& oth) noexcept {
 void RenderData::setVertices(size_t vertexCount, size_t verticeStride, const void* data, const std::vector<ShaderAttribDescriptor>& descs) {
     unsigned int VBO = CreateVBO(vertexCount * verticeStride, data);
 
-    if (_VAOId == 0) {
-        glGenVertexArrays(1, &_VAOId);
+    if (VAOID() == 0) {
+        glGenVertexArrays(1, _VAOHolder.get());
+        // printf("alloc VAO: %d\n", VAOID());
     }
-    glBindVertexArray(_VAOId);
+    glBindVertexArray(VAOID());
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     for (const ShaderAttribDescriptor& desc : descs)
     {
@@ -88,17 +99,18 @@ void RenderData::setVertices(size_t vertexCount, size_t verticeStride, const voi
     glBindVertexArray(0);
 
     _vertexCount = vertexCount;
+    (*_VBOsHolder)[VBO] = descs;
 }
 
 void RenderData::setIndices(const std::vector<unsigned int>& indices) {
     unsigned int EBO = CreateEBO(indices);
 
-    if (_VAOId == 0)
+    if (VAOID() == 0)
     {
-        glGenVertexArrays(1, &_VAOId);
+        glGenVertexArrays(1, _VAOHolder.get());
     }
 
-    glBindVertexArray(_VAOId);
+    glBindVertexArray(VAOID());
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
     glBindVertexArray(0);
@@ -217,12 +229,12 @@ void RenderData::resetTextures() {
 }
 
 void RenderData::drawAttributes() {
-    if (_VAOId == 0) {
+    if (VAOID() == 0) {
         // std::cout << "RenderData: draw failed, VAOId is 0!" << std::endl;
         return;
     }
 
-    glBindVertexArray(_VAOId);
+    glBindVertexArray(VAOID());
     if (_indexCount > 0) {
         glDrawElements(GL_TRIANGLES, _indexCount, GL_UNSIGNED_INT, 0);
     } else {
