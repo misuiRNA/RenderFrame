@@ -2,7 +2,52 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "Model3DLoader.h"
+#include "ModelMeshLoader.h"
+
+
+static std::vector<Model3DVertex> MeshVertex2Vertex(const std::vector<Mesh::Vertex>& meshVertices) {
+    std::vector<Model3DVertex> vertices;
+    vertices.reserve(meshVertices.size());
+    for (const Mesh::Vertex& meshVert : meshVertices) {
+        vertices.emplace_back(meshVert.position, meshVert.normal, meshVert.texCoords);
+    }
+    return vertices;
+}
+
+static std::map<std::string, unsigned int> MeshTextures2TextureMap(const std::vector<Mesh::Texture>& textures) {
+    std::map<std::string, unsigned int> textureMap;
+    unsigned int diffuseNr  = 0;
+    unsigned int specularNr = 0;
+    unsigned int normalNr   = 0;
+    unsigned int heightNr   = 0;
+    for(unsigned int index = 0; index < textures.size(); index++) {
+        std::string uniformName;
+        switch (textures[index].type) {
+            case Mesh::Texture::Type::DIFFUSE: {
+                uniformName = ShaderProgram::UniformArrayName("diffuseTexture", diffuseNr++);
+                break;
+            }
+            case Mesh::Texture::Type::SPECULAR: {
+                uniformName = ShaderProgram::UniformArrayName("specularTexture", specularNr++);
+                break;
+            }
+            case Mesh::Texture::Type::NORMAL: {
+                uniformName = ShaderProgram::UniformArrayName("normalTexture", normalNr++);
+                break;
+            }
+            case Mesh::Texture::Type::HEIGHT: {
+                uniformName = ShaderProgram::UniformArrayName("heightTexture", heightNr++);
+                break;
+            }
+            default:
+                // error log
+                break;
+        }
+        textureMap[uniformName] = textures[index].id;
+    }
+    return textureMap;
+}
+
 
 Model3D::Model3D(std::string const& path)
 : AbstractModel(ShaderProgram::getMeshShaderProg())
@@ -50,50 +95,16 @@ void Model3D::updateUniformes() {
     _renderData.setUniformMat4("model", glm::value_ptr(model));
 }
 
-static std::map<std::string, unsigned int> TextureList2Map(const std::vector<Texture>& textures) {
-    std::map<std::string, unsigned int> textureMap;
-    unsigned int diffuseNr  = 0;
-    unsigned int specularNr = 0;
-    unsigned int normalNr   = 0;
-    unsigned int heightNr   = 0;
-    for(unsigned int index = 0; index < textures.size(); index++) {
-        std::string uniformName;
-        switch (textures[index].type) {
-            case Texture::Type::DIFFUSE: {
-                uniformName = ShaderProgram::UniformArrayName("diffuseTexture", diffuseNr++);
-                break;
-            }
-            case Texture::Type::SPECULAR: {
-                uniformName = ShaderProgram::UniformArrayName("specularTexture", specularNr++);
-                break;
-            }
-            case Texture::Type::NORMAL: {
-                uniformName = ShaderProgram::UniformArrayName("normalTexture", normalNr++);
-                break;
-            }
-            case Texture::Type::HEIGHT: {
-                uniformName = ShaderProgram::UniformArrayName("heightTexture", heightNr++);
-                break;
-            }
-            default:
-                // error log
-                break;
-        }
-        textureMap[uniformName] = textures[index].id;
-    }
-    return textureMap;
-}
-
 void Model3D::updateRenderData() {
-    Model3DLoader loader;
+    ModelMeshLoader loader;
     const std::vector<Mesh>& meshes = loader.loadModelAsMeshes(_modelPath);
     std::vector<RenderData> renderDatas;
     renderDatas.reserve(meshes.size());
     for (const Mesh& mesh : meshes) {
         RenderData data(_renderData.getShaderProgram());
-        data.setVertices(mesh.vertices);
+        data.setVertices(MeshVertex2Vertex(mesh.vertices));
         data.setIndices(mesh.indices);
-        std::map<std::string, unsigned int> textureMap = TextureList2Map(mesh.textures);
+        std::map<std::string, unsigned int> textureMap = MeshTextures2TextureMap(mesh.textures);
         for (const auto& itr : textureMap) {
             data.setTexture(itr.first, itr.second);
         }
@@ -108,3 +119,17 @@ void Model3D::doDraw() {
         data.draw();
     }
 }
+
+
+Model3DVertex::Model3DVertex(Vector3D pos, Vector3D normal, Vector2D texCoords)
+: pos(pos)
+, normal(normal)
+, texCoords(texCoords) {
+
+}
+
+std::vector<ShaderAttribDescriptor> Model3DVertex::descriptor = {
+    DESC("aPos",       0, Model3DVertex, pos),
+    DESC("aNormal",    1, Model3DVertex, normal),
+    DESC("aTexCoords", 2, Model3DVertex, texCoords),
+};

@@ -2,26 +2,12 @@
 #define MODEL_OBJ_LOADER_H
 
 #include "BaseDefine.h"
-#include "RenderData.h"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 #include <map>
 #include <vector>
 
-
-struct Texture {
-    enum class Type {
-        DIFFUSE  = 0,
-        SPECULAR = 1,
-        NORMAL   = 2,
-        HEIGHT   = 3,
-    };
-
-    Type type;
-    unsigned int id;
-    std::string key;
-};
 
 struct Mesh {
     static constexpr int MAX_BONE_INFLUENCE = 4;
@@ -36,8 +22,19 @@ struct Mesh {
         int boneIds[MAX_BONE_INFLUENCE];
         //weights from each bone
         float weights[MAX_BONE_INFLUENCE];
+    };
 
-        static std::vector<ShaderAttribDescriptor> descriptor;
+    struct Texture {
+        enum class Type {
+            DIFFUSE  = 0,
+            SPECULAR = 1,
+            NORMAL   = 2,
+            HEIGHT   = 3,
+        };
+
+        Type type;
+        unsigned int id;
+        std::string key;
     };
 
     Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<Texture>& textures);
@@ -48,20 +45,20 @@ struct Mesh {
 };
 
 
-struct Model3DLoader {
-    Model3DLoader(bool gammaCorrection = false) : _gammaCorrection(gammaCorrection) { }
+struct ModelMeshLoader {
+    ModelMeshLoader(bool gammaCorrection = false) : _gammaCorrection(gammaCorrection) { }
     const std::vector<Mesh>& loadModelAsMeshes(std::string const& path);
 
 private:
     void processNode(aiNode* node, const aiScene* scene);
     Mesh processMesh(aiMesh* mesh, const aiScene* scene);
-    std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType aiType, Texture::Type type);
+    std::vector<Mesh::Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType aiType, Mesh::Texture::Type type);
 
 private:
     bool _gammaCorrection;
     std::vector<Mesh> _meshes;
     std::string _directory;
-    std::map<std::string, Texture> _texturesLoadedMap;
+    std::map<std::string, Mesh::Texture> _texturesLoadedMap;
 };
 
 

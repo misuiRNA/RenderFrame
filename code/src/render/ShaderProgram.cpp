@@ -163,7 +163,6 @@ std::string ShaderProgram::UniformArrayName(const std::string& name, int index) 
 }
 
 static std::string ReadFile(const std::string& path) {
-    std::string path1 = GetCurPath();
     std::string content;
     std::ifstream fileStream;
     fileStream.exceptions (std::ifstream::failbit | std::ifstream::badbit);

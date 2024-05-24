@@ -1,17 +1,7 @@
-#include "Model3DLoader.h"
+#include "ModelMeshLoader.h"
 #include <iostream>
 #include "Image.h"
 
-
-std::vector<ShaderAttribDescriptor> Mesh::Vertex::descriptor = {
-    DESC("aPos",       0, Vertex, position),
-    DESC("aNormal",    1, Vertex, normal),
-    DESC("aTexCoords", 2, Vertex, texCoords),
-    DESC("tangent",    3, Vertex, tangent),
-    DESC("bitangent",  4, Vertex, bitangent),
-    DESC("boneIds",    5, Vertex, boneIds),
-    DESC("weights",    6, Vertex, weights),
-};
 
 Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<Texture>& textures)
 : vertices(vertices)
@@ -20,7 +10,7 @@ Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>&
 
 }
 
-const std::vector<Mesh>& Model3DLoader::loadModelAsMeshes(std::string const& path) {
+const std::vector<Mesh>& ModelMeshLoader::loadModelAsMeshes(std::string const& path) {
     _meshes.clear();
     _directory.clear();
     Assimp::Importer importer;
@@ -35,7 +25,7 @@ const std::vector<Mesh>& Model3DLoader::loadModelAsMeshes(std::string const& pat
     return _meshes;
 }
 
-void Model3DLoader::processNode(aiNode* node, const aiScene* scene) {
+void ModelMeshLoader::processNode(aiNode* node, const aiScene* scene) {
     for(unsigned int i = 0; i < node->mNumMeshes; i++) {
         // the node object only contains indices to index the actual objects in the scene. 
         // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
@@ -48,7 +38,7 @@ void Model3DLoader::processNode(aiNode* node, const aiScene* scene) {
     }
 }
 
-Mesh Model3DLoader::processMesh(aiMesh* mesh, const aiScene* scene) {
+Mesh ModelMeshLoader::processMesh(aiMesh* mesh, const aiScene* scene) {
     std::vector<Mesh::Vertex> vertices;
     for(unsigned int i = 0; i < mesh->mNumVertices; i++) {
         Mesh::Vertex vertex;
@@ -79,7 +69,7 @@ Mesh Model3DLoader::processMesh(aiMesh* mesh, const aiScene* scene) {
         }
     }
 
-    std::vector<Texture> textures;
+    std::vector<Mesh::Texture> textures;
     aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];    
     // we assume a convention for sampler names in the shaders. Each diffuse texture should be named
     // as 'texture_diffuseN' where N is a sequential number ranging from 1 to MAX_SAMPLER_NUMBER. 
@@ -89,29 +79,29 @@ Mesh Model3DLoader::processMesh(aiMesh* mesh, const aiScene* scene) {
     // normal: texture_normalN
 
     // 1. diffuse maps
-    std::vector<Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, Texture::Type::DIFFUSE);
+    std::vector<Mesh::Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, Mesh::Texture::Type::DIFFUSE);
     textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
     // 2. specular maps
-    std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, Texture::Type::SPECULAR);
+    std::vector<Mesh::Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, Mesh::Texture::Type::SPECULAR);
     textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
     // 3. normal maps
-    std::vector<Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, Texture::Type::NORMAL);
+    std::vector<Mesh::Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, Mesh::Texture::Type::NORMAL);
     textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
     // 4. height maps
-    std::vector<Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, Texture::Type::HEIGHT);
+    std::vector<Mesh::Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, Mesh::Texture::Type::HEIGHT);
     textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
     return Mesh(vertices, indices, textures);
 }
 
-std::vector<Texture> Model3DLoader::loadMaterialTextures(aiMaterial* mat, aiTextureType aiType, Texture::Type type) {
-    std::vector<Texture> textures;
+std::vector<Mesh::Texture> ModelMeshLoader::loadMaterialTextures(aiMaterial* mat, aiTextureType aiType, Mesh::Texture::Type type) {
+    std::vector<Mesh::Texture> textures;
     for(unsigned int index = 0; index < mat->GetTextureCount(aiType); index++) {
         aiString aiTextureName;
         mat->GetTexture(aiType, index, &aiTextureName);
         std::string textureName = aiTextureName.C_Str();
         if (_texturesLoadedMap.find(textureName) == _texturesLoadedMap.end()) {
-            Texture& texture = _texturesLoadedMap[textureName];
+            Mesh::Texture& texture = _texturesLoadedMap[textureName];
             Image image(_directory + "/" + textureName);
             texture.id = image.getTexture();
             texture.type = type;
