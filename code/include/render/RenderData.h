@@ -66,7 +66,6 @@ private:
     void setUniformFunc(const std::string& name, const std::function<void(ShaderProgram& prog)>& func);
 
     unsigned int VAOID() const { return *_VAOHolder; }
-    const std::map<unsigned int, std::vector<ShaderAttribDescriptor>>& VBOIDs() const { return *_VBOsHolder; }
 
 private:
     static unsigned int CreateVBO(size_t size, const void* data);
@@ -96,7 +95,6 @@ public:
 private:
     ShaderProgram& _prog;
     std::shared_ptr<unsigned int> _VAOHolder;
-    std::shared_ptr<std::map<unsigned int, std::vector<ShaderAttribDescriptor>>> _VBOsHolder;
 
     int _vertexCount;
     int _indexCount;

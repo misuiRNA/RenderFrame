@@ -16,20 +16,9 @@ static void VAODeleter(unsigned int* VAOPtr) {
     delete VAOPtr;
 }
 
-static void VBODeleter(std::map<unsigned int, std::vector<ShaderAttribDescriptor>>* VBOsPtr) {
-    for (auto& pair : *VBOsPtr) {
-        unsigned int VBOId = pair.first;
-        printf("delete VBO: %u\n", VBOId);
-        // glDeleteBuffers(1, &VBOId);
-    }
-    (*VBOsPtr).clear();
-    delete VBOsPtr;
-}
-
 RenderData::RenderData(ShaderProgram& prog)
 : _prog(prog)
 , _VAOHolder(new unsigned int (0), VAODeleter)
-, _VBOsHolder(new std::map<unsigned int, std::vector<ShaderAttribDescriptor>>, VBODeleter)
 , _vertexCount(0)
 , _indexCount(0) {
 
@@ -39,7 +28,6 @@ RenderData::RenderData(ShaderProgram& prog)
 RenderData::RenderData(const RenderData& oth)
 : _prog(oth._prog)
 , _VAOHolder(oth._VAOHolder)
-, _VBOsHolder(oth._VBOsHolder)
 , _vertexCount(oth._vertexCount)
 , _indexCount(oth._indexCount)
 , _textureMap(oth._textureMap)
@@ -50,7 +38,6 @@ RenderData::RenderData(const RenderData& oth)
 RenderData::RenderData(RenderData&& oth) noexcept
 : _prog(oth._prog)
 , _VAOHolder(std::move(oth._VAOHolder))
-, _VBOsHolder(std::move(oth._VBOsHolder))
 , _vertexCount(oth._vertexCount)
 , _indexCount(oth._indexCount)
 , _textureMap(std::move(oth._textureMap))
@@ -58,11 +45,10 @@ RenderData::RenderData(RenderData&& oth) noexcept
     oth._vertexCount = 0;
     oth._indexCount = 0;
     oth._VAOHolder.reset();
-    oth._VBOsHolder.reset();
 }
 
 RenderData::~RenderData() {
-    // remind: VAO 等 gl 资源释放交给 _VAOHolder _VBOsHolder 管理
+    // remind: VAO 等 gl 资源释放交给 _VAOHolder 管理
     _textureMap.clear();
     _uniformFunctions.clear();
 }
@@ -98,8 +84,10 @@ void RenderData::setVertices(size_t vertexCount, size_t verticeStride, const voi
     }
     glBindVertexArray(0);
 
+    // VBO绑定VAO后可以直接删除缓冲区. glDeleteBuffers实际上是标记删除, 直到所有绑定的VAO删除之后才会真正删除VBO
+    glDeleteBuffers(1, &VBO);
+
     _vertexCount = vertexCount;
-    (*_VBOsHolder)[VBO] = descs;
 }
 
 void RenderData::setIndices(const std::vector<unsigned int>& indices) {
@@ -114,6 +102,9 @@ void RenderData::setIndices(const std::vector<unsigned int>& indices) {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
     glBindVertexArray(0);
+
+    // VBO绑定VAO后可以直接删除缓冲区. glDeleteBuffers实际上是标记删除, 直到所有绑定的VAO删除之后才会真正删除VBO
+    glDeleteBuffers(1, &EBO);
     _indexCount = indices.size();
 }
 
