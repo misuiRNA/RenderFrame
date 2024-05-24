@@ -11,6 +11,7 @@
 #include "model/Model3D.h"
 #include "Camera.h"
 #include "Image.h"
+#include "Utils.h"
 
 
 static unsigned int WINDOW_WIDTH = 800;

@@ -60,7 +60,4 @@ void SetUniforms(ShaderProgram& prog, const std::string& name, const std::vector
     }
 }
 
-
-std::string GetCurPath();
-
 #endif // #_HEAD_FLAG_SHADER_H

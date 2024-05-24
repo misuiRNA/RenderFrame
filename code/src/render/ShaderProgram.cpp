@@ -1,9 +1,8 @@
 #include <iostream>
-#include <fstream>
-#include <sstream>
 #include "ShaderProgram.h"
 #include "glad/glad.h"
-#include <unistd.h>
+#include "Utils.h"
+
 
 std::map<ShaderProgram*, int> ShaderProgram::_registProgramMap;
 
@@ -162,23 +161,7 @@ std::string ShaderProgram::UniformArrayName(const std::string& name, int index) 
     return name + "[" + std::to_string(index) + "]";
 }
 
-static std::string ReadFile(const std::string& path) {
-    std::string content;
-    std::ifstream fileStream;
-    fileStream.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-    try  {
-        fileStream.open(path.c_str());
-        std::stringstream contentStream;
-        contentStream << fileStream.rdbuf();
-        fileStream.close();
-        content = contentStream.str();
-    }
-    catch(std::ifstream::failure e) {
-        std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ: " << path << std::endl;
-    }
-    return content;
-}
-
+// TODO: 优化, 1.shader字符串编译时确定，不读取文件；2.返回的路径位置应为可执行文件位置，而不是执行命令的位置 考虑使用 std::filesystem
 ShaderProgram& ShaderProgram::getRectShaderProg() {
     static const std::string MODEL_NAME = "Rectangle";
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/RectangleShader.vs");
@@ -234,16 +217,4 @@ ShaderProgram& ShaderProgram::getMeshShaderProg() {
 std::map<ShaderProgram*, int>& ShaderProgram::getAllShaderProg()
 {
     return _registProgramMap;
-}
-
-// TODO: 优化, 1.shader字符串编译时确定，不读取文件；2.返回的路径位置应为可执行文件位置，而不是执行命令的位置 考虑使用 std::filesystem
-std::string GetCurPath() {
-    std::string path;
-    char buffer[FILENAME_MAX];
-    if (getcwd(buffer, sizeof(buffer)) != nullptr) {
-        path = buffer;
-    } else {
-        std::cerr << "get cur path error!" << std::endl;
-    }
-    return path;
 }
