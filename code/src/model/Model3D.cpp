@@ -80,6 +80,7 @@ void Model3D::updateUniformes() {
     model = glm::translate(model, glm::vec3(_pos.x, _pos.y, _pos.z));
 
     // TODO: 优化, 需要保证上向量和前向量不平行, 否则旋转矩阵无效
+    // TODO: 优化, 抽取方向控制器
     glm::vec3 normalUp = glm::vec3(_up.x, _up.y, _up.z);
     glm::vec3 normalFront = glm::normalize(glm::vec3(_front.x, _front.y, _front.z));
     glm::vec3 normalRight = glm::normalize(glm::cross(normalUp, normalFront));

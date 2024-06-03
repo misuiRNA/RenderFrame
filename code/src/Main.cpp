@@ -105,6 +105,21 @@ void SetCameraAndLightUniform(const CameraFPS& camera, const LightSource& light1
     }
 }
 
+// TODO: 优化, 设计模板测试类, 支持任意形状
+static void EnableViewMask(Rectangle& outlineMask, Rectangle& throughMask) {
+        glDepthMask(GL_FALSE);
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilMask(0x00);
+        outlineMask.show();
+
+        glStencilMask(0xFF);
+        throughMask.show();
+
+        glStencilFunc(GL_EQUAL, 1, 0xFF);
+        glStencilMask(0x00);
+        glDepthMask(GL_TRUE);
+}
+
 
 int main() {
     GLFWwindow* window = InitWindows();
@@ -115,6 +130,8 @@ int main() {
     std::cout << "OpenGL Version: " << version << std::endl;
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_STENCIL_TEST);
+    glStencilOp(GL_ZERO, GL_KEEP, GL_REPLACE);
 
     CameraFPS cameraFPS;
     cameraFPS.setPosition(1.0f, 2.0f, 2.0f);
@@ -150,16 +167,18 @@ int main() {
     Image matrixImage(GetCurPath() + "/resource/matrix.jpeg");
 
     Rectangle rectangle(1.0f, 1.0f);
-    rectangle.setPosition({0.0f, -0.5f});
-    rectangle.setScaleRatio(0.5f);
-    rectangle.setRotation(glm::radians(-45.0f));
-    rectangle.setColor(Color(0.8f, 0.3f, 0.2f));
+    rectangle.setPosition({0.0f, 0.0f});
+    rectangle.setScaleRatio(0.6f);
+    // rectangle.setColor(Color(0.8f, 0.3f, 0.2f));
+    rectangle.setColor(Color(0.0f, 0.0f, 0.0f));
     rectangle.setImage(awesomefaceImage);
+    rectangle.setFront({1.0f, 0.0f, 0.0f});
 
-    Rectangle rectangle1(1.0f, 0.5f);
+    Rectangle rectangle1(1.0f, 1.0f);
     rectangle1.setPosition({-1.0, 0.0f});
     rectangle1.setColor(Color(0.8f, 0.3f, 0.2f));
     // rectangle1.setImage(containerImage);
+    // rectangle1.setPosition({0.0f, 0.0f});
 
     Position cuboidPositions[10] = {
         {0.0f, 0.0f, 0.0f},
@@ -241,14 +260,17 @@ int main() {
         // l3DModel.setPosition({x, y, 1.5f});
         // l3DModel.setFront({x, y, 0.0f});
         // airplan.setFront({0.0f, y, x});
+        rectangle.setPosition({x, y, z});
+        rectangle1.setPosition({x - 1.0f, y, z});
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); 
 
-        rectangle.show();
+        // EnableViewMask(rectangle1, rectangle);
+
         rectangle1.show();
+        rectangle.show();
 
-        // TODO: fix bug 如果不绘制cuboid则light也不出现
         light.show();
         light1.show();
         cuboid.show();
@@ -264,7 +286,7 @@ int main() {
         }
 
         glfwSwapBuffers(window);
-        glfwPollEvents();    
+        glfwPollEvents();
     }
 
     glfwTerminate();

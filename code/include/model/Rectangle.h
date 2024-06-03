@@ -9,9 +9,9 @@ struct Rectangle : AbstractModel {
     Rectangle(float width, float height);
 
     void setPosition(const Position& pos);
+    void setFront(const Vector3D& front);
     void setSize(float width, float height);
     void setScaleRatio(float scaleRatio);
-    void setRotation(float rotation);
     void setImage(const Image& image);
     void setColor(const Color& color);
 
@@ -21,10 +21,10 @@ private:
 
 private:
     Position _pos;
+    Vector3D _front;
     float _width;
     float _height;
     float _scaleRatio;
-    float _rotation;
     Color _color;
 
     bool _imageEnable;
