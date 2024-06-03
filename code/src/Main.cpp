@@ -165,6 +165,7 @@ int main() {
     // Image containerImage2_specular(GetCurPath() + "/resource/container2_specular.png");
     Image containerImage2_specular(GetCurPath() + "/resource/lighting_maps_specular_color.png");
     Image matrixImage(GetCurPath() + "/resource/matrix.jpeg");
+    Image grassImage(GetCurPath() + "/resource/grass.png");
 
     Rectangle rectangle(1.0f, 1.0f);
     rectangle.setPosition({0.0f, 0.0f});
@@ -179,6 +180,28 @@ int main() {
     rectangle1.setColor(Color(0.8f, 0.3f, 0.2f));
     // rectangle1.setImage(containerImage);
     // rectangle1.setPosition({0.0f, 0.0f});
+
+    Rectangle grass(1.0f, 1.0f);
+    grass.setPosition({0.0f, 0.0f});
+    grass.setImage(grassImage);
+    grass.setFront({1.0f, 0.0f, 0.0f});
+    std::vector<Position> grassPositions = {
+        {-5.0f,  1.5f,  0.0f},
+        {-4.8f, -1.5f,  0.0f},
+        {-6.0f,  1.9f,  0.0f},
+        {-6.5f,  2.5f,  0.0f},
+        {-4.0f,  1.5f,  0.0f},
+        {-4.0f,  5.5f,  0.0f},
+        {-5.0f,  3.0f,  0.0f},
+        {-4.0f, -1.5f,  0.0f},
+        {-1.5f, -2.5f,  0.0f},
+        {-3.0f, -4.5f,  0.0f},
+        {-4.0f,  1.5f,  0.0f},
+        {-9.0f,  2.0f,  0.0f},
+        {-8.0f,  1.5f,  0.0f},
+        {-4.0f,  1.8f,  0.0f},
+        {-7.0f,  1.0f,  0.0f}
+    };
 
     Position cuboidPositions[10] = {
         {0.0f, 0.0f, 0.0f},
@@ -283,6 +306,11 @@ int main() {
             cuboids[index].show();
             nanosuit.setPosition({-index + 0.1f, 1.5f, 1.5f});
             nanosuit.show();
+        }
+
+        for (int index = 0; index < grassPositions.size(); ++index) {
+            grass.setPosition(grassPositions[index]);
+            grass.show();
         }
 
         glfwSwapBuffers(window);
