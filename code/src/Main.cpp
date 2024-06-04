@@ -120,6 +120,19 @@ static void EnableViewMask(Rectangle& outlineMask, Rectangle& throughMask) {
         glDepthMask(GL_TRUE);
 }
 
+static void SortWitDistance(std::vector<Position>& positions, Position centerPos) {
+    auto dist = [](Position& a, Position& b) {
+        Vector3D vec = b - a;
+        double dist = sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
+        return dist;
+    };
+    std::sort(positions.begin(), positions.end(), [&centerPos, &dist](Position& a, Position& b) {
+        double distA = dist(a, centerPos);
+        double distB = dist(b, centerPos);
+        return distA > distB;
+    });
+}
+
 
 int main() {
     GLFWwindow* window = InitWindows();
@@ -166,6 +179,7 @@ int main() {
     Image containerImage2_specular(GetCurPath() + "/resource/lighting_maps_specular_color.png");
     Image matrixImage(GetCurPath() + "/resource/matrix.jpeg");
     Image grassImage(GetCurPath() + "/resource/grass.png");
+    Image windowImage(GetCurPath() + "/resource/blending_transparent_window.png");
 
     Rectangle rectangle(1.0f, 1.0f);
     rectangle.setPosition({0.0f, 0.0f});
@@ -201,6 +215,18 @@ int main() {
         {-8.0f,  1.5f,  0.0f},
         {-4.0f,  1.8f,  0.0f},
         {-7.0f,  1.0f,  0.0f}
+    };
+
+    Rectangle transparentWindow(1.0f, 1.0f);
+    transparentWindow.setPosition({0.0f, 0.0f});
+    transparentWindow.setImage(windowImage);
+    transparentWindow.setFront({1.0f, 0.0f, 0.0f});
+    transparentWindow.setScaleRatio(2.0f);
+    std::vector<Position> windowPositions = {
+        {1.1f, 1.0f, 0.0f},
+        {3.0f, 2.0f, 0.0f},
+        {4.0f, 3.0f, 0.0f},
+        {5.0f, 4.0f, 0.0f},
     };
 
     Position cuboidPositions[10] = {
@@ -308,10 +334,20 @@ int main() {
             nanosuit.show();
         }
 
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         for (int index = 0; index < grassPositions.size(); ++index) {
             grass.setPosition(grassPositions[index]);
             grass.show();
         }
+
+        // TODO: 优化, 受混合+深度测试影响 透明物体需要按顺序绘制, 需要提供一个排序工具
+        SortWitDistance(windowPositions, ((const ShaderCamera&)cameraFPS).getPosition());
+        for (int index = 0; index < windowPositions.size(); ++index) {
+            transparentWindow.setPosition(windowPositions[index]);
+            transparentWindow.show();
+        }
+        glDisable(GL_BLEND);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
