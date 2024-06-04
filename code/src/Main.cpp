@@ -134,7 +134,7 @@ int main() {
     glStencilOp(GL_ZERO, GL_KEEP, GL_REPLACE);
 
     CameraFPS cameraFPS;
-    cameraFPS.setPosition(1.0f, 2.0f, 2.0f);
+    cameraFPS.setPosition(5.0f, 2.0f, 2.0f);
     cameraFPS.setAttitude(0.0f, 180.0f);
 
     LightSource light({-1.0f, 2.0f, 2.0f});
@@ -227,7 +227,7 @@ int main() {
         // cuboid.addImage(matrixImage);
     }
 
-    ShaderMaterial material(containerImage2, containerImage2_specular);
+    ShaderMaterial material(containerImage2.getTexture(TextureWrapMode::Repeat), containerImage2_specular.getTexture(TextureWrapMode::Repeat));
 
     Cubiod cuboid(1.0f, 1.0f, 1.0f);
     cuboid.setPosition({0.0f, 2.0f, 0.0f});

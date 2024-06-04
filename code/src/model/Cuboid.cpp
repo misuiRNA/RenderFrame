@@ -44,13 +44,12 @@ void Cubiod::setColor(const Color& color) {
     _color = color;
 }
 
-// TODO: 优化, 减少重复加载
 void Cubiod::addImage(const Image& image) {
     _imageCount += 1;
     if (_imageCount == 1) {
-        _renderData.setTexture("texture1", image.getTexture());
+        _renderData.setTexture("texture1", image.getTexture(TextureWrapMode::Repeat));
     } else if (_imageCount == 2) {
-        _renderData.setTexture("texture2", image.getTexture());
+        _renderData.setTexture("texture2", image.getTexture(TextureWrapMode::Repeat));
     }
 }
 

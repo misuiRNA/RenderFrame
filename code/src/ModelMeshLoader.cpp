@@ -103,7 +103,7 @@ std::vector<Mesh::Texture> ModelMeshLoader::loadMaterialTextures(aiMaterial* mat
         if (_texturesLoadedMap.find(textureName) == _texturesLoadedMap.end()) {
             Mesh::Texture& texture = _texturesLoadedMap[textureName];
             Image image(_directory + "/" + textureName);
-            texture.id = image.getTexture();
+            texture.id = image.getTexture(TextureWrapMode::Repeat);
             texture.type = type;
             texture.key = textureName;
         }

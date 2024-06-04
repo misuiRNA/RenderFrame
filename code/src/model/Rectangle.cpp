@@ -33,8 +33,9 @@ void Rectangle::setScaleRatio(float scaleRatio) {
     _scaleRatio = scaleRatio;
 }
 
+// TODO: 优化, 支持贴图设置不同环绕方式
 void Rectangle::setImage(const Image& image) {
-    _renderData.setTexture("texture1", image.getTexture());
+    _renderData.setTexture("texture1", image.getTexture(TextureWrapMode::ClampToEdge));
     _imageEnable = true;
 }
 
