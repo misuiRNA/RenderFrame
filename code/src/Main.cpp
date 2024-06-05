@@ -317,6 +317,10 @@ int main() {
 
         // EnableViewMask(rectangle1, rectangle);
 
+        // TODO: 优化, 封装到RenderData中, 渲染元素级别控制面剔除方式
+        glEnable(GL_CULL_FACE);
+        // glFrontFace(GL_CW);
+
         rectangle1.show();
         rectangle.show();
 
@@ -334,6 +338,7 @@ int main() {
             nanosuit.show();
         }
 
+        // TODO: 优化, 抽取透明元素的绘制流程pip
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         for (int index = 0; index < grassPositions.size(); ++index) {
