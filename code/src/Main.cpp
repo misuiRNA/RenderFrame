@@ -6,6 +6,7 @@
 
 #include "ShaderProgram.h"
 #include "model/Rectangle.h"
+#include "model/Rectangle2D.h"
 #include "model/Cuboid.h"
 #include "model/LightSource.h"
 #include "model/Model3D.h"
@@ -229,6 +230,12 @@ int main() {
         {5.0f, 4.0f, 0.0f},
     };
 
+    Canva mirrorCanva;
+    Rectangle2D mirror(0.8f, 0.6f);
+    mirror.setPosition({-0.6f, 0.7f});
+    mirror.setColor(Color(0.8f, 0.3f, 0.2f));
+    mirror.setCanva(mirrorCanva);
+
     Position cuboidPositions[10] = {
         {0.0f, 0.0f, 0.0f},
         {0.0f, 0.0f, 1.0f},
@@ -283,6 +290,7 @@ int main() {
     airplan.setPosition({0.0f, 5.0f, 1.5f});
     airplan.setUp({0.0f, 1.0f, 0.0f});
     airplan.setFront({0.0f, 0.0f, 1.0f});
+
 
     float lastX = 0.0f;
     while(!glfwWindowShouldClose(window))
@@ -353,6 +361,54 @@ int main() {
             transparentWindow.show();
         }
         glDisable(GL_BLEND);
+
+
+        auto painter = [&]() {
+            const ShaderCamera& cam = cameraFPS;
+            CameraFPS cameraFPS1 = cameraFPS;
+            cameraFPS1.setPosition(cam.getPosition().x + 5, cam.getPosition().y, 15.0f);
+            cameraFPS1.setAttitude(-80.0f, 0.0f);
+            SetCameraAndLightUniform(cameraFPS1, light, light1, parallelLight);
+
+
+            rectangle1.show();
+            rectangle.show();
+
+            light.show();
+            light1.show();
+            cuboid.show();
+            cuboid1.show();
+
+            nanosuit.show();
+            airplan.show();
+
+            for (int index = 0; index < cuboids.size(); ++index) {
+                cuboids[index].show();
+                nanosuit.setPosition({-index + 0.1f, 1.5f, 1.5f});
+                nanosuit.show();
+            }
+
+            // TODO: 优化, 抽取透明元素的绘制流程pip
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            for (int index = 0; index < grassPositions.size(); ++index) {
+                grass.setPosition(grassPositions[index]);
+                grass.show();
+            }
+
+            // TODO: 优化, 受混合+深度测试影响 透明物体需要按顺序绘制, 需要提供一个排序工具
+            SortWitDistance(windowPositions, ((const ShaderCamera&)cameraFPS1).getPosition());
+            for (int index = 0; index < windowPositions.size(); ++index) {
+                transparentWindow.setPosition(windowPositions[index]);
+                transparentWindow.show();
+            }
+            glDisable(GL_BLEND);
+
+            SetCameraAndLightUniform(cameraFPS, light, light1, parallelLight);
+        };
+        mirrorCanva.paint(painter);
+
+        mirror.show();
 
         glfwSwapBuffers(window);
         glfwPollEvents();

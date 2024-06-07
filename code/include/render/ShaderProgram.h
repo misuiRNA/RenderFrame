@@ -35,6 +35,7 @@ struct ShaderProgram {
 public:
     static std::string UniformArrayName(const std::string& name, int index);
     static ShaderProgram& getRectShaderProg();
+    static ShaderProgram& getRect2DShaderProg();
     static ShaderProgram& getCuboidShaderProg();
     static ShaderProgram& getLightSourceShaderProg();
     static ShaderProgram& getMeshShaderProg();

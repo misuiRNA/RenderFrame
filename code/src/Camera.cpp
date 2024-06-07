@@ -92,6 +92,7 @@ void CameraFPS::setAttitude(float pitch, float yaw) {
     _camera.setFront({front.x, front.y, front.z});
 
 }
+
 void CameraFPS::setPosition(float x, float y, float z) {
     _camera.setPosition({x, y, z});
 }

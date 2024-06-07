@@ -26,4 +26,19 @@ private:
     mutable std::map<TextureWrapMode, TextureId> _textureMap;
 };
 
+
+// TODO: 优化, 为 Canva 和 Image 抽取父类, 形成接口
+struct Canva {
+    using TextureId = unsigned int;
+
+    Canva();
+    void paint(std::function<void()> painter);
+    TextureId getTexture() const;
+
+
+    unsigned int _frameBuffer;
+    unsigned int _texColorBuffer;
+};
+
+
 #endif // _HEAD_FLAG_IMAGE_H

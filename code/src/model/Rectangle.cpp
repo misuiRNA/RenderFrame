@@ -12,7 +12,7 @@ Rectangle::Rectangle(float width, float height)
 , _width(width)
 , _height(height)
 , _scaleRatio(1.0f)
-, _imageEnable(false) {
+, _textureEnable(false) {
 
 }
 
@@ -36,7 +36,12 @@ void Rectangle::setScaleRatio(float scaleRatio) {
 // TODO: 优化, 支持贴图设置不同环绕方式
 void Rectangle::setImage(const Image& image) {
     _renderData.setTexture("texture1", image.getTexture(TextureWrapMode::ClampToEdge));
-    _imageEnable = true;
+    _textureEnable = true;
+}
+
+void Rectangle::setCanva(const Canva& canva) {
+    _renderData.setTexture("texture1", canva.getTexture());
+    _textureEnable = true;
 }
 
 void Rectangle::setColor(const Color& color) {
@@ -44,7 +49,7 @@ void Rectangle::setColor(const Color& color) {
 }
 
 void Rectangle::updateUniformes() {
-    _renderData.setUniform("imageEnable", _imageEnable);
+    _renderData.setUniform("imageEnable", _textureEnable);
     _renderData.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
 
     glm::mat4 model;
