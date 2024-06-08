@@ -5,16 +5,15 @@
 #include "BaseDefine.h"
 #include "Image.h"
 
-struct Rectangle : AbstractModel {
-    Rectangle(float width, float height);
+struct Rectangle3D : AbstractModel {
+    Rectangle3D(float width, float height);
 
     void setPosition(const Position& pos);
     void setFront(const Vector3D& front);
     void setSize(float width, float height);
     void setScaleRatio(float scaleRatio);
-    void setImage(const Image& image);
+    void setImage(const AbstractImage& image);
     void setColor(const Color& color);
-    void setCanva(const Canva& canva);
 
 private:
     void updateRenderData() override;

@@ -19,13 +19,8 @@ void Rectangle2D::setPosition(const Position& pos) {
 }
 
 // TODO: 优化, 支持贴图设置不同环绕方式
-void Rectangle2D::setImage(const Image& image) {
-    _renderData.setTexture("texture1", image.getTexture(TextureWrapMode::ClampToEdge));
-    _textureEnable = true;
-}
-
-void Rectangle2D::setCanva(const Canva& canva) {
-    _renderData.setTexture("texture1", canva.getTexture());
+void Rectangle2D::setImage(const AbstractImage& image) {
+    _renderData.setTexture("texture1", image.getTexture(ImageWrapMode::ClampToEdge));
     _textureEnable = true;
 }
 

@@ -1,11 +1,11 @@
-#include "model/Rectangle.h"
+#include "model/Rectangle3D.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
 #include "ShaderProgram.h"
 
-Rectangle::Rectangle(float width, float height)
+Rectangle3D::Rectangle3D(float width, float height)
 : AbstractModel(ShaderProgram::getRectShaderProg())
 , _pos(0.0f, 0.0f, 0.0f)
 , _front(0.0f, 0.0f, 1.0f)
@@ -16,39 +16,34 @@ Rectangle::Rectangle(float width, float height)
 
 }
 
-void Rectangle::setPosition(const Position& pos) {
+void Rectangle3D::setPosition(const Position& pos) {
     _pos = pos;
 }
 
-void Rectangle::setFront(const Vector3D& front) {
+void Rectangle3D::setFront(const Vector3D& front) {
     _front = front;
 }
 
-void Rectangle::setSize(float width, float height) {
+void Rectangle3D::setSize(float width, float height) {
     _width = width;
     _height = height;
 }
 
-void Rectangle::setScaleRatio(float scaleRatio) {
+void Rectangle3D::setScaleRatio(float scaleRatio) {
     _scaleRatio = scaleRatio;
 }
 
 // TODO: 优化, 支持贴图设置不同环绕方式
-void Rectangle::setImage(const Image& image) {
-    _renderData.setTexture("texture1", image.getTexture(TextureWrapMode::ClampToEdge));
+void Rectangle3D::setImage(const AbstractImage& image) {
+    _renderData.setTexture("texture1", image.getTexture(ImageWrapMode::ClampToEdge));
     _textureEnable = true;
 }
 
-void Rectangle::setCanva(const Canva& canva) {
-    _renderData.setTexture("texture1", canva.getTexture());
-    _textureEnable = true;
-}
-
-void Rectangle::setColor(const Color& color) {
+void Rectangle3D::setColor(const Color& color) {
     _color = color;
 }
 
-void Rectangle::updateUniformes() {
+void Rectangle3D::updateUniformes() {
     _renderData.setUniform("imageEnable", _textureEnable);
     _renderData.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
 
@@ -71,7 +66,7 @@ void Rectangle::updateUniformes() {
     _renderData.setUniformMat4("modelMatrix", glm::value_ptr(model));
 }
 
-void Rectangle::updateRenderData() {
+void Rectangle3D::updateRenderData() {
     _renderData.setVertices<Vector3D>("aPos", {
         {-0.5f, -0.5f, 0.0f},
         {0.5f, -0.5f, 0.0f},

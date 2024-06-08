@@ -9,9 +9,8 @@ struct Rectangle2D : AbstractModel {
     Rectangle2D(float width, float height);
 
     void setPosition(const Position& pos);
-    void setImage(const Image& image);
+    void setImage(const AbstractImage& image);
     void setColor(const Color& color);
-    void setCanva(const Canva& canva);
 
 private:
     void updateRenderData() override;

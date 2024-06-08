@@ -44,12 +44,12 @@ void Cubiod::setColor(const Color& color) {
     _color = color;
 }
 
-void Cubiod::addImage(const Image& image) {
+void Cubiod::addImage(const AbstractImage& image) {
     _imageCount += 1;
     if (_imageCount == 1) {
-        _renderData.setTexture("texture1", image.getTexture(TextureWrapMode::Repeat));
+        _renderData.setTexture("texture1", image.getTexture(ImageWrapMode::Repeat));
     } else if (_imageCount == 2) {
-        _renderData.setTexture("texture2", image.getTexture(TextureWrapMode::Repeat));
+        _renderData.setTexture("texture2", image.getTexture(ImageWrapMode::Repeat));
     }
 }
 

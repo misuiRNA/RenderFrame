@@ -5,7 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include "ShaderProgram.h"
-#include "model/Rectangle.h"
+#include "model/Rectangle3D.h"
 #include "model/Rectangle2D.h"
 #include "model/Cuboid.h"
 #include "model/LightSource.h"
@@ -107,7 +107,7 @@ void SetCameraAndLightUniform(const CameraFPS& camera, const LightSource& light1
 }
 
 // TODO: 优化, 设计模板测试类, 支持任意形状
-static void EnableViewMask(Rectangle& outlineMask, Rectangle& throughMask) {
+static void EnableViewMask(Rectangle3D& outlineMask, Rectangle3D& throughMask) {
         glDepthMask(GL_FALSE);
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
         glStencilMask(0x00);
@@ -172,17 +172,17 @@ int main() {
     // parallelLight.setColor({1.0f, 0.0f, 0.0f});
     parallelLight.setDirection({-1.0f, 1.0f, -1.0f});
 
-    Image wallImage(GetCurPath() + "/resource/wall.jpeg");
-    Image awesomefaceImage(GetCurPath() + "/resource/awesomeface.png");
-    Image containerImage(GetCurPath() + "/resource/container.jpeg");
-    Image containerImage2(GetCurPath() + "/resource/container2.png");
-    // Image containerImage2_specular(GetCurPath() + "/resource/container2_specular.png");
-    Image containerImage2_specular(GetCurPath() + "/resource/lighting_maps_specular_color.png");
-    Image matrixImage(GetCurPath() + "/resource/matrix.jpeg");
-    Image grassImage(GetCurPath() + "/resource/grass.png");
-    Image windowImage(GetCurPath() + "/resource/blending_transparent_window.png");
+    LocalImage wallImage(GetCurPath() + "/resource/wall.jpeg");
+    LocalImage awesomefaceImage(GetCurPath() + "/resource/awesomeface.png");
+    LocalImage containerImage(GetCurPath() + "/resource/container.jpeg");
+    LocalImage containerImage2(GetCurPath() + "/resource/container2.png");
+    // LocalImage containerImage2_specular(GetCurPath() + "/resource/container2_specular.png");
+    LocalImage containerImage2_specular(GetCurPath() + "/resource/lighting_maps_specular_color.png");
+    LocalImage matrixImage(GetCurPath() + "/resource/matrix.jpeg");
+    LocalImage grassImage(GetCurPath() + "/resource/grass.png");
+    LocalImage windowImage(GetCurPath() + "/resource/blending_transparent_window.png");
 
-    Rectangle rectangle(1.0f, 1.0f);
+    Rectangle3D rectangle(1.0f, 1.0f);
     rectangle.setPosition({0.0f, 0.0f});
     rectangle.setScaleRatio(0.6f);
     // rectangle.setColor(Color(0.8f, 0.3f, 0.2f));
@@ -190,13 +190,13 @@ int main() {
     rectangle.setImage(awesomefaceImage);
     rectangle.setFront({1.0f, 0.0f, 0.0f});
 
-    Rectangle rectangle1(1.0f, 1.0f);
+    Rectangle3D rectangle1(1.0f, 1.0f);
     rectangle1.setPosition({-1.0, 0.0f});
     rectangle1.setColor(Color(0.8f, 0.3f, 0.2f));
     // rectangle1.setImage(containerImage);
     // rectangle1.setPosition({0.0f, 0.0f});
 
-    Rectangle grass(1.0f, 1.0f);
+    Rectangle3D grass(1.0f, 1.0f);
     grass.setPosition({0.0f, 0.0f});
     grass.setImage(grassImage);
     grass.setFront({1.0f, 0.0f, 0.0f});
@@ -218,7 +218,7 @@ int main() {
         {-7.0f,  1.0f,  0.0f}
     };
 
-    Rectangle transparentWindow(1.0f, 1.0f);
+    Rectangle3D transparentWindow(1.0f, 1.0f);
     transparentWindow.setPosition({0.0f, 0.0f});
     transparentWindow.setImage(windowImage);
     transparentWindow.setFront({1.0f, 0.0f, 0.0f});
@@ -230,11 +230,13 @@ int main() {
         {5.0f, 4.0f, 0.0f},
     };
 
-    Canva mirrorCanva;
+    PaintImage mirrorCanva(800, 600);
+    mirrorCanva.setBackgroundColor({0.3f, 0.2f, 0.3f});
+
     Rectangle2D mirror(0.8f, 0.6f);
     mirror.setPosition({-0.6f, 0.7f});
     mirror.setColor(Color(0.8f, 0.3f, 0.2f));
-    mirror.setCanva(mirrorCanva);
+    mirror.setImage(mirrorCanva);
 
     Position cuboidPositions[10] = {
         {0.0f, 0.0f, 0.0f},
@@ -255,12 +257,13 @@ int main() {
         cuboids.emplace_back(1.0f, 1.0f, 1.0f);
         Cubiod& cuboid = cuboids.back();
         cuboid.setPosition(cuboidPositions[index]);
+        // cuboid.addImage(mirrorCanva);
         cuboid.addImage(awesomefaceImage);
         cuboid.addImage(containerImage);
         // cuboid.addImage(matrixImage);
     }
 
-    ShaderMaterial material(containerImage2.getTexture(TextureWrapMode::Repeat), containerImage2_specular.getTexture(TextureWrapMode::Repeat));
+    ShaderMaterial material(containerImage2.getTexture(ImageWrapMode::Repeat), containerImage2_specular.getTexture(ImageWrapMode::Repeat));
 
     Cubiod cuboid(1.0f, 1.0f, 1.0f);
     cuboid.setPosition({0.0f, 2.0f, 0.0f});
@@ -364,6 +367,8 @@ int main() {
 
 
         auto painter = [&]() {
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
             const ShaderCamera& cam = cameraFPS;
             CameraFPS cameraFPS1 = cameraFPS;
             cameraFPS1.setPosition(cam.getPosition().x + 5, cam.getPosition().y, 15.0f);

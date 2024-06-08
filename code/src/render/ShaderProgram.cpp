@@ -163,9 +163,9 @@ std::string ShaderProgram::UniformArrayName(const std::string& name, int index) 
 
 // TODO: 优化, 1.shader字符串编译时确定，不读取文件；2.返回的路径位置应为可执行文件位置，而不是执行命令的位置 考虑使用 std::filesystem
 ShaderProgram& ShaderProgram::getRectShaderProg() {
-    static const std::string MODEL_NAME = "Rectangle";
-    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/RectangleShader.vs");
-    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/RectangleShader.fs");
+    static const std::string MODEL_NAME = "Rectangle3D";
+    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Rectangle3DShader.vs");
+    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Rectangle3DShader.fs");
     static const std::map<std::string, int> ATTRIBUTE_NAME_MAP = {
         {"aPos"     , 0},
         {"aTexCoord", 1},
@@ -176,7 +176,7 @@ ShaderProgram& ShaderProgram::getRectShaderProg() {
 }
 
 ShaderProgram& ShaderProgram::getRect2DShaderProg() {
-    static const std::string MODEL_NAME = "Rectangle";
+    static const std::string MODEL_NAME = "Rectangle2D";
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Rectangle2DShader.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Rectangle2DShader.fs");
     static const std::map<std::string, int> ATTRIBUTE_NAME_MAP = {

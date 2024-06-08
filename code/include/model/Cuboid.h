@@ -14,7 +14,7 @@ struct Cubiod : AbstractModel {
     void setRotation(float rotation);
     void setRotationAxis(const Vector3D& axis);
     void setColor(const Color& color);
-    void addImage(const Image& image);
+    void addImage(const AbstractImage& image);
     void setMaterial(const ShaderMaterial& material);
 
 private:

@@ -4,18 +4,25 @@
 #include <string>
 #include <iostream> 
 #include <map>
+#include "BaseDefine.h"
 
-enum class TextureWrapMode {
+enum class ImageWrapMode {
     Repeat      = 0,
     ClampToEdge = 1
 };
 
-struct Image {
-    using TextureId = unsigned int;
+using TextureId = unsigned int;
 
-    Image(const std::string& path);
-    ~Image();
-    TextureId getTexture(TextureWrapMode wrapMode) const;
+struct AbstractImage {
+    virtual ~AbstractImage() { }
+    virtual TextureId getTexture(ImageWrapMode wrapMode) const = 0;
+};
+
+
+struct LocalImage : AbstractImage {
+    LocalImage(const std::string& path);
+    ~LocalImage();
+    TextureId getTexture(ImageWrapMode wrapMode) const;
 
 private:
     int _width;
@@ -23,18 +30,21 @@ private:
     unsigned int _format;
     unsigned char* _data;
 
-    mutable std::map<TextureWrapMode, TextureId> _textureMap;
+    mutable std::map<ImageWrapMode, TextureId> _textureMap;
 };
 
 
-// TODO: 优化, 为 Canva 和 Image 抽取父类, 形成接口
-struct Canva {
-    using TextureId = unsigned int;
-
-    Canva();
+struct PaintImage : AbstractImage {
+    PaintImage(unsigned int witdh, unsigned int height);
+    void setBackgroundColor(const Color& color);
     void paint(std::function<void()> painter);
-    TextureId getTexture() const;
+    // TODO: 优化, 离屏渲染纹理实现暂不支持选择环绕方式
+    TextureId getTexture(ImageWrapMode wrapMode) const;
 
+private:
+    unsigned int _width;
+    unsigned int _height;
+    Color _backgroundColor;
 
     unsigned int _frameBuffer;
     unsigned int _texColorBuffer;

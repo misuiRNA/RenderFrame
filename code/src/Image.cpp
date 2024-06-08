@@ -2,14 +2,14 @@
 #include "stb_image.h"
 #include "glad/glad.h"
 
-static unsigned int WrapMode2GL(TextureWrapMode wrapMode) {
+static unsigned int WrapMode2GL(ImageWrapMode wrapMode) {
     unsigned int glWrapMode = GL_REPEAT;
     switch (wrapMode) {
-        case TextureWrapMode::Repeat: {
+        case ImageWrapMode::Repeat: {
             glWrapMode = GL_REPEAT;
             break;
         }
-        case TextureWrapMode::ClampToEdge: {
+        case ImageWrapMode::ClampToEdge: {
             glWrapMode = GL_CLAMP_TO_EDGE;
         }
         default: {
@@ -41,7 +41,7 @@ static unsigned int GenTexture(const unsigned char* imageData, int width, int he
     return texture;
 }
 
-Image::Image(const std::string& path)
+LocalImage::LocalImage(const std::string& path)
 : _width(0)
 , _height(0)
 , _format(GL_RGB) {
@@ -67,11 +67,11 @@ Image::Image(const std::string& path)
     _data = data;
 }
 
-Image::~Image() {
+LocalImage::~LocalImage() {
     stbi_image_free(_data);
 }
 
-unsigned int Image::getTexture(TextureWrapMode wrapMode) const {
+TextureId LocalImage::getTexture(ImageWrapMode wrapMode) const {
     auto it = _textureMap.find(wrapMode);
     if (it == _textureMap.end()) {
         unsigned int glWrapMode = WrapMode2GL(wrapMode);
@@ -81,31 +81,50 @@ unsigned int Image::getTexture(TextureWrapMode wrapMode) const {
 }
 
 
-Canva::Canva() {
-    // new framebuffer
-    unsigned int framebuffer;
-    glGenFramebuffers(1, &framebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-    _frameBuffer = framebuffer;
+static unsigned int CreateFrameBuffer() {
+    unsigned int frameBuffer;
+    glGenFramebuffers(1, &frameBuffer);
+    return frameBuffer;
+}
 
-    // 生成纹理
+static unsigned int CreateTextureColorBuffer(unsigned int width, unsigned int height) {
     unsigned int texColorBuffer;
     glGenTextures(1, &texColorBuffer);
     glBindTexture(GL_TEXTURE_2D, texColorBuffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 800, 600, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
-    // 将它附加到当前绑定的帧缓冲对象
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texColorBuffer, 0);
-    _texColorBuffer = texColorBuffer;
+    return texColorBuffer;
+}
 
+static unsigned int CreateRenderBuffer(unsigned int width, unsigned int height) {
     unsigned int rbo;
     glGenRenderbuffers(1, &rbo);
     glBindRenderbuffer(GL_RENDERBUFFER, rbo); 
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, 800, 600);  
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);  
     glBindRenderbuffer(GL_RENDERBUFFER, 0);
+    return rbo;
+}
+
+PaintImage::PaintImage(unsigned int witdh, unsigned int height)
+: _width(witdh)
+, _height(height)
+, _backgroundColor(0.0f, 0.0f, 0.0f)
+, _frameBuffer(0)
+, _texColorBuffer(0) {
+    _frameBuffer = CreateFrameBuffer();
+    glBindFramebuffer(GL_FRAMEBUFFER, _frameBuffer);
+    // TODO: release frame buffer after use
+
+    _texColorBuffer = CreateTextureColorBuffer(_width, _height);
+    // 将它附加到当前绑定的帧缓冲对象
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _texColorBuffer, 0);
+    // TODO: release texture after use
+
+    unsigned int rbo = CreateRenderBuffer(_width, _height);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, rbo);
+    // TODO: release rbo after use
 
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
@@ -114,17 +133,20 @@ Canva::Canva() {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Canva::paint(std::function<void()> painter) {
+void PaintImage::setBackgroundColor(const Color& color) { 
+    _backgroundColor = color;
+}
+
+void PaintImage::paint(std::function<void()> painter) {
     glBindFramebuffer(GL_FRAMEBUFFER, _frameBuffer);
-    glClearColor(0.3f, 0.2f, 0.3f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glClearColor(_backgroundColor.r, _backgroundColor.g, _backgroundColor.b, 1.0f);
 
     painter();
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-Canva::TextureId Canva::getTexture() const {
+TextureId PaintImage::getTexture(ImageWrapMode wrapMode) const {
     return _texColorBuffer;
 }
 
