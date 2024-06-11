@@ -2,6 +2,7 @@
 #define MODEL_H
 
 #include "model/AbstractModel.h"
+#include "Attitude3DController.h"
 #include <string>
 #include <map>
 #include <vector>
@@ -9,9 +10,8 @@
 struct Model3D : AbstractModel {
     Model3D(std::string const& path);
     void setPosition(const Position& pos);
-    void setFront(const Vector3D& front);
-    void setUp(const Vector3D& up);
     void setScale(float scale);
+    Attitude3DController& getAttituedeCtrl();
 
 private:
     void updateRenderData() override;
@@ -20,8 +20,7 @@ private:
 
 private:
     Position _pos;
-    Vector3D _front;
-    Vector3D _up;
+    Attitude3DController _attitudeCtrl;
     float _scaleRatio;
 
     std::string _modelPath;

@@ -21,7 +21,7 @@ CameraFPS::CameraFPS()
 , _moveSpeed(2.5f)
 , _turnSpeed(10.0f) {
     _camera.setPosition({0.0f, 0.0f, 0.0f});
-    _camera.setFront({1.0f, 0.0f, 0.0f});
+    _camera.getMutableAttituedeCtrl().setFront({1.0f, 0.0f, 0.0f});
 }
 
 CameraFPS::operator const ShaderCamera&() const
@@ -30,25 +30,25 @@ CameraFPS::operator const ShaderCamera&() const
 }
 
 void CameraFPS::goForward(float moveTime) {
-    glm::vec3 cameraFront = XYZ2Glmvec3(_camera.getFront());
+    glm::vec3 cameraFront = XYZ2Glmvec3(_camera.getAttituedeCtrl().getFront());
     glm::vec3 cameraPos = XYZ2Glmvec3(_camera.getPosition());
     cameraPos += moveTime * _moveSpeed * cameraFront;
     setPosition(cameraPos.x, cameraPos.y, cameraPos.z);
 }
 void CameraFPS::goBack(float moveTime) {
-    glm::vec3 cameraFront = XYZ2Glmvec3(_camera.getFront());
+    glm::vec3 cameraFront = XYZ2Glmvec3(_camera.getAttituedeCtrl().getFront());
     glm::vec3 cameraPos = XYZ2Glmvec3(_camera.getPosition());
     cameraPos -= moveTime * _moveSpeed * cameraFront;
     setPosition(cameraPos.x, cameraPos.y, cameraPos.z);
 }
 void CameraFPS::goLeft(float moveTime) {
-    glm::vec3 cameraRight = CalcRightVector(_camera.getUp(), _camera.getFront());
+    glm::vec3 cameraRight = CalcRightVector(_camera.getAttituedeCtrl().getUp(), _camera.getAttituedeCtrl().getFront());
     glm::vec3 cameraPos = XYZ2Glmvec3(_camera.getPosition());
     cameraPos -= moveTime * _moveSpeed * cameraRight;
     setPosition(cameraPos.x, cameraPos.y, cameraPos.z);
 }
 void CameraFPS::goRight(float moveTime) {
-    glm::vec3 cameraRight = CalcRightVector(_camera.getUp(), _camera.getFront());
+    glm::vec3 cameraRight = CalcRightVector(_camera.getAttituedeCtrl().getUp(), _camera.getAttituedeCtrl().getFront());
     glm::vec3 cameraPos = XYZ2Glmvec3(_camera.getPosition());
     cameraPos += moveTime * _moveSpeed * cameraRight;
     setPosition(cameraPos.x, cameraPos.y, cameraPos.z);
@@ -89,7 +89,7 @@ void CameraFPS::setAttitude(float pitch, float yaw) {
     front.y = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
     front.z = sin(glm::radians(pitch));
     front = glm::normalize(front);
-    _camera.setFront({front.x, front.y, front.z});
+    _camera.getMutableAttituedeCtrl().setFront({front.x, front.y, front.z});
 
 }
 

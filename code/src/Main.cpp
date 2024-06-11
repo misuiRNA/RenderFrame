@@ -188,7 +188,8 @@ int main() {
     // rectangle.setColor(Color(0.8f, 0.3f, 0.2f));
     rectangle.setColor(Color(0.0f, 0.0f, 0.0f));
     rectangle.setImage(awesomefaceImage);
-    rectangle.setFront({1.0f, 0.0f, 0.0f});
+    rectangle.getAttituedeCtrl()
+             .setFront({1.0f, 0.0f, 0.0f});
 
     Rectangle3D rectangle1(1.0f, 1.0f);
     rectangle1.setPosition({-1.0, 0.0f});
@@ -199,7 +200,8 @@ int main() {
     Rectangle3D grass(1.0f, 1.0f);
     grass.setPosition({0.0f, 0.0f});
     grass.setImage(grassImage);
-    grass.setFront({1.0f, 0.0f, 0.0f});
+    grass.getAttituedeCtrl()
+         .setFront({1.0f, 0.0f, 0.0f});
     std::vector<Position> grassPositions = {
         {-5.0f,  1.5f,  0.0f},
         {-4.8f, -1.5f,  0.0f},
@@ -221,8 +223,9 @@ int main() {
     Rectangle3D transparentWindow(1.0f, 1.0f);
     transparentWindow.setPosition({0.0f, 0.0f});
     transparentWindow.setImage(windowImage);
-    transparentWindow.setFront({1.0f, 0.0f, 0.0f});
     transparentWindow.setScaleRatio(2.0f);
+    transparentWindow.getAttituedeCtrl()
+                     .setFront({1.0f, 0.0f, 0.0f});
     std::vector<Position> windowPositions = {
         {1.1f, 1.0f, 0.0f},
         {3.0f, 2.0f, 0.0f},
@@ -286,13 +289,15 @@ int main() {
     Model3D nanosuit(GetCurPath() + "/resource/models/nanosuit/nanosuit.obj");
     nanosuit.setScale(0.1);
     nanosuit.setPosition({0.0f, 1.5f, 1.5f});
-    nanosuit.setFront({1.0f, 0.0f, 0.0f});
+    nanosuit.getAttituedeCtrl()
+            .setFront({1.0f, 0.0f, 0.0f});
 
     Model3D airplan(GetCurPath() + "/resource/models/Airplane/11803_Airplane_v1_l1.obj");
     airplan.setScale(0.001);
     airplan.setPosition({0.0f, 5.0f, 1.5f});
-    airplan.setUp({0.0f, 1.0f, 0.0f});
-    airplan.setFront({0.0f, 0.0f, 1.0f});
+    airplan.getAttituedeCtrl()
+           .setUp({0.0f, 1.0f, 0.0f})
+           .setFront({0.0f, 0.0f, 1.0f});
 
 
     float lastX = 0.0f;
@@ -372,7 +377,7 @@ int main() {
             const ShaderCamera& cam = cameraFPS;
             CameraFPS cameraFPS1 = cameraFPS;
             cameraFPS1.setPosition(cam.getPosition().x + 5, cam.getPosition().y, 15.0f);
-            cameraFPS1.setAttitude(-80.0f, 0.0f);
+            cameraFPS1.setAttitude(-80.0f, 180.0f);
             SetCameraAndLightUniform(cameraFPS1, light, light1, parallelLight);
 
 

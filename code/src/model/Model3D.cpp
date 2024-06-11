@@ -52,8 +52,7 @@ static std::map<std::string, unsigned int> MeshTextures2TextureMap(const std::ve
 Model3D::Model3D(std::string const& path)
 : AbstractModel(ShaderProgram::getMeshShaderProg())
 , _pos(0.0f, 0.0f, 0.0f)
-, _front(1.0f, 0.0f, 0.0f)
-, _up(0.0f, 0.0f, 1.0f)
+, _attitudeCtrl({0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f})
 , _scaleRatio(1.0f)
 , _modelPath(path) {
 
@@ -63,34 +62,21 @@ void Model3D::setPosition(const Position& pos) {
     _pos = pos;
 }
 
-void Model3D::setFront(const Vector3D& front) {
-    _front = front;
-}
-
-void Model3D::setUp(const Vector3D& up) {
-    _up = up;
-}
-
 void Model3D::setScale(float scale) {
     _scaleRatio = scale;
+}
+
+Attitude3DController& Model3D::getAttituedeCtrl() {
+    return _attitudeCtrl;
 }
 
 void Model3D::updateUniformes() {
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(_pos.x, _pos.y, _pos.z));
 
-    // TODO: 优化, 需要保证上向量和前向量不平行, 否则旋转矩阵无效
-    // TODO: 优化, 抽取方向控制器
-    glm::vec3 normalUp = glm::vec3(_up.x, _up.y, _up.z);
-    glm::vec3 normalFront = glm::normalize(glm::vec3(_front.x, _front.y, _front.z));
-    glm::vec3 normalRight = glm::normalize(glm::cross(normalUp, normalFront));
-    glm::mat4 rotationMatrix = glm::mat4(1.0f);
-    rotationMatrix[0] = glm::vec4(normalRight, 0.0f);
-    rotationMatrix[1] = glm::vec4(normalUp,    0.0f);
-    rotationMatrix[2] = glm::vec4(normalFront, 0.0f);
-    rotationMatrix[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
+    glm::mat4 attitudeMatrix = _attitudeCtrl.getAttitudeMatrix();
+    model = model * attitudeMatrix;
 
-    model = model * rotationMatrix;
     model = glm::scale(model, glm::vec3(_scaleRatio, _scaleRatio, _scaleRatio));
 
     _renderData.setUniformMat4("model", glm::value_ptr(model));

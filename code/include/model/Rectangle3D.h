@@ -4,16 +4,17 @@
 #include "model/AbstractModel.h"
 #include "BaseDefine.h"
 #include "Image.h"
+#include "Attitude3DController.h"
 
 struct Rectangle3D : AbstractModel {
     Rectangle3D(float width, float height);
 
     void setPosition(const Position& pos);
-    void setFront(const Vector3D& front);
     void setSize(float width, float height);
     void setScaleRatio(float scaleRatio);
     void setImage(const AbstractImage& image);
     void setColor(const Color& color);
+    Attitude3DController& getAttituedeCtrl();
 
 private:
     void updateRenderData() override;
@@ -21,7 +22,7 @@ private:
 
 private:
     Position _pos;
-    Vector3D _front;
+    Attitude3DController _attitudeCtrl;
     float _width;
     float _height;
     float _scaleRatio;
