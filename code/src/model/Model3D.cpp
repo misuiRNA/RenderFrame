@@ -55,15 +55,18 @@ Model3D::Model3D(std::string const& path)
 , _attitudeCtrl({0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f})
 , _scaleRatio(1.0f)
 , _modelPath(path) {
-
+    updateModelMatrix();
+    _attitudeCtrl.addOnAttitudeChangedListener([this](){ updateModelMatrix(); });
 }
 
 void Model3D::setPosition(const Position& pos) {
     _pos = pos;
+    updateModelMatrix();
 }
 
 void Model3D::setScale(float scale) {
     _scaleRatio = scale;
+    updateModelMatrix();
 }
 
 Attitude3DController& Model3D::getAttituedeCtrl() {
@@ -71,15 +74,7 @@ Attitude3DController& Model3D::getAttituedeCtrl() {
 }
 
 void Model3D::updateUniformes() {
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(_pos.x, _pos.y, _pos.z));
-
-    glm::mat4 attitudeMatrix = _attitudeCtrl.getAttitudeMatrix();
-    model = model * attitudeMatrix;
-
-    model = glm::scale(model, glm::vec3(_scaleRatio, _scaleRatio, _scaleRatio));
-
-    _renderData.setUniformMat4("model", glm::value_ptr(model));
+    _renderData.setUniformMat4("model", _modelMatrix);
 }
 
 void Model3D::updateRenderData() {
@@ -105,6 +100,18 @@ void Model3D::doDraw() {
     for (RenderData& data : _meshRenderDatas) {
         data.draw();
     }
+}
+
+void Model3D::updateModelMatrix() {
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(_pos.x, _pos.y, _pos.z));
+
+    glm::mat4 attitudeMatrix = _attitudeCtrl.getAttitudeMatrix();
+    model = model * attitudeMatrix;
+
+    model = glm::scale(model, glm::vec3(_scaleRatio, _scaleRatio, _scaleRatio));
+
+    memcpy(_modelMatrix, glm::value_ptr(model), sizeof(glm::mat4));
 }
 
 

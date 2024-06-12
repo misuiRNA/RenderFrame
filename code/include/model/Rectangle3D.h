@@ -19,6 +19,7 @@ struct Rectangle3D : AbstractModel {
 private:
     void updateRenderData() override;
     void updateUniformes() override;
+    void updateModelMatrix();
 
 private:
     Position _pos;
@@ -27,6 +28,7 @@ private:
     float _height;
     float _scaleRatio;
     Color _color;
+    float _modelMatrix[16] = { 0.0f };
 
     bool _textureEnable;
 };

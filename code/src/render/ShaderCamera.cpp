@@ -5,33 +5,35 @@
 ShaderCamera::ShaderCamera()
 : _pos(0.0f, 0.0f, 0.0f)
 , _attitudeCtrl({0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f})
-, _fov(45.0f)
-, _updateMatrix(true) {
+, _fov(45.0f) {
+    updateMatrix();
+    _attitudeCtrl.addOnAttitudeChangedListener([this]() { updateMatrix(); });
+}
 
+ShaderCamera::ShaderCamera(const ShaderCamera& oth)
+: _pos(oth._pos)
+, _attitudeCtrl(oth._attitudeCtrl.getUp(), oth._attitudeCtrl.getFront())
+, _fov(oth._fov) {
+    updateMatrix();
+    _attitudeCtrl.addOnAttitudeChangedListener([this]() { updateMatrix(); });
 }
 
 void ShaderCamera::setPosition(const Position& pos) {
-    _updateMatrix = true;
     _pos = pos;
+    updateMatrix();
 }
 
 void ShaderCamera::setFov(float fov) {
-    _updateMatrix = true;
     if(fov <= 1.0f) {
         fov = 1.0f;
     } else if(fov >= 45.0f) {
         fov = 45.0f;
     }
     _fov = fov;
+    updateMatrix();
 }
 
-Attitude3DController& ShaderCamera::getMutableAttituedeCtrl() {
-    // TODO: 优化, 优化设置姿态的接口 或者 监听姿态变化, 不用getXXX
-    _updateMatrix = true;
-    return _attitudeCtrl;
-}
-
-const Attitude3DController& ShaderCamera::getAttituedeCtrl() const {
+Attitude3DController& ShaderCamera::getAttituedeCtrl() {
     return _attitudeCtrl;
 }
 
@@ -40,13 +42,10 @@ const Position& ShaderCamera::getPosition() const {
 }
 
 const float* ShaderCamera::getMatrix() const {
-    if (_updateMatrix) {
-        updateMatrix();
-    }
     return _matrix;
 }
 
-void ShaderCamera::updateMatrix() const {
+void ShaderCamera::updateMatrix() {
     glm::mat4 view;
 
     const Vector3D& front = _attitudeCtrl.getFront();
@@ -60,5 +59,4 @@ void ShaderCamera::updateMatrix() const {
     view = projection * view;
 
     memcpy(_matrix, glm::value_ptr(view), sizeof(glm::mat4));
-    _updateMatrix = false;
 }

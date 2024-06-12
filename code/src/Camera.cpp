@@ -21,7 +21,7 @@ CameraFPS::CameraFPS()
 , _moveSpeed(2.5f)
 , _turnSpeed(10.0f) {
     _camera.setPosition({0.0f, 0.0f, 0.0f});
-    _camera.getMutableAttituedeCtrl().setFront({1.0f, 0.0f, 0.0f});
+    _camera.getAttituedeCtrl().setFront({1.0f, 0.0f, 0.0f});
 }
 
 CameraFPS::operator const ShaderCamera&() const
@@ -89,7 +89,7 @@ void CameraFPS::setAttitude(float pitch, float yaw) {
     front.y = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
     front.z = sin(glm::radians(pitch));
     front = glm::normalize(front);
-    _camera.getMutableAttituedeCtrl().setFront({front.x, front.y, front.z});
+    _camera.getAttituedeCtrl().setFront({front.x, front.y, front.z});
 
 }
 

@@ -17,11 +17,13 @@ private:
     void updateRenderData() override;
     void updateUniformes() override;
     void doDraw() override;
+    void updateModelMatrix();
 
 private:
     Position _pos;
     Attitude3DController _attitudeCtrl;
     float _scaleRatio;
+    float _modelMatrix[16] = { 0.0f };
 
     std::string _modelPath;
     std::vector<RenderData> _meshRenderDatas;

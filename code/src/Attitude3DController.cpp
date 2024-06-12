@@ -6,20 +6,14 @@ Attitude3DController::Attitude3DController(const Vector3D& up, const Vector3D& f
 
 Attitude3DController& Attitude3DController::setFront(const Vector3D& front) {
     _front = front;
+    attitudeChanged();
     return *this;
 }
 
 Attitude3DController& Attitude3DController::setUp(const Vector3D& up) {
     _up = up;
+    attitudeChanged();
     return *this;
-}
-
-const Vector3D& Attitude3DController::getFront() const {
-    return _front;
-}
-
-const Vector3D& Attitude3DController::getUp() const {
-    return _up;
 }
 
 glm::mat4 Attitude3DController::getAttitudeMatrix() const {
@@ -34,4 +28,22 @@ glm::mat4 Attitude3DController::getAttitudeMatrix() const {
     attitudeMatrix[2] = glm::vec4(normalFront, 0.0f);
     attitudeMatrix[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
     return attitudeMatrix;
+}
+
+const Vector3D& Attitude3DController::getFront() const {
+    return _front;
+}
+
+const Vector3D& Attitude3DController::getUp() const {
+    return _up;
+}
+
+void Attitude3DController::addOnAttitudeChangedListener(const std::function<void()>& listener) {
+    _onAttitudeChangedListener.emplace_back(listener);
+}
+
+void Attitude3DController::attitudeChanged() const {
+    for (auto& listener : _onAttitudeChangedListener) {
+        listener();
+    }
 }
