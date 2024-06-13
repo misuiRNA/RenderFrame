@@ -4,30 +4,30 @@
 #include "model/AbstractModel.h"
 #include "BaseDefine.h"
 #include "Image.h"
+#include "Attitude3DController.h"
 
-struct Cubiod : AbstractModel {
-    Cubiod(float size_x, float size_y, float size_z);
+struct Cuboid : AbstractModel {
+    Cuboid(const Size3D& size);
+    Cuboid(const Cuboid& oth);
 
     void setPosition(const Position& pos);
     void setSize(const Size3D& size);
-    void setScaleRatio(float scaleRatio);
-    void setRotation(float rotation);
-    void setRotationAxis(const Vector3D& axis);
     void setColor(const Color& color);
     void addImage(const AbstractImage& image);
     void setMaterial(const ShaderMaterial& material);
+    Attitude3DController& getAttituedeCtrl();
 
 private:
     void updateRenderData() override;
     void updateUniformes() override;
+    void updateModelMatrix();
 
 private:
     Position _pos;
     Size3D _size;
-    float _scaleRatio;
-    float _rotation;
-    Vector3D _rotationAxis;
+    Attitude3DController _attitudeCtrl;
     Color _color;
+    float _modelMatrix[16] = { 0.0f };
 
     int _imageCount;
 };

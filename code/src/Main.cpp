@@ -254,11 +254,11 @@ int main() {
         {0.0f, 0.0f, 9.0f}
     };
 
-    std::vector<Cubiod> cuboids;
+    std::vector<Cuboid> cuboids;
     cuboids.reserve(10);
     for (int index = 0; index < 10; ++index) {
-        cuboids.emplace_back(1.0f, 1.0f, 1.0f);
-        Cubiod& cuboid = cuboids.back();
+        cuboids.emplace_back(Vector3D(1.0f, 1.0f, 1.0f));
+        Cuboid& cuboid = cuboids.back();
         cuboid.setPosition(cuboidPositions[index]);
         // cuboid.addImage(mirrorCanva);
         cuboid.addImage(awesomefaceImage);
@@ -268,23 +268,20 @@ int main() {
 
     ShaderMaterial material(containerImage2.getTexture(ImageWrapMode::Repeat), containerImage2_specular.getTexture(ImageWrapMode::Repeat));
 
-    Cubiod cuboid(1.0f, 1.0f, 1.0f);
+    Cuboid cuboid({2.0f, 2.0f, 2.0f});
     cuboid.setPosition({0.0f, 2.0f, 0.0f});
     // cuboid.setColor(Color(1.0f, 0.5f, 0.31f));
     cuboid.setColor(Color(1.0f, 1.0f, 1.0f));
-    cuboid.setScaleRatio(2.0f);
-    cuboid.setRotationAxis({ 1.0f, 1.0f, 1.0f });
     // cuboid.addImage(containerImage);
     // cuboid.addImage(awesomefaceImage);
     cuboid.setMaterial(material);
 
-    Cubiod cuboid1(1.0f, 1.0f, 1.0f);
+    Cuboid cuboid1({1.0f, 1.0f, 1.0f});
     cuboid1.setPosition({1.0f, -3.5f, 0.0f});
-    cuboid1.setSize({0.5f, 2.0f, 0.3f});
-    cuboid1.setScaleRatio(2.5f);
-    cuboid1.setRotationAxis({ 1.0f, 1.0f, 1.0f });
+    cuboid1.setSize({1.25f, 5.0f, 0.75f});
     cuboid1.addImage(wallImage);
     // cuboid1.setMaterial(material);
+    // cuboid1.getAttituedeCtrl().setFront({0.0f, 1.0f, 0.0f});
 
     Model3D nanosuit(GetCurPath() + "/resource/models/nanosuit/nanosuit.obj");
     nanosuit.setScale(0.1);
@@ -306,10 +303,7 @@ int main() {
         ProcessInput(window, cameraFPS);
         SetCameraAndLightUniform(cameraFPS, light, light1, parallelLight);
 
-        // cuboid.setRotation((float)glfwGetTime());
-        // cuboid1.setRotation(-(float)glfwGetTime());
         float ratio = sin((float)glfwGetTime());
-        
         float x = ratio * 3;
         float y = sqrt(9.0f - x * x) * (lastX - x >=0.0f ? -1.0f : 1.0f);
         float z = ratio * 3;
@@ -327,6 +321,8 @@ int main() {
         // airplan.setFront({0.0f, y, x});
         rectangle.setPosition({x, y, z});
         rectangle1.setPosition({x - 1.0f, y, z});
+
+        cuboid1.getAttituedeCtrl().setFront({x, 0.0f, y});
 
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); 
