@@ -18,12 +18,13 @@ const std::map<int, Vector3D> ShaderLight::ATTENUATION_FACTOR_MAP = {
     { 3250,	{1.0,	0.0014,	0.000007} }
 };
 
-ShaderLight::ShaderLight()
+ShaderLight::ShaderLight(bool isParallel)
 : _spotAngle(180.0f)
 , _spotOuterRatio(0.0f)
 , _pos(0.0f, 0.0f, 0.0f)
 , _color(1.0f, 1.0f, 1.0f)
 , _spotDirection(1.0f, 0.0f, 0.0f)
+, _isParallel(isParallel)
 ,_attenuationFactor(ATTENUATION_FACTOR_MAP.at(3250)) {
 
 }
@@ -110,38 +111,6 @@ const Vector3D& ShaderLight::getAttenuationFactor() const {
     return _attenuationFactor;
 }
 
-
-
-ShaderParallelLight::ShaderParallelLight()
-: _dir(1.0f, 0.0f, 0.0f)
-, _color(1.0f, 1.0f, 1.0f) {
-
-}
-
-void ShaderParallelLight::setDirection(const Vector3D& dir) {
-    _dir = dir;
-}
-
-void ShaderParallelLight::setColor(const Color& color) {
-    _color = color;
-}
-
-const Vector3D& ShaderParallelLight::getDirection() const {
-    return _dir;
-}
-
-const Color& ShaderParallelLight::getColor() const {
-    return _color;
-}
-
-Color ShaderParallelLight::getAmbientColor() const {
-    return _color * 0.5f;
-}
-
-Color ShaderParallelLight::getDiffuseColor() const {
-    return _color * 0.8f;
-}
-
-Color ShaderParallelLight::getSpecularColor() const {
-    return _color * 1.0f;
+bool ShaderLight::isParallel() const {
+    return _isParallel;
 }

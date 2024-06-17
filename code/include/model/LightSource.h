@@ -6,7 +6,7 @@
 #include "ShaderLight.h"
 
 struct LightSource : AbstractModel {
-    LightSource(const Position& pos);
+    LightSource(bool isParallel);
     operator const ShaderLight&() const;
 
     void setColor(const Color& color);
@@ -17,6 +17,7 @@ struct LightSource : AbstractModel {
     void setReach(float distance);
     const Position& getPosition() const;
     Color getColor() const;
+    bool isParallel() const;
 
 private:
     void updateRenderData() override;

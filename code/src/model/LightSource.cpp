@@ -4,10 +4,11 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "ShaderProgram.h"
 
-LightSource::LightSource(const Position& pos)
-: AbstractModel(ShaderProgram::getLightSourceShaderProg())
+LightSource::LightSource(bool isParallel)
+: AbstractModel(ShaderProgram::GetLightSourceShaderProg())
+, _shaderLight(isParallel)
 , _size(1.0f, 1.0f, 1.0f) {
-    _shaderLight.setPosition(pos);
+
 }
 
 LightSource::operator const ShaderLight&() const {
@@ -45,6 +46,10 @@ const Position& LightSource::getPosition() const {
 
 Color LightSource::getColor() const {
     return _shaderLight.getColor();
+}
+
+bool LightSource::isParallel() const {
+    return _shaderLight.isParallel();
 }
 
 void LightSource::updateUniformes() {

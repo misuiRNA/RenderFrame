@@ -6,7 +6,7 @@
 #include "ShaderProgram.h"
 
 Rectangle3D::Rectangle3D(float width, float height)
-: AbstractModel(ShaderProgram::getRectShaderProg())
+: AbstractModel(ShaderProgram::GetRectShaderProg())
 , _pos(0.0f, 0.0f, 0.0f)
 , _attitudeCtrl({0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f})
 , _width(width)
@@ -33,7 +33,6 @@ void Rectangle3D::setScaleRatio(float scaleRatio) {
     updateModelMatrix();
 }
 
-// TODO: 优化, 支持贴图设置不同环绕方式
 void Rectangle3D::setImage(const AbstractImage& image) {
     _renderData.setTexture("texture1", image.getTexture(ImageWrapMode::ClampToEdge));
     _textureEnable = true;

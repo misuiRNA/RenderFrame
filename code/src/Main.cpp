@@ -87,24 +87,29 @@ GLFWwindow* InitWindows() {
     return window;
 }
 
-// TODO: 优化, 抽取到类中
-void SetCameraAndLightUniform(const CameraFPS& camera, const LightSource& light1, const LightSource& light2, const ShaderParallelLight& parallelLight) {
-    std::vector<LightSource> lights;
-    lights.push_back(light1);
-    lights.push_back(light2);
+static void SetGlobalLights(const LightSource& parallelLight, const std::vector<LightSource>& pointLights) {
+    for (auto itr : ShaderProgram::GetAllShaderProg())
+    {
+        if (!itr.first) {
+            continue;
+        }
+        ShaderProgram& prog = *itr.first;
+        prog.setLight("parallelLight", parallelLight);
+        prog.SetUniformList("light", pointLights);
+    }
+}
 
-    for (auto itr : ShaderProgram::getAllShaderProg())
+static void SetGlobalCamera(const CameraFPS& camera) {
+    for (auto itr : ShaderProgram::GetAllShaderProg())
     {
         if (!itr.first) {
             continue;
         }
         ShaderProgram& prog = *itr.first;
         prog.setCamera("camera", camera);
-        prog.setParallelLight("parallelLight", parallelLight);
-        prog.setLight("light", light1);
-        SetUniforms(prog, "light", lights);
     }
 }
+
 
 // TODO: 优化, 设计模板测试类, 支持任意形状
 static void EnableViewMask(Rectangle3D& outlineMask, Rectangle3D& throughMask) {
@@ -151,7 +156,16 @@ int main() {
     cameraFPS.setPosition(5.0f, 2.0f, 2.0f);
     cameraFPS.setAttitude(0.0f, 180.0f);
 
-    LightSource light({-1.0f, 2.0f, 2.0f});
+    LightSource parallelLight(true);
+    parallelLight.setDirection({-1.0f, 1.0f, -1.0f});
+    // parallelLight.setColor({1.0f, 0.0f, 0.0f});
+
+    std::vector<LightSource> pointLights;
+    pointLights.emplace_back(false);
+    pointLights.emplace_back(false);
+
+    LightSource& light = pointLights[0];
+    light.setPosition({-1.0f, 2.0f, 2.0f});
     light.setSize({0.5f, 0.5f, 0.5f});
     light.setDirection(Position(0.0f, 0.0f, 0.0f) - light.getPosition());
     // light.setColor(Color(0.33f, 0.42f, 0.18f));
@@ -159,18 +173,14 @@ int main() {
     light.setSpotFacor(45.0f);
     light.setReach(50.0f);
 
-    LightSource light1({1.0f, -2.0f, 2.0f});
+    LightSource& light1 = pointLights[1];
+    light1.setPosition({1.0f, -2.0f, 2.0f});
     light1.setSize({0.5f, 0.5f, 0.5f});
     light1.setDirection(Position(0.0f, 0.0f, 2.0f) - light1.getPosition());
     light1.setColor(Color(0.0f, 1.0f, 0.0f));
     light1.setSpotFacor(12.0f);
     light1.setReach(100.0f);
 
-
-    // TODO: 优化, 进一步封装 ShaderParallelLight, 逻辑上对齐 LightSource
-    ShaderParallelLight parallelLight;
-    // parallelLight.setColor({1.0f, 0.0f, 0.0f});
-    parallelLight.setDirection({-1.0f, 1.0f, -1.0f});
 
     LocalImage wallImage(GetCurPath() + "/resource/wall.jpeg");
     LocalImage awesomefaceImage(GetCurPath() + "/resource/awesomeface.png");
@@ -301,7 +311,8 @@ int main() {
     while(!glfwWindowShouldClose(window))
     {
         ProcessInput(window, cameraFPS);
-        SetCameraAndLightUniform(cameraFPS, light, light1, parallelLight);
+        SetGlobalLights(parallelLight, pointLights);
+        SetGlobalCamera(cameraFPS);
 
         float ratio = sin((float)glfwGetTime());
         float x = ratio * 3;
@@ -371,10 +382,10 @@ int main() {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
             const ShaderCamera& cam = cameraFPS;
-            CameraFPS cameraFPS1 = cameraFPS;
-            cameraFPS1.setPosition(cam.getPosition().x + 5, cam.getPosition().y, 15.0f);
-            cameraFPS1.setAttitude(-80.0f, 180.0f);
-            SetCameraAndLightUniform(cameraFPS1, light, light1, parallelLight);
+            CameraFPS mirrorCameraFPS = cameraFPS;
+            mirrorCameraFPS.setPosition(cam.getPosition().x + 5, cam.getPosition().y, 15.0f);
+            mirrorCameraFPS.setAttitude(-80.0f, 180.0f);
+            SetGlobalCamera(mirrorCameraFPS);
 
 
             rectangle1.show();
@@ -403,14 +414,14 @@ int main() {
             }
 
             // TODO: 优化, 受混合+深度测试影响 透明物体需要按顺序绘制, 需要提供一个排序工具
-            SortWitDistance(windowPositions, ((const ShaderCamera&)cameraFPS1).getPosition());
+            SortWitDistance(windowPositions, ((const ShaderCamera&)mirrorCameraFPS).getPosition());
             for (int index = 0; index < windowPositions.size(); ++index) {
                 transparentWindow.setPosition(windowPositions[index]);
                 transparentWindow.show();
             }
             glDisable(GL_BLEND);
 
-            SetCameraAndLightUniform(cameraFPS, light, light1, parallelLight);
+            SetGlobalCamera(cameraFPS);
         };
         mirrorCanva.paint(painter);
 

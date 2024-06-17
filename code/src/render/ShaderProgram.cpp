@@ -90,31 +90,23 @@ void ShaderProgram::setCamera(const std::string& name, const ShaderCamera& camer
 // TODO 优化, 使用组合模式封装 unigform 配置自定义结构体的复杂性, 设计思路可参考 nlohmann json
 void ShaderProgram::setUniform(const std::string& name, const ShaderLight& light) {
     // glsl 传输结构体uniform格式如 light.pos
-    setUniform(name + ".pos", light.getPosition());
+    if (light.isParallel()) {
+        setUniform(name + ".direction", light.getSpotDirection());
+    } else {
+        setUniform(name + ".pos", light.getPosition());
+        setUniform(name + ".attenuationKC", light.getAttenuationFactor().x);
+        setUniform(name + ".attenuationKL", light.getAttenuationFactor().y);
+        setUniform(name + ".attenuationKQ", light.getAttenuationFactor().z);
+        setUniform(name + ".spotDirection", light.getSpotDirection());
+        setUniform(name + ".spotCos",  MathUtils::AngleCos(light.getSpotAngle()));
+        setUniform(name + ".spotOuterCos", MathUtils::AngleCos(light.getSpotOuterAngle()));
+    }
     setUniform(name + ".ambient", light.getAmbientColor());
     setUniform(name + ".diffuse", light.getDiffuseColor());
     setUniform(name + ".specular", light.getSpecularColor());
-    setUniform(name + ".attenuationKC", light.getAttenuationFactor().x);
-    setUniform(name + ".attenuationKL", light.getAttenuationFactor().y);
-    setUniform(name + ".attenuationKQ", light.getAttenuationFactor().z);
-    setUniform(name + ".spotDirection", light.getSpotDirection());
-    setUniform(name + ".spotCos",  MathUtils::AngleCos(light.getSpotAngle()));
-    setUniform(name + ".spotOuterCos", MathUtils::AngleCos(light.getSpotOuterAngle()));
 }
 
 void ShaderProgram::setLight(const std::string& name, const ShaderLight& light) {
-    setUniform(name, light);
-}
-
-void ShaderProgram::setUniform(const std::string& name, const ShaderParallelLight& light) {
-    setUniform(name + ".direction", light.getDirection());
-    setUniform(name + ".ambient", light.getAmbientColor());
-    setUniform(name + ".diffuse", light.getDiffuseColor());
-    setUniform(name + ".specular", light.getSpecularColor());
-}
-
-void ShaderProgram::setParallelLight(const std::string& name, const ShaderParallelLight& light)
-{
     setUniform(name, light);
 }
 
@@ -157,12 +149,12 @@ unsigned int ShaderProgram::BuildShader(const char* shaderCode, unsigned int sha
     return shderId;
 }
 
-std::string ShaderProgram::UniformArrayName(const std::string& name, int index) {
-    return name + "[" + std::to_string(index) + "]";
+std::string ShaderProgram::UniformArraySuffix(int index) {
+    return "[" + std::to_string(index) + "]";
 }
 
 // TODO: 优化, 1.shader字符串编译时确定，不读取文件；2.返回的路径位置应为可执行文件位置，而不是执行命令的位置 考虑使用 std::filesystem
-ShaderProgram& ShaderProgram::getRectShaderProg() {
+ShaderProgram& ShaderProgram::GetRectShaderProg() {
     static const std::string MODEL_NAME = "Rectangle3D";
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Rectangle3DShader.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Rectangle3DShader.fs");
@@ -175,7 +167,7 @@ ShaderProgram& ShaderProgram::getRectShaderProg() {
     return prog;
 }
 
-ShaderProgram& ShaderProgram::getRect2DShaderProg() {
+ShaderProgram& ShaderProgram::GetRect2DShaderProg() {
     static const std::string MODEL_NAME = "Rectangle2D";
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Rectangle2DShader.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Rectangle2DShader.fs");
@@ -188,7 +180,7 @@ ShaderProgram& ShaderProgram::getRect2DShaderProg() {
     return prog;
 }
 
-ShaderProgram& ShaderProgram::getCuboidShaderProg() {
+ShaderProgram& ShaderProgram::GetCuboidShaderProg() {
     static const std::string MODEL_NAME = "Cuboid";
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Cuboid.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Cuboid.fs");
@@ -201,7 +193,7 @@ ShaderProgram& ShaderProgram::getCuboidShaderProg() {
     return prog;
 }
 
-ShaderProgram& ShaderProgram::getLightSourceShaderProg() {
+ShaderProgram& ShaderProgram::GetLightSourceShaderProg() {
     static const std::string MODEL_NAME = "LightSource";
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/LightSource.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/LightSource.fs");
@@ -213,7 +205,7 @@ ShaderProgram& ShaderProgram::getLightSourceShaderProg() {
     return prog;
 }
 
-ShaderProgram& ShaderProgram::getMeshShaderProg() {
+ShaderProgram& ShaderProgram::GetMeshShaderProg() {
     static const std::string MODEL_NAME = "Model3D";
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Model3DlShader.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Model3DlShader.fs");
@@ -227,7 +219,7 @@ ShaderProgram& ShaderProgram::getMeshShaderProg() {
     return prog;
 }
 
-std::map<ShaderProgram*, int>& ShaderProgram::getAllShaderProg()
+std::map<ShaderProgram*, int>& ShaderProgram::GetAllShaderProg()
 {
     return _registProgramMap;
 }

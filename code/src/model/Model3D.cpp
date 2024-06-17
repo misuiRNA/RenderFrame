@@ -24,19 +24,19 @@ static std::map<std::string, unsigned int> MeshTextures2TextureMap(const std::ve
         std::string uniformName;
         switch (textures[index].type) {
             case Mesh::Texture::Type::DIFFUSE: {
-                uniformName = ShaderProgram::UniformArrayName("diffuseTexture", diffuseNr++);
+                uniformName = "diffuseTexture" + ShaderProgram::UniformArraySuffix(diffuseNr++);
                 break;
             }
             case Mesh::Texture::Type::SPECULAR: {
-                uniformName = ShaderProgram::UniformArrayName("specularTexture", specularNr++);
+                uniformName = "specularTexture" + ShaderProgram::UniformArraySuffix(specularNr++);
                 break;
             }
             case Mesh::Texture::Type::NORMAL: {
-                uniformName = ShaderProgram::UniformArrayName("normalTexture", normalNr++);
+                uniformName = "normalTexture" + ShaderProgram::UniformArraySuffix(normalNr++);
                 break;
             }
             case Mesh::Texture::Type::HEIGHT: {
-                uniformName = ShaderProgram::UniformArrayName("heightTexture", heightNr++);
+                uniformName = "heightTexture" + ShaderProgram::UniformArraySuffix(heightNr++);
                 break;
             }
             default:
@@ -50,7 +50,7 @@ static std::map<std::string, unsigned int> MeshTextures2TextureMap(const std::ve
 
 
 Model3D::Model3D(std::string const& path)
-: AbstractModel(ShaderProgram::getMeshShaderProg())
+: AbstractModel(ShaderProgram::GetMeshShaderProg())
 , _pos(0.0f, 0.0f, 0.0f)
 , _attitudeCtrl({0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f})
 , _scaleRatio(1.0f)

@@ -21,25 +21,31 @@ struct ShaderProgram {
     void setUniform(const std::string& name, const XYZ& value);
     void setUniform(const std::string& name, const Color& color);
     void setUniform(const std::string& name, const ShaderLight& light);
-    void setUniform(const std::string& name, const ShaderParallelLight& light);
     void setUniform(const std::string& name, const ShaderCamera& camera);
+
+    template<typename T>
+    void SetUniformList(const std::string& name, const std::vector<T>& items) {
+        for (int i = 0; i < items.size(); ++i) {
+            std::string itemName = name + UniformArraySuffix(i);
+            setUniform(itemName, items[i]);
+        }
+    }
 
     void setCamera(const std::string& name, const ShaderCamera& camera);
     void setLight(const std::string& name, const ShaderLight& light);
-    void setParallelLight(const std::string& name, const ShaderParallelLight& light);
 
     void enable();
     bool checkVertice(const std::string& name);
     unsigned int getVerticeSlotId(const std::string& name);
 
 public:
-    static std::string UniformArrayName(const std::string& name, int index);
-    static ShaderProgram& getRectShaderProg();
-    static ShaderProgram& getRect2DShaderProg();
-    static ShaderProgram& getCuboidShaderProg();
-    static ShaderProgram& getLightSourceShaderProg();
-    static ShaderProgram& getMeshShaderProg();
-    static std::map<ShaderProgram*, int>& getAllShaderProg();
+    static std::string UniformArraySuffix(int index);
+    static ShaderProgram& GetRectShaderProg();
+    static ShaderProgram& GetRect2DShaderProg();
+    static ShaderProgram& GetCuboidShaderProg();
+    static ShaderProgram& GetLightSourceShaderProg();
+    static ShaderProgram& GetMeshShaderProg();
+    static std::map<ShaderProgram*, int>& GetAllShaderProg();
 
 private:
     static unsigned int BuildShader(const char* shaderCode, unsigned int shaderType);
@@ -51,14 +57,5 @@ private:
 
     static std::map<ShaderProgram*, int> _registProgramMap;
 };
-
-
-template<typename T>
-void SetUniforms(ShaderProgram& prog, const std::string& name, const std::vector<T>& items) {
-    for (int i = 0; i < items.size(); ++i) {
-        std::string itemName = ShaderProgram::UniformArrayName(name, i);
-        prog.setUniform(itemName, items[i]);
-    }
-}
 
 #endif // #_HEAD_FLAG_SHADER_H

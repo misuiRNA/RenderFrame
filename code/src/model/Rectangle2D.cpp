@@ -6,7 +6,7 @@
 #include "ShaderProgram.h"
 
 Rectangle2D::Rectangle2D(float width, float height)
-: AbstractModel(ShaderProgram::getRect2DShaderProg())
+: AbstractModel(ShaderProgram::GetRect2DShaderProg())
 , _pos(0.0f, 0.0f, 0.0f)
 , _width(width)
 , _height(height)
@@ -18,7 +18,6 @@ void Rectangle2D::setPosition(const Position& pos) {
     _pos = pos;
 }
 
-// TODO: 优化, 支持贴图设置不同环绕方式
 void Rectangle2D::setImage(const AbstractImage& image) {
     _renderData.setTexture("texture1", image.getTexture(ImageWrapMode::ClampToEdge));
     _textureEnable = true;
