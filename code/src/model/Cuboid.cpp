@@ -12,11 +12,7 @@ Cuboid::Cuboid(const Size3D& size)
 , _attitudeCtrl({0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f})
 , _imageCount(0)
 , _color(1.0f, 1.0f, 1.0f) {
-    // TODO: 优化, 优化uniform的初始化方式, 不强制要求_renderData的客户手动初始化 uniform, 容易遗漏初始化代码
-    _renderData.setTexture("texture1", 0);
-    _renderData.setTexture("texture2", 0);
     _renderData.setUniform("material", ShaderMaterial(_color * 0.2f, _color * 0.8f, _color * 1.0f));
-
     _attitudeCtrl.addOnAttitudeChangedListener([this]() { updateModelMatrix(); });
 }
 
@@ -27,10 +23,7 @@ Cuboid::Cuboid(const Cuboid& oth)
 , _attitudeCtrl(oth._attitudeCtrl.getUp(), oth._attitudeCtrl.getFront())
 , _imageCount(oth._imageCount)
 , _color(oth._color) {
-    _renderData.setTexture("texture1", 0);
-    _renderData.setTexture("texture2", 0);
     _renderData.setUniform("material", ShaderMaterial(_color * 0.2f, _color * 0.8f, _color * 1.0f));
-
     _attitudeCtrl.addOnAttitudeChangedListener([this]() { updateModelMatrix(); });
 }
 
