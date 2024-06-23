@@ -3,11 +3,11 @@
 
 #include "RenderData.h"
 
-struct AbstractModel {
-    AbstractModel(ShaderProgram& prog);
+struct AbstractDrawObject {
+    AbstractDrawObject(ShaderProgram& prog);
     void show();
 
-    virtual ~AbstractModel() { }
+    virtual ~AbstractDrawObject() { }
 
 private:
     virtual void updateRenderData() = 0;

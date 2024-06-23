@@ -1,12 +1,12 @@
 #ifndef _HEAD_FLAG_MODEL_CUBOID_H
 #define _HEAD_FLAG_MODEL_CUBOID_H
 
-#include "model/AbstractModel.h"
+#include "model/AbstractDrawObject.h"
 #include "BaseDefine.h"
 #include "Image.h"
 #include "Attitude3DController.h"
 
-struct Cuboid : AbstractModel {
+struct Cuboid : AbstractDrawObject {
     Cuboid(const Size3D& size);
     Cuboid(const Cuboid& oth);
 

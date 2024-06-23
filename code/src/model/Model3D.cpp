@@ -50,10 +50,10 @@ static std::map<std::string, unsigned int> MeshTextures2TextureMap(const std::ve
 
 
 Model3D::Model3D(std::string const& path)
-: AbstractModel(ShaderProgram::GetMeshShaderProg())
+: AbstractDrawObject(ShaderProgram::GetMeshShaderProg())
 , _pos(0.0f, 0.0f, 0.0f)
+, _size(1.0f, 1.0f, 1.0f)
 , _attitudeCtrl({0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f})
-, _scaleRatio(1.0f)
 , _modelPath(path) {
     updateModelMatrix();
     _attitudeCtrl.addOnAttitudeChangedListener([this](){ updateModelMatrix(); });
@@ -64,8 +64,8 @@ void Model3D::setPosition(const Position& pos) {
     updateModelMatrix();
 }
 
-void Model3D::setScale(float scale) {
-    _scaleRatio = scale;
+void Model3D::setSize(const Size3D& size) {
+    _size = size;
     updateModelMatrix();
 }
 
@@ -109,7 +109,7 @@ void Model3D::updateModelMatrix() {
     glm::mat4 attitudeMatrix = _attitudeCtrl.getAttitudeMatrix();
     model = model * attitudeMatrix;
 
-    model = glm::scale(model, glm::vec3(_scaleRatio, _scaleRatio, _scaleRatio));
+    model = glm::scale(model, glm::vec3(_size.x, _size.y, _size.z));
 
     memcpy(_modelMatrix, glm::value_ptr(model), sizeof(glm::mat4));
 }

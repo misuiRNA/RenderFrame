@@ -1,16 +1,16 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include "model/AbstractModel.h"
+#include "model/AbstractDrawObject.h"
 #include "Attitude3DController.h"
 #include <string>
 #include <map>
 #include <vector>
 
-struct Model3D : AbstractModel {
+struct Model3D : AbstractDrawObject {
     Model3D(std::string const& path);
     void setPosition(const Position& pos);
-    void setScale(float scale);
+    void setSize(const Size3D& size);
     Attitude3DController& getAttituedeCtrl();
 
 private:
@@ -21,8 +21,8 @@ private:
 
 private:
     Position _pos;
+    Size3D _size;
     Attitude3DController _attitudeCtrl;
-    float _scaleRatio;
     float _modelMatrix[16] = { 0.0f };
 
     std::string _modelPath;

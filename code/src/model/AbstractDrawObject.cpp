@@ -1,13 +1,13 @@
-#include "model/AbstractModel.h"
+#include "model/AbstractDrawObject.h"
 
 
-AbstractModel::AbstractModel(ShaderProgram& prog)
+AbstractDrawObject::AbstractDrawObject(ShaderProgram& prog)
 : _renderData(prog)
 , _needUpdateRenderData(true) {
 
 }
 
-void AbstractModel::show() {
+void AbstractDrawObject::show() {
     if (_needUpdateRenderData) {
         _needUpdateRenderData = false;
         updateRenderData();
@@ -17,6 +17,6 @@ void AbstractModel::show() {
     doDraw();
 }
 
-void AbstractModel::doDraw() {
+void AbstractDrawObject::doDraw() {
     _renderData.draw();
 }

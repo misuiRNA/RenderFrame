@@ -1,11 +1,11 @@
 #ifndef _HEAD_FLAG_MODEL_LIGHTSOURCE_H
 #define _HEAD_FLAG_MODEL_LIGHTSOURCE_H
 
-#include "model/AbstractModel.h"
+#include "model/AbstractDrawObject.h"
 #include "BaseDefine.h"
 #include "ShaderLight.h"
 
-struct LightSource : AbstractModel {
+struct LightSource : AbstractDrawObject {
     LightSource(bool isParallel);
     operator const ShaderLight&() const;
 

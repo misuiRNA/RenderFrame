@@ -192,22 +192,21 @@ int main() {
     LocalImage grassImage(GetCurPath() + "/resource/grass.png");
     LocalImage windowImage(GetCurPath() + "/resource/blending_transparent_window.png");
 
-    Rectangle3D rectangle(1.0f, 1.0f);
+    Rectangle3D rectangle({0.6f, 0.6f});
     rectangle.setPosition({0.0f, 0.0f});
-    rectangle.setScaleRatio(0.6f);
     // rectangle.setColor(Color(0.8f, 0.3f, 0.2f));
     rectangle.setColor(Color(0.0f, 0.0f, 0.0f));
     rectangle.setImage(awesomefaceImage);
     rectangle.getAttituedeCtrl()
              .setFront({1.0f, 0.0f, 0.0f});
 
-    Rectangle3D rectangle1(1.0f, 1.0f);
+    Rectangle3D rectangle1({1.0f, 1.0f});
     rectangle1.setPosition({-1.0, 0.0f});
     rectangle1.setColor(Color(0.8f, 0.3f, 0.2f));
     // rectangle1.setImage(containerImage);
     // rectangle1.setPosition({0.0f, 0.0f});
 
-    Rectangle3D grass(1.0f, 1.0f);
+    Rectangle3D grass({1.0f, 1.0f});
     grass.setPosition({0.0f, 0.0f});
     grass.setImage(grassImage);
     grass.getAttituedeCtrl()
@@ -230,10 +229,9 @@ int main() {
         {-7.0f,  1.0f,  0.0f}
     };
 
-    Rectangle3D transparentWindow(1.0f, 1.0f);
+    Rectangle3D transparentWindow({2.0f, 2.0f});
     transparentWindow.setPosition({0.0f, 0.0f});
     transparentWindow.setImage(windowImage);
-    transparentWindow.setScaleRatio(2.0f);
     transparentWindow.getAttituedeCtrl()
                      .setFront({1.0f, 0.0f, 0.0f});
     std::vector<Position> windowPositions = {
@@ -294,13 +292,13 @@ int main() {
     // cuboid1.getAttituedeCtrl().setFront({0.0f, 1.0f, 0.0f});
 
     Model3D nanosuit(GetCurPath() + "/resource/models/nanosuit/nanosuit.obj");
-    nanosuit.setScale(0.1);
+    nanosuit.setSize({0.1, 0.1, 0.1});
     nanosuit.setPosition({0.0f, 1.5f, 1.5f});
     nanosuit.getAttituedeCtrl()
             .setFront({1.0f, 0.0f, 0.0f});
 
     Model3D airplan(GetCurPath() + "/resource/models/Airplane/11803_Airplane_v1_l1.obj");
-    airplan.setScale(0.001);
+    airplan.setSize({0.001, 0.001, 0.001});
     airplan.setPosition({0.0f, 5.0f, 1.5f});
     airplan.getAttituedeCtrl()
            .setUp({0.0f, 1.0f, 0.0f})

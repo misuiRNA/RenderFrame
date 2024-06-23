@@ -6,7 +6,7 @@
 #include "ShaderProgram.h"
 
 Cuboid::Cuboid(const Size3D& size)
-: AbstractModel(ShaderProgram::GetCuboidShaderProg())
+: AbstractDrawObject(ShaderProgram::GetCuboidShaderProg())
 , _pos({0.0f, 0.0f, 0.0f})
 , _size(size)
 , _attitudeCtrl({0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f})
@@ -17,7 +17,7 @@ Cuboid::Cuboid(const Size3D& size)
 }
 
 Cuboid::Cuboid(const Cuboid& oth)
-: AbstractModel(ShaderProgram::GetCuboidShaderProg())
+: AbstractDrawObject(ShaderProgram::GetCuboidShaderProg())
 , _pos(oth._pos)
 , _size(oth._size)
 , _attitudeCtrl(oth._attitudeCtrl.getUp(), oth._attitudeCtrl.getFront())

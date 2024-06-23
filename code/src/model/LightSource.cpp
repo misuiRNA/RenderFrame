@@ -5,7 +5,7 @@
 #include "ShaderProgram.h"
 
 LightSource::LightSource(bool isParallel)
-: AbstractModel(ShaderProgram::GetLightSourceShaderProg())
+: AbstractDrawObject(ShaderProgram::GetLightSourceShaderProg())
 , _shaderLight(isParallel)
 , _size(1.0f, 1.0f, 1.0f) {
 

@@ -6,7 +6,7 @@
 #include "ShaderProgram.h"
 
 Rectangle2D::Rectangle2D(float width, float height)
-: AbstractModel(ShaderProgram::GetRect2DShaderProg())
+: AbstractDrawObject(ShaderProgram::GetRect2DShaderProg())
 , _pos(0.0f, 0.0f, 0.0f)
 , _width(width)
 , _height(height)

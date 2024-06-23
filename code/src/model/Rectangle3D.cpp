@@ -5,13 +5,11 @@
 #include <glad/glad.h>
 #include "ShaderProgram.h"
 
-Rectangle3D::Rectangle3D(float width, float height)
-: AbstractModel(ShaderProgram::GetRectShaderProg())
+Rectangle3D::Rectangle3D(const Size3D& size)
+: AbstractDrawObject(ShaderProgram::GetRectShaderProg())
 , _pos(0.0f, 0.0f, 0.0f)
+, _size(size)
 , _attitudeCtrl({0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f})
-, _width(width)
-, _height(height)
-, _scaleRatio(1.0f)
 , _textureEnable(false) {
     updateModelMatrix();
     _attitudeCtrl.addOnAttitudeChangedListener([this](){ updateModelMatrix(); });
@@ -22,14 +20,8 @@ void Rectangle3D::setPosition(const Position& pos) {
     updateModelMatrix();
 }
 
-void Rectangle3D::setSize(float width, float height) {
-    _width = width;
-    _height = height;
-    updateModelMatrix();
-}
-
-void Rectangle3D::setScaleRatio(float scaleRatio) {
-    _scaleRatio = scaleRatio;
+void Rectangle3D::setSize(const Size3D& size) {
+    _size = size;
     updateModelMatrix();
 }
 
@@ -78,7 +70,7 @@ void Rectangle3D::updateModelMatrix() {
     glm::mat4 attitudeMatrix = _attitudeCtrl.getAttitudeMatrix();
     model = model * attitudeMatrix;
 
-    model = glm::scale(model, glm::vec3(_scaleRatio * _width, _scaleRatio * _height, 1.0f));
+    model = glm::scale(model, glm::vec3(_size.x,  _size.y, 1.0f));
 
     memcpy(_modelMatrix, glm::value_ptr(model), sizeof(glm::mat4));
 }
