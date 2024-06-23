@@ -3,6 +3,21 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "ModelMeshLoader.h"
+#include "Utils.h"
+
+static ShaderProgram& GetShaderProg() {
+    static const std::string MODEL_NAME = "Model3D";
+    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Model3DlShader.vs");
+    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Model3DlShader.fs");
+    static const std::map<std::string, int> ATTRIBUTE_NAME_MAP = {
+        {"aPos"      , 0},
+        {"aNormal"   , 1},
+        {"aTexCoords", 2},
+    };
+
+    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP);
+    return prog;
+}
 
 
 static std::vector<Model3DVertex> MeshVertex2Vertex(const std::vector<Mesh::Vertex>& meshVertices) {
@@ -50,7 +65,7 @@ static std::map<std::string, unsigned int> MeshTextures2TextureMap(const std::ve
 
 
 Model3D::Model3D(std::string const& path)
-: AbstractDrawObject(ShaderProgram::GetMeshShaderProg())
+: AbstractDrawObject(GetShaderProg())
 , _pos(0.0f, 0.0f, 0.0f)
 , _size(1.0f, 1.0f, 1.0f)
 , _attitudeCtrl({0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f})

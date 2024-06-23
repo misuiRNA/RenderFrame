@@ -4,9 +4,24 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
 #include "ShaderProgram.h"
+#include "Utils.h"
+
+// TODO: 优化, 1.shader字符串编译时确定，不读取文件；2.返回的路径位置应为可执行文件位置，而不是执行命令的位置 考虑使用 std::filesystem
+static ShaderProgram& GetShaderProg() {
+    static const std::string MODEL_NAME = "Rectangle3D";
+    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Rectangle3DShader.vs");
+    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Rectangle3DShader.fs");
+    static const std::map<std::string, int> ATTRIBUTE_NAME_MAP = {
+        {"aPos"     , 0},
+        {"aTexCoord", 1},
+    };
+
+    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP);
+    return prog;
+}
 
 Rectangle3D::Rectangle3D(const Size3D& size)
-: AbstractDrawObject(ShaderProgram::GetRectShaderProg())
+: AbstractDrawObject(GetShaderProg())
 , _pos(0.0f, 0.0f, 0.0f)
 , _size(size)
 , _attitudeCtrl({0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f})

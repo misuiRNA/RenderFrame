@@ -4,9 +4,25 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
 #include "ShaderProgram.h"
+#include "Utils.h"
+
+// ShaderProgram Descript
+static ShaderProgram& GetShaderProg() {
+    static const std::string MODEL_NAME = "Cuboid";
+    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Cuboid.vs");
+    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Cuboid.fs");
+    static const std::map<std::string, int> ATTRIBUTE_NAME_MAP = {
+        {"aPos"     , 0},
+        {"aTexCoord", 1},
+        {"aNormal"  , 2},
+    };
+    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP);
+    return prog;
+}
+
 
 Cuboid::Cuboid(const Size3D& size)
-: AbstractDrawObject(ShaderProgram::GetCuboidShaderProg())
+: AbstractDrawObject(GetShaderProg())
 , _pos({0.0f, 0.0f, 0.0f})
 , _size(size)
 , _attitudeCtrl({0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f})
@@ -17,7 +33,7 @@ Cuboid::Cuboid(const Size3D& size)
 }
 
 Cuboid::Cuboid(const Cuboid& oth)
-: AbstractDrawObject(ShaderProgram::GetCuboidShaderProg())
+: AbstractDrawObject(GetShaderProg())
 , _pos(oth._pos)
 , _size(oth._size)
 , _attitudeCtrl(oth._attitudeCtrl.getUp(), oth._attitudeCtrl.getFront())

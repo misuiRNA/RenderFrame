@@ -4,9 +4,23 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
 #include "ShaderProgram.h"
+#include "Utils.h"
+
+static ShaderProgram& GetShaderProg() {
+    static const std::string MODEL_NAME = "Rectangle2D";
+    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Rectangle2DShader.vs");
+    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Rectangle2DShader.fs");
+    static const std::map<std::string, int> ATTRIBUTE_NAME_MAP = {
+        {"aPos"     , 0},
+        {"aTexCoord", 1},
+    };
+
+    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP);
+    return prog;
+}
 
 Rectangle2D::Rectangle2D(float width, float height)
-: AbstractDrawObject(ShaderProgram::GetRect2DShaderProg())
+: AbstractDrawObject(GetShaderProg())
 , _pos(0.0f, 0.0f, 0.0f)
 , _width(width)
 , _height(height)

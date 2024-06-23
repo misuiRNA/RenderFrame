@@ -40,11 +40,6 @@ struct ShaderProgram {
 
 public:
     static std::string UniformArraySuffix(int index);
-    static ShaderProgram& GetRectShaderProg();
-    static ShaderProgram& GetRect2DShaderProg();
-    static ShaderProgram& GetCuboidShaderProg();
-    static ShaderProgram& GetLightSourceShaderProg();
-    static ShaderProgram& GetMeshShaderProg();
     static std::map<ShaderProgram*, int>& GetAllShaderProg();
 
 private:

@@ -3,9 +3,22 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "ShaderProgram.h"
+#include "Utils.h"
+
+static ShaderProgram& GetShaderProg() {
+    static const std::string MODEL_NAME = "LightSource";
+    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/LightSource.vs");
+    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/LightSource.fs");
+    static const std::map<std::string, int> ATTRIBUTE_NAME_MAP = {
+        {"aPos"     , 0},
+    };
+
+    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP);
+    return prog;
+}
 
 LightSource::LightSource(bool isParallel)
-: AbstractDrawObject(ShaderProgram::GetLightSourceShaderProg())
+: AbstractDrawObject(GetShaderProg())
 , _shaderLight(isParallel)
 , _size(1.0f, 1.0f, 1.0f) {
 
