@@ -13,6 +13,7 @@
 #include "Camera.h"
 #include "Image.h"
 #include "Utils.h"
+#include "KeyboardEventHandler.h"
 
 
 static unsigned int WINDOW_WIDTH = 800;
@@ -22,43 +23,6 @@ void FramebufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
 }
 
-void ProcessInput(GLFWwindow *window, CameraFPS& cameraFPS) {
-    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-        glfwSetWindowShouldClose(window, true);
-    }
-
-    static float deltaTime = 0.0f; // 当前帧与上一帧的时间差
-    static float lastFrame = 0.0f; // 上一帧的时间
-
-    float currentFrame = glfwGetTime();
-    deltaTime = currentFrame - lastFrame;
-    lastFrame = currentFrame;
-
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-        cameraFPS.goForward(deltaTime);
-    }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS) {
-        cameraFPS.goBack(deltaTime);
-    }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-        cameraFPS.goLeft(deltaTime);
-    }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS) {
-        cameraFPS.goRight(deltaTime);
-    }
-    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS) {
-        cameraFPS.turnRight(deltaTime);
-    }
-    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
-        cameraFPS.turnLeft(deltaTime);
-    }
-    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-        cameraFPS.turnUp(deltaTime);
-    }
-    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-        cameraFPS.turnDown(deltaTime);
-    }
-}
 
 GLFWwindow* InitWindows() {
     glfwInit();
@@ -152,9 +116,25 @@ int main() {
     glEnable(GL_STENCIL_TEST);
     glStencilOp(GL_ZERO, GL_KEEP, GL_REPLACE);
 
+    KeyboardEventHandler keyboardEventHandler([window](int keyCode, int eventCode){ return glfwGetKey(window, keyCode) == eventCode; });
+    keyboardEventHandler.registerObserver(GLFW_KEY_ESCAPE, GLFW_PRESS, [window]() { glfwSetWindowShouldClose(window, true); });
+
     CameraFPS cameraFPS;
     cameraFPS.setPosition(5.0f, 2.0f, 2.0f);
     cameraFPS.setAttitude(0.0f, 180.0f);
+
+    // TODO 优化, 键盘事件不依赖帧率
+    float deltaTime = 0.0f; // 当前帧与上一帧的时间差
+    float lastFrame = 0.0f; // 上一帧的时间
+    keyboardEventHandler.registerObserver(GLFW_KEY_W, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.goForward(deltaTime); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_S, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.goBack(deltaTime); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_A, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.goLeft(deltaTime); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.goRight(deltaTime); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_RIGHT, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.turnRight(deltaTime); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_LEFT, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.turnLeft(deltaTime); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_UP, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.turnUp(deltaTime); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_DOWN, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.turnDown(deltaTime); });
+
 
     LightSource parallelLight(true);
     parallelLight.setDirection({-1.0f, 1.0f, -1.0f});
@@ -308,7 +288,11 @@ int main() {
     float lastX = 0.0f;
     while(!glfwWindowShouldClose(window))
     {
-        ProcessInput(window, cameraFPS);
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
+        keyboardEventHandler.proc();
         SetGlobalLights(parallelLight, pointLights);
         SetGlobalCamera(cameraFPS);
 
