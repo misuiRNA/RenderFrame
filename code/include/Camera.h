@@ -21,6 +21,7 @@ struct CameraFPS {
 
     void setAttitude(float pitch, float yaw);
     void setPosition(float x, float y, float z);
+    void setFov(float fov);
 
 private:
     static float normalYaw(float angel);

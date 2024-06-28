@@ -119,13 +119,12 @@ int main() {
     KeyboardEventHandler keyboardEventHandler([window](int keyCode, int eventCode){ return glfwGetKey(window, keyCode) == eventCode; });
     keyboardEventHandler.registerObserver(GLFW_KEY_ESCAPE, GLFW_PRESS, [window]() { glfwSetWindowShouldClose(window, true); });
 
+    float deltaTime = 0.0f; // 当前帧与上一帧的时间差
+    float lastFrame = 0.0f; // 上一帧的时间
+
     CameraFPS cameraFPS;
     cameraFPS.setPosition(5.0f, 2.0f, 2.0f);
     cameraFPS.setAttitude(0.0f, 180.0f);
-
-    // TODO 优化, 键盘事件不依赖帧率
-    float deltaTime = 0.0f; // 当前帧与上一帧的时间差
-    float lastFrame = 0.0f; // 上一帧的时间
     keyboardEventHandler.registerObserver(GLFW_KEY_W, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.goForward(deltaTime); });
     keyboardEventHandler.registerObserver(GLFW_KEY_S, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.goBack(deltaTime); });
     keyboardEventHandler.registerObserver(GLFW_KEY_A, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.goLeft(deltaTime); });
@@ -134,6 +133,19 @@ int main() {
     keyboardEventHandler.registerObserver(GLFW_KEY_LEFT, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.turnLeft(deltaTime); });
     keyboardEventHandler.registerObserver(GLFW_KEY_UP, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.turnUp(deltaTime); });
     keyboardEventHandler.registerObserver(GLFW_KEY_DOWN, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.turnDown(deltaTime); });
+
+    CameraFPS mirrorCameraFPS = cameraFPS;
+    auto updateMirrorCameraPos = [&mirrorCameraFPS, &cameraFPS]() {
+        const Position& refPos = ((ShaderCamera&)cameraFPS).getPosition();
+        mirrorCameraFPS.setPosition(refPos.x - 5.0f, refPos.y, 15.0f);
+    };
+    mirrorCameraFPS.setAttitude(-80.0f, 180.0f);
+    mirrorCameraFPS.setFov(75.0f);
+    updateMirrorCameraPos();
+    keyboardEventHandler.registerObserver(GLFW_KEY_W, GLFW_PRESS, updateMirrorCameraPos);
+    keyboardEventHandler.registerObserver(GLFW_KEY_S, GLFW_PRESS, updateMirrorCameraPos);
+    keyboardEventHandler.registerObserver(GLFW_KEY_A, GLFW_PRESS, updateMirrorCameraPos);
+    keyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, updateMirrorCameraPos);
 
 
     LightSource parallelLight(true);
@@ -362,13 +374,7 @@ int main() {
 
         auto painter = [&]() {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-            const ShaderCamera& cam = cameraFPS;
-            CameraFPS mirrorCameraFPS = cameraFPS;
-            mirrorCameraFPS.setPosition(cam.getPosition().x + 5, cam.getPosition().y, 15.0f);
-            mirrorCameraFPS.setAttitude(-80.0f, 180.0f);
             SetGlobalCamera(mirrorCameraFPS);
-
 
             rectangle1.show();
             rectangle.show();

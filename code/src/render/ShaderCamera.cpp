@@ -26,8 +26,8 @@ void ShaderCamera::setPosition(const Position& pos) {
 void ShaderCamera::setFov(float fov) {
     if(fov <= 1.0f) {
         fov = 1.0f;
-    } else if(fov >= 45.0f) {
-        fov = 45.0f;
+    } else if(fov >= 80.0f) {
+        fov = 80.0f;
     }
     _fov = fov;
     updateMatrix();

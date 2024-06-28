@@ -97,6 +97,10 @@ void CameraFPS::setPosition(float x, float y, float z) {
     _camera.setPosition({x, y, z});
 }
 
+void CameraFPS::setFov(float fov) {
+    _camera.setFov(fov);
+}
+
 float CameraFPS::normalYaw(float angel) {
     float res = angel - (int(angel / 360) * 360);
     if (res < 0.0f) {
