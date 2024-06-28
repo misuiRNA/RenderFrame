@@ -1,19 +1,19 @@
 #include "KeyboardEventHandler.h"
 
 
-static unsigned long long GenEventMapKey(int keyCode, int eventCode) {
+static unsigned long long GenEventMapKey(int keyCode, int actionCode) {
     unsigned long long keyHight = keyCode;
-    unsigned long long eventMapKey = keyHight << 32 | eventCode;
-    return eventMapKey;
+    unsigned long long eventKey = keyHight << 32 | actionCode;
+    return eventKey;
 }
 
-static int GetKeyCode(unsigned long long eventMapKey) {
-    int keyCode = eventMapKey >> 32 & 0xFFFFFFFF;
+static int GetKeyCode(unsigned long long eventKey) {
+    int keyCode = eventKey >> 32 & 0xFFFFFFFF;
     return keyCode;
 }
 
-static int GetEventCode(unsigned long long eventMapKey) {
-    int eventCode = eventMapKey & 0xFFFFFFFF;
+static int GetActionCode(unsigned long long eventKey) {
+    int eventCode = eventKey & 0xFFFFFFFF;
     return eventCode;
 }
 
@@ -23,11 +23,11 @@ KeyboardEventHandler::KeyboardEventHandler(const KeyboardEventDetector detector)
 
 }
 
-void KeyboardEventHandler::proc() {
+void KeyboardEventHandler::exrcute() {
     for (auto itr : _observersMap) {
         int keyCode = GetKeyCode(itr.first);
-        int eventCode = GetEventCode(itr.first);
-        if (_keyboardEventDetector(keyCode, eventCode)) {
+        int actionCode = GetActionCode(itr.first);
+        if (_keyboardEventDetector(keyCode, actionCode)) {
             const std::vector<KeyboardEventObserver>& observers = itr.second;
             for (const KeyboardEventObserver& observer : observers) {
                 observer();
@@ -36,7 +36,7 @@ void KeyboardEventHandler::proc() {
     }
 }
 
-void KeyboardEventHandler::registerObserver(int keyCode, int eventCode, const KeyboardEventObserver& observer) {
-    unsigned long long eventMapKey = GenEventMapKey(keyCode, eventCode);
-    _observersMap[eventMapKey].push_back(observer);
+void KeyboardEventHandler::registerObserver(int keyCode, int actionCode, const KeyboardEventObserver& observer) {
+    unsigned long long eventKey = GenEventMapKey(keyCode, actionCode);
+    _observersMap[eventKey].push_back(observer);
 }

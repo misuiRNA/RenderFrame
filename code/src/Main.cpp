@@ -291,8 +291,8 @@ int main() {
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+        keyboardEventHandler.exrcute();
 
-        keyboardEventHandler.proc();
         SetGlobalLights(parallelLight, pointLights);
         SetGlobalCamera(cameraFPS);
 

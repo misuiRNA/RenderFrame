@@ -5,13 +5,13 @@
 #include <map>
 #include <functional>
 
+using KeyboardEventDetector = std::function<bool(int keyCode, int actionCode)>;
 using KeyboardEventObserver = std::function<void(void)>;
-using KeyboardEventDetector = std::function<bool(int keyCode, int eventCode)>;
 
 struct KeyboardEventHandler {
     KeyboardEventHandler(const KeyboardEventDetector detector);
-    void proc();
-    void registerObserver(int keyCode, int eventCode, const KeyboardEventObserver& observer);
+    void exrcute();
+    void registerObserver(int keyCode, int actionCode, const KeyboardEventObserver& observer);
 
 private:
     const KeyboardEventDetector _keyboardEventDetector;
