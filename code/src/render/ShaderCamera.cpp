@@ -23,6 +23,10 @@ void ShaderCamera::setPosition(const Position& pos) {
     updateMatrix();
 }
 
+void ShaderCamera::move(const Vector3D& vec) {
+    setPosition(_pos + vec);
+}
+
 void ShaderCamera::setFov(float fov) {
     if(fov <= 1.0f) {
         fov = 1.0f;

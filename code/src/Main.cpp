@@ -119,33 +119,31 @@ int main() {
     KeyboardEventHandler keyboardEventHandler([window](int keyCode, int eventCode){ return glfwGetKey(window, keyCode) == eventCode; });
     keyboardEventHandler.registerObserver(GLFW_KEY_ESCAPE, GLFW_PRESS, [window]() { glfwSetWindowShouldClose(window, true); });
 
+    constexpr float MOVE_SPEED = 2.5f;
+    constexpr float TURN_SPEED = 10.0f;
     float deltaTime = 0.0f; // 当前帧与上一帧的时间差
     float lastFrame = 0.0f; // 上一帧的时间
 
     CameraFPS cameraFPS;
-    cameraFPS.setPosition(5.0f, 2.0f, 2.0f);
+    cameraFPS.setPosition({5.0f, 2.0f, 2.0f});
     cameraFPS.setAttitude(0.0f, 180.0f);
-    keyboardEventHandler.registerObserver(GLFW_KEY_W, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.goForward(deltaTime); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_S, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.goBack(deltaTime); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_A, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.goLeft(deltaTime); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.goRight(deltaTime); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_RIGHT, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.turnRight(deltaTime); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_LEFT, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.turnLeft(deltaTime); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_UP, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.turnUp(deltaTime); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_DOWN, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.turnDown(deltaTime); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_W, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.goForward(deltaTime * MOVE_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_S, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.goBack(deltaTime * MOVE_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_A, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.goLeft(deltaTime * MOVE_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.goRight(deltaTime * MOVE_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_RIGHT, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.turnRight(deltaTime * TURN_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_LEFT, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.turnLeft(deltaTime * TURN_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_UP, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.turnUp(deltaTime * TURN_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_DOWN, GLFW_PRESS, [&cameraFPS, &deltaTime]() { cameraFPS.turnDown(deltaTime * TURN_SPEED); });
 
     CameraFPS mirrorCameraFPS = cameraFPS;
-    auto updateMirrorCameraPos = [&mirrorCameraFPS, &cameraFPS]() {
-        const Position& refPos = ((ShaderCamera&)cameraFPS).getPosition();
-        mirrorCameraFPS.setPosition(refPos.x - 5.0f, refPos.y, 15.0f);
-    };
-    mirrorCameraFPS.setAttitude(-80.0f, 180.0f);
     mirrorCameraFPS.setFov(75.0f);
-    updateMirrorCameraPos();
-    keyboardEventHandler.registerObserver(GLFW_KEY_W, GLFW_PRESS, updateMirrorCameraPos);
-    keyboardEventHandler.registerObserver(GLFW_KEY_S, GLFW_PRESS, updateMirrorCameraPos);
-    keyboardEventHandler.registerObserver(GLFW_KEY_A, GLFW_PRESS, updateMirrorCameraPos);
-    keyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, updateMirrorCameraPos);
+    mirrorCameraFPS.setAttitude(-80.0f, 180.0f);
+    mirrorCameraFPS.setPosition({0.0f, 0.0f, 15.0f});
+    keyboardEventHandler.registerObserver(GLFW_KEY_W, GLFW_PRESS, [&mirrorCameraFPS, &deltaTime]() { mirrorCameraFPS.move(deltaTime * MOVE_SPEED * Vector3D(-1.0f, 0.0f, 0.0f)); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_S, GLFW_PRESS, [&mirrorCameraFPS, &deltaTime]() { mirrorCameraFPS.move(deltaTime * MOVE_SPEED * Vector3D(1.0f, 0.0f, 0.0f)); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_A, GLFW_PRESS, [&mirrorCameraFPS, &deltaTime]() { mirrorCameraFPS.move(deltaTime * MOVE_SPEED * Vector3D(0.0f, -1.0f, 0.0f)); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, [&mirrorCameraFPS, &deltaTime]() { mirrorCameraFPS.move(deltaTime * MOVE_SPEED * Vector3D(0.0f, 1.0f, 0.0f)); });
 
 
     LightSource parallelLight(true);

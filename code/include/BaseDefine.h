@@ -31,6 +31,8 @@ struct XYZ {
     float z;
 };
 
+inline XYZ operator*(float ratio, const XYZ& value) { return XYZ(value.x * ratio, value.y * ratio, value.z * ratio); }
+
 typedef XYZ Position, Vector3D, Size3D;
 
 struct XY {

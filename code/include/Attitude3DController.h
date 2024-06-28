@@ -16,7 +16,8 @@ struct Attitude3DController {
     glm::mat4 getAttitudeMatrix() const;
 
     const Vector3D& getFront() const;
-    const Vector3D& getUp() const ;
+    const Vector3D& getUp() const;
+    Vector3D getRight() const;
 
     void addOnAttitudeChangedListener(const std::function<void()>& listener);
 
