@@ -71,6 +71,18 @@ LocalImage::~LocalImage() {
     stbi_image_free(_data);
 }
 
+int LocalImage::width() const {
+    return _width;
+}
+
+int LocalImage::height() const {
+    return _height;
+}
+
+unsigned char* LocalImage::data() const {
+    return _data;
+}
+
 TextureId LocalImage::getTexture(ImageWrapMode wrapMode) const {
     auto it = _textureMap.find(wrapMode);
     if (it == _textureMap.end()) {
@@ -148,6 +160,40 @@ void PaintImage::paint(std::function<void()> painter) {
 
 TextureId PaintImage::getTexture(ImageWrapMode wrapMode) const {
     return _texColorBuffer;
+}
+
+
+static TextureId GenCubeTexture(const LocalImage (&images)[CubeImage::FACE_COUNT]) {
+    unsigned int textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+    for(unsigned int index = 0; index < CubeImage::FACE_COUNT; ++index) {
+        const LocalImage& img = images[index];
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + index, 0, GL_RGB, img.width(), img.height(), 0, GL_RGB, GL_UNSIGNED_BYTE, img.data());
+    }
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    return textureID;
+}
+
+CubeImage::CubeImage(const std::string& xRight, const std::string& xLeft, const std::string& yTop, const std::string& yBottom, const std::string& zFront, const std::string& zBack)
+:_images{xRight, xLeft, yTop, yBottom, zFront, zBack}
+, _textureId(0) {
+
+}
+
+CubeImage::~CubeImage() {
+    
+}
+
+TextureId CubeImage::getTexture(ImageWrapMode wrapMode) const {
+    if (_textureId == 0) {
+        _textureId = GenCubeTexture(_images);
+    }
+    return _textureId;
 }
 
 #define STB_IMAGE_IMPLEMENTATION

@@ -22,6 +22,9 @@ struct AbstractImage {
 struct LocalImage : AbstractImage {
     LocalImage(const std::string& path);
     ~LocalImage();
+    int width() const;
+    int height() const;
+    unsigned char* data() const;
     TextureId getTexture(ImageWrapMode wrapMode) const;
 
 private:
@@ -48,6 +51,18 @@ private:
 
     unsigned int _frameBuffer;
     unsigned int _texColorBuffer;
+};
+
+
+struct CubeImage : AbstractImage {
+    static constexpr int FACE_COUNT = 6;
+
+    CubeImage(const std::string& xRight, const std::string& xLeft, const std::string& yTop, const std::string& yBottom, const std::string& zFront, const std::string& zBack);
+    ~CubeImage();
+    TextureId getTexture(ImageWrapMode wrapMode) const;
+private:
+    LocalImage _images[FACE_COUNT];
+    mutable TextureId _textureId;
 };
 
 

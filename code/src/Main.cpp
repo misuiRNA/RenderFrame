@@ -10,6 +10,7 @@
 #include "model/Cuboid.h"
 #include "model/LightSource.h"
 #include "model/Model3D.h"
+#include "model/SkyBox.h"
 #include "Camera.h"
 #include "Image.h"
 #include "Utils.h"
@@ -115,6 +116,7 @@ int main() {
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_STENCIL_TEST);
     glStencilOp(GL_ZERO, GL_KEEP, GL_REPLACE);
+    glDepthFunc(GL_LEQUAL);
 
     KeyboardEventHandler keyboardEventHandler([window](int keyCode, int eventCode){ return glfwGetKey(window, keyCode) == eventCode; });
     keyboardEventHandler.registerObserver(GLFW_KEY_ESCAPE, GLFW_PRESS, [window]() { glfwSetWindowShouldClose(window, true); });
@@ -181,6 +183,17 @@ int main() {
     LocalImage matrixImage(GetCurPath() + "/resource/matrix.jpeg");
     LocalImage grassImage(GetCurPath() + "/resource/grass.png");
     LocalImage windowImage(GetCurPath() + "/resource/blending_transparent_window.png");
+
+    CubeImage cubeImage(GetCurPath() + "/resource/skybox/right.jpg"
+                      , GetCurPath() + "/resource/skybox/left.jpg"
+                      , GetCurPath() + "/resource/skybox/bottom.jpg"
+                      , GetCurPath() + "/resource/skybox/top.jpg"
+                      , GetCurPath() + "/resource/skybox/front.jpg"
+                      , GetCurPath() + "/resource/skybox/back.jpg"
+                      );
+
+    SkyBox skybox;
+    skybox.setImage(cubeImage);
 
     Rectangle3D rectangle({0.6f, 0.6f});
     rectangle.setPosition({0.0f, 0.0f});
@@ -330,6 +343,7 @@ int main() {
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); 
 
+
         // EnableViewMask(rectangle1, rectangle);
 
         // TODO: 优化, 封装到RenderData中, 渲染元素级别控制面剔除方式
@@ -412,6 +426,10 @@ int main() {
         mirrorCanva.paint(painter);
 
         mirror.show();
+
+        // render skybox
+        skybox.setCenter(cameraFPS.getPosition());
+        skybox.show();
 
         glfwSwapBuffers(window);
         glfwPollEvents();

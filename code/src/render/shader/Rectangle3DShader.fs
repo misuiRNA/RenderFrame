@@ -25,6 +25,7 @@ void main()
     } else {
         // FragColor = texture(texture1, TexCoord) * vec4(light.diffuse, 1.0);
         vec4 texCoord = texture(texture1, TexCoord);
+        if (texCoord.a < 0.001) discard;
         FragColor = texCoord;
     }
 }
