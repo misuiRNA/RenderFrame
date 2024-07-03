@@ -15,8 +15,8 @@ static ShaderProgram& GetShaderProg() {
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Rectangle2DShader.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Rectangle2DShader.fs");
     static const std::vector<ShaderAttribDescriptor> descriptor = {
-        DESC_NEW("aPos",      0, Rectangle2DVertex, pos),
-        DESC_NEW("aTexCoord", 1, Rectangle2DVertex, texCoord),
+        DESC("aPos",      0, Rectangle2DVertex, pos),
+        DESC("aTexCoord", 1, Rectangle2DVertex, texCoord),
     };
     static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, descriptor);
     return prog;

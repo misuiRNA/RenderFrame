@@ -22,9 +22,9 @@ static ShaderProgram& GetShaderProg() {
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Model3DlShader.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Model3DlShader.fs");
     static const std::vector<ShaderAttribDescriptor> descriptor = {
-        DESC_NEW("aPos",       0, Model3DVertex, pos),
-        DESC_NEW("aNormal",    1, Model3DVertex, normal),
-        DESC_NEW("aTexCoords", 2, Model3DVertex, texCoords),
+        DESC("aPos",       0, Model3DVertex, pos),
+        DESC("aNormal",    1, Model3DVertex, normal),
+        DESC("aTexCoords", 2, Model3DVertex, texCoords),
     };
     static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, descriptor);
     return prog;

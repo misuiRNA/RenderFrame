@@ -12,7 +12,7 @@ static ShaderProgram& GetShaderProg() {
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/SkyBox.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/SkyBox.fs");
     static const std::vector<ShaderAttribDescriptor> descriptor = {
-        DESC_NEW("aPos", 0, SkyBoxVertex, pos),
+        DESC("aPos", 0, SkyBoxVertex, pos),
     };
     static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, descriptor);
     return prog;

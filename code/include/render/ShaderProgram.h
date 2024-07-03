@@ -24,9 +24,7 @@ struct ShaderAttribDescriptor {
 };
 
 // remind: 要求MEMBER是float紧密填充的, 否则计算出的size不准
-#define DESC(NAME, INDEX, TYPE, MEMBER) ShaderAttribDescriptor(NAME, INDEX, sizeof(MEMBER) / sizeof(float), sizeof(TYPE), (void*)offsetof(TYPE, MEMBER))
-
-#define DESC_NEW(NAME, INDEX, TYPE, MEMBER) ShaderAttribDescriptor(NAME, INDEX, sizeof(TYPE::MEMBER) / sizeof(float), sizeof(TYPE), (void*)offsetof(TYPE, MEMBER))
+#define DESC(NAME, INDEX, TYPE, MEMBER) ShaderAttribDescriptor(NAME, INDEX, sizeof(TYPE::MEMBER) / sizeof(float), sizeof(TYPE), (void*)offsetof(TYPE, MEMBER))
 
 
 struct ShaderProgram {

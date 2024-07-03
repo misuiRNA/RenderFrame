@@ -17,9 +17,9 @@ static ShaderProgram& GetShaderProg() {
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Cuboid.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Cuboid.fs");
     static const std::vector<ShaderAttribDescriptor> descriptor = {
-        DESC_NEW("aPos",      0, CuboidVertex, pos),
-        DESC_NEW("aTexCoord", 1, CuboidVertex, texCoord),
-        DESC_NEW("aNormal",   2, CuboidVertex, normal)
+        DESC("aPos",      0, CuboidVertex, pos),
+        DESC("aTexCoord", 1, CuboidVertex, texCoord),
+        DESC("aNormal",   2, CuboidVertex, normal)
     };
     static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, descriptor);
     return prog;
