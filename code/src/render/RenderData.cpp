@@ -79,6 +79,9 @@ void RenderData::setVertices(size_t vertexCount, size_t verticeStride, const voi
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     for (const ShaderAttribDescriptor& desc : descs)
     {
+        if (verticeStride != desc.stride) {
+            printf("Error: vertice buffer is not match with descriptor\n");
+        }
         glVertexAttribPointer(desc.index, desc.size, GL_FLOAT, GL_FALSE, desc.stride, desc.pointer);
         glEnableVertexAttribArray(desc.index);
     }

@@ -6,14 +6,9 @@
 
 std::map<ShaderProgram*, int> ShaderProgram::_registProgramMap;
 
-ShaderProgram::ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr)
-: ShaderProgram(vsShaderCodeStr, fsShaderCodeStr, {}) {
-
-}
-
-ShaderProgram::ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr, const std::map<std::string, int>& attrNameMap)
+ShaderProgram::ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr, const std::vector<ShaderAttribDescriptor>& descriptors)
 : _progId(0)
-, _attrNameMap(attrNameMap) {
+, _vertexDescriptors(descriptors) {
     unsigned int vertexShader = BuildShader(vsShaderCodeStr.c_str(), GL_VERTEX_SHADER);
     unsigned int fragmentShader = BuildShader(fsShaderCodeStr.c_str(), GL_FRAGMENT_SHADER);
 
@@ -115,15 +110,26 @@ void ShaderProgram::enable() {
 }
 
 bool ShaderProgram::checkVertice(const std::string& name) {
-    return _attrNameMap.find(name) != _attrNameMap.end();
+    for (const ShaderAttribDescriptor& desc : _vertexDescriptors) {
+        if (desc.name == name) {
+            return true;
+        }
+    }
+    return false;
 }
 
 unsigned int ShaderProgram::getVerticeSlotId(const std::string& name) {
-    if (_attrNameMap.find(name) == _attrNameMap.end()) {
-        std::cout << "Failed to get attribute index! name not found: " << name << std::endl;
-        return -1;
+    for (const ShaderAttribDescriptor& desc : _vertexDescriptors) {
+        if (desc.name == name) {
+            return desc.index;
+        }
     }
-    return _attrNameMap[name];
+    std::cout << "Failed to get attribute index! name not found: " << name << std::endl;
+    return -1;
+}
+
+const std::vector<ShaderAttribDescriptor>& ShaderProgram::getVertexDescriptors() const {
+    return _vertexDescriptors;
 }
 
 unsigned int ShaderProgram::BuildShader(const char* shaderCode, unsigned int shaderType) {

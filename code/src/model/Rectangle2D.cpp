@@ -6,18 +6,22 @@
 #include "ShaderProgram.h"
 #include "Utils.h"
 
+struct Rectangle2DVertex {
+    Vector3D pos;
+    Vector2D texCoord;
+};
+
 static ShaderProgram& GetShaderProg() {
-    static const std::string MODEL_NAME = "Rectangle2D";
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Rectangle2DShader.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Rectangle2DShader.fs");
-    static const std::map<std::string, int> ATTRIBUTE_NAME_MAP = {
-        {"aPos"     , 0},
-        {"aTexCoord", 1},
+    static const std::vector<ShaderAttribDescriptor> descriptor = {
+        DESC_NEW("aPos",      0, Rectangle2DVertex, pos),
+        DESC_NEW("aTexCoord", 1, Rectangle2DVertex, texCoord),
     };
-
-    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP);
+    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, descriptor);
     return prog;
 }
+
 
 Rectangle2D::Rectangle2D(float width, float height)
 : AbstractDrawObject(GetShaderProg())
@@ -53,18 +57,14 @@ void Rectangle2D::updateUniformes() {
 }
 
 void Rectangle2D::updateRenderData() {
-    _renderData.setVertices<Vector3D>("aPos", {
-        {-0.5f, -0.5f, 0.0f},
-        {0.5f, -0.5f, 0.0f},
-        {0.5f, 0.5f, 0.0f},
-        {-0.5f, 0.5f, 0.0f},
-    });
-    _renderData.setVertices<Vector2D>("aTexCoord", {
-        {0.0f, 0.0f},
-        {1.0f, 0.0f},
-        {1.0f, 1.0f},
-        {0.0f, 1.0f},
-    });
+    std::vector<Rectangle2DVertex> vertices = {
+        {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}},
+        {{0.5f, -0.5f,  0.0f}, {1.0f, 0.0f}},
+        {{0.5f,  0.5f,  0.0f}, {1.0f, 1.0f}},
+        {{-0.5f, 0.5f,  0.0f}, {0.0f, 1.0f}},
+    };
+    _renderData.setVertices(vertices);
+
     _renderData.setIndices({
         0, 1, 2,
         0, 2, 3

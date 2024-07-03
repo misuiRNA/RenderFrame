@@ -4,27 +4,20 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
+struct SkyBoxVertex {
+    Position pos;
+};
+
 static ShaderProgram& GetShaderProg() {
-    static const std::string MODEL_NAME = "SkyBox";
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/SkyBox.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/SkyBox.fs");
-    static const std::map<std::string, int> ATTRIBUTE_NAME_MAP = {
-        {"aPos"     , 0},
+    static const std::vector<ShaderAttribDescriptor> descriptor = {
+        DESC_NEW("aPos", 0, SkyBoxVertex, pos),
     };
-    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP);
+    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, descriptor);
     return prog;
 }
 
-struct SkyBoxVertex {
-    SkyBoxVertex(float x, float y, float z) : pos(x, y, z) { }
-    Position pos;
-
-    static std::vector<ShaderAttribDescriptor> descriptor;
-};
-
-std::vector<ShaderAttribDescriptor> SkyBoxVertex::descriptor = {
-    DESC("aPos", 0, SkyBoxVertex, pos),
-};
 
 SkyBox::SkyBox()
 : AbstractDrawObject(GetShaderProg()) {
@@ -52,47 +45,47 @@ void SkyBox::updateUniformes() {
 
 void SkyBox::updateRenderData() {
     std::vector<SkyBoxVertex> vertices = {
-        {-1.0f,  1.0f, -1.0f},
-        {-1.0f, -1.0f, -1.0f},
-        {1.0f, -1.0f, -1.0f},
-        {1.0f, -1.0f, -1.0f},
-        {1.0f,  1.0f, -1.0f},
-        {-1.0f,  1.0f, -1.0f},
+        {{-1.0f,  1.0f, -1.0f}},
+        {{-1.0f, -1.0f, -1.0f}},
+        {{1.0f, -1.0f, -1.0f}},
+        {{1.0f, -1.0f, -1.0f}},
+        {{1.0f,  1.0f, -1.0f}},
+        {{-1.0f,  1.0f, -1.0f}},
 
-        {-1.0f, -1.0f,  1.0f},
-        {-1.0f, -1.0f, -1.0f},
-        {-1.0f,  1.0f, -1.0f},
-        {-1.0f,  1.0f, -1.0f},
-        {-1.0f,  1.0f,  1.0f},
-        {-1.0f, -1.0f,  1.0f},
+        {{-1.0f, -1.0f,  1.0f}},
+        {{-1.0f, -1.0f, -1.0f}},
+        {{-1.0f,  1.0f, -1.0f}},
+        {{-1.0f,  1.0f, -1.0f}},
+        {{-1.0f,  1.0f,  1.0f}},
+        {{-1.0f, -1.0f,  1.0f}},
 
-        {1.0f, -1.0f, -1.0f},
-        {1.0f, -1.0f,  1.0f},
-        {1.0f,  1.0f,  1.0f},
-        {1.0f,  1.0f,  1.0f},
-        {1.0f,  1.0f, -1.0f},
-        {1.0f, -1.0f, -1.0f},
+        {{1.0f, -1.0f, -1.0f}},
+        {{1.0f, -1.0f,  1.0f}},
+        {{1.0f,  1.0f,  1.0f}},
+        {{1.0f,  1.0f,  1.0f}},
+        {{1.0f,  1.0f, -1.0f}},
+        {{1.0f, -1.0f, -1.0f}},
 
-        {-1.0f, -1.0f,  1.0f},
-        {-1.0f,  1.0f,  1.0f},
-        {1.0f,  1.0f,  1.0f},
-        {1.0f,  1.0f,  1.0f},
-        {1.0f, -1.0f,  1.0f},
-        {-1.0f, -1.0f,  1.0f},
+        {{-1.0f, -1.0f,  1.0f}},
+        {{-1.0f,  1.0f,  1.0f}},
+        {{1.0f,  1.0f,  1.0f}},
+        {{1.0f,  1.0f,  1.0f}},
+        {{1.0f, -1.0f,  1.0f}},
+        {{-1.0f, -1.0f,  1.0f}},
 
-        {-1.0f,  1.0f, -1.0f},
-        {1.0f,  1.0f, -1.0f},
-        {1.0f,  1.0f,  1.0f},
-        {1.0f,  1.0f,  1.0f},
-        {-1.0f,  1.0f,  1.0f},
-        {-1.0f,  1.0f, -1.0f},
+        {{-1.0f,  1.0f, -1.0f}},
+        {{1.0f,  1.0f, -1.0f}},
+        {{1.0f,  1.0f,  1.0f}},
+        {{1.0f,  1.0f,  1.0f}},
+        {{-1.0f,  1.0f,  1.0f}},
+        {{-1.0f,  1.0f, -1.0f}},
 
-        {-1.0f, -1.0f, -1.0f},
-        {-1.0f, -1.0f,  1.0f},
-        {1.0f, -1.0f, -1.0f},
-        {1.0f, -1.0f, -1.0f},
-        {-1.0f, -1.0f,  1.0f},
-        {1.0f, -1.0f,  1.0f}
+        {{-1.0f, -1.0f, -1.0f}},
+        {{-1.0f, -1.0f,  1.0f}},
+        {{1.0f, -1.0f, -1.0f}},
+        {{1.0f, -1.0f, -1.0f}},
+        {{-1.0f, -1.0f,  1.0f}},
+        {{1.0f, -1.0f,  1.0f}}
     };
     _renderData.setVertices(vertices);
 }

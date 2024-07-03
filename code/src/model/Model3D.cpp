@@ -5,17 +5,28 @@
 #include "ModelMeshLoader.h"
 #include "Utils.h"
 
+struct Model3DVertex {
+    Model3DVertex(const Vector3D& pos, const Vector3D& normal, const Vector2D& texCoords)
+    : pos(pos)
+    , normal(normal)
+    , texCoords(texCoords) {
+
+    }
+
+    Vector3D pos;
+    Vector3D normal;
+    Vector2D texCoords;
+};
+
 static ShaderProgram& GetShaderProg() {
-    static const std::string MODEL_NAME = "Model3D";
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Model3DlShader.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Model3DlShader.fs");
-    static const std::map<std::string, int> ATTRIBUTE_NAME_MAP = {
-        {"aPos"      , 0},
-        {"aNormal"   , 1},
-        {"aTexCoords", 2},
+    static const std::vector<ShaderAttribDescriptor> descriptor = {
+        DESC_NEW("aPos",       0, Model3DVertex, pos),
+        DESC_NEW("aNormal",    1, Model3DVertex, normal),
+        DESC_NEW("aTexCoords", 2, Model3DVertex, texCoords),
     };
-
-    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP);
+    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, descriptor);
     return prog;
 }
 
@@ -128,17 +139,3 @@ void Model3D::updateModelMatrix() {
 
     memcpy(_modelMatrix, glm::value_ptr(model), sizeof(glm::mat4));
 }
-
-
-Model3DVertex::Model3DVertex(Vector3D pos, Vector3D normal, Vector2D texCoords)
-: pos(pos)
-, normal(normal)
-, texCoords(texCoords) {
-
-}
-
-std::vector<ShaderAttribDescriptor> Model3DVertex::descriptor = {
-    DESC("aPos",       0, Model3DVertex, pos),
-    DESC("aNormal",    1, Model3DVertex, normal),
-    DESC("aTexCoords", 2, Model3DVertex, texCoords),
-};

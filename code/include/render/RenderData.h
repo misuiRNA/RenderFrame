@@ -11,27 +11,6 @@
 #include <shared_mutex>
 #include <iostream>
 
-
-struct ShaderAttribDescriptor {
-    ShaderAttribDescriptor(std::string name, unsigned int index, unsigned int size, unsigned int stride, const void* pointer)
-    : name(name)
-    , index(index)
-    , size(size)
-    , stride(stride)
-    , pointer(pointer) { }
-
-    std::string name;
-    unsigned int index;
-    unsigned int size;
-    unsigned int stride;
-    const void* pointer;
-};
-
-// remind: 要求MEMBER是float紧密填充的, 否则计算出的size不准
-#define DESC(NAME, INDEX, TYPE, MEMBER) ShaderAttribDescriptor(NAME, INDEX, sizeof(MEMBER) / sizeof(float), sizeof(TYPE), (void*)offsetof(TYPE, MEMBER))
-
-
-
 struct RenderData {
     RenderData(ShaderProgram& prog);
     RenderData(const RenderData& oth);
@@ -76,7 +55,7 @@ public:
     template<typename T>
     void setVertices(const std::string& name, const std::vector<T>& vertices) {
         if (!_prog.checkVertice(name)) {
-            std::cout << "Failed to set attribute! name not found: " << name << std::endl;
+            std::cout << "Failed to set attribute! invalid vertex name!" << name << std::endl;
             return;
         }
 
@@ -87,8 +66,7 @@ public:
 
     template <typename T>
     void setVertices(const std::vector<T>& vertices) {
-        const std::vector<ShaderAttribDescriptor>& descs = T::descriptor;
-        setVertices(vertices.size(), sizeof(T), vertices.data(), descs);
+        setVertices(vertices.size(), sizeof(T), vertices.data(), _prog.getVertexDescriptors());
     }
 
 

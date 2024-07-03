@@ -5,17 +5,20 @@
 #include "ShaderProgram.h"
 #include "Utils.h"
 
+struct LightSourceVertex {
+    Position pos;
+};
+
 static ShaderProgram& GetShaderProg() {
-    static const std::string MODEL_NAME = "LightSource";
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/LightSource.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/LightSource.fs");
-    static const std::map<std::string, int> ATTRIBUTE_NAME_MAP = {
-        {"aPos"     , 0},
+    static const std::vector<ShaderAttribDescriptor> descriptor = {
+        DESC_NEW("aPos", 0, LightSourceVertex, pos)
     };
-
-    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP);
+    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, descriptor);
     return prog;
 }
+
 
 LightSource::LightSource(bool isParallel)
 : AbstractDrawObject(GetShaderProg())
@@ -77,7 +80,7 @@ void LightSource::updateUniformes() {
 }
 
 void LightSource::updateRenderData() {
-    _renderData.setVertices<Vector3D>("aPos", {
+    std::vector<Position> vertices = {
         {-0.5f, -0.5f, -0.5f},
         {0.5f, 0.5f, -0.5f},
         {0.5f, -0.5f, -0.5f},
@@ -119,5 +122,6 @@ void LightSource::updateRenderData() {
         {0.5f, 0.5f, -0.5f},
         {-0.5f, 0.5f, -0.5f},
         {-0.5f, 0.5f, 0.5f},
-    });
+    };
+    _renderData.setVertices("aPos", vertices);
 }

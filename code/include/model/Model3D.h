@@ -29,15 +29,4 @@ private:
     std::vector<RenderData> _meshRenderDatas;
 };
 
-
-struct Model3DVertex {
-    Model3DVertex(Vector3D pos, Vector3D normal, Vector2D texCoords);
-
-    Vector3D pos;
-    Vector3D normal;
-    Vector2D texCoords;
-
-    static std::vector<ShaderAttribDescriptor> descriptor;
-};
-
 #endif

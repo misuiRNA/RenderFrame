@@ -6,17 +6,22 @@
 #include "ShaderProgram.h"
 #include "Utils.h"
 
+struct CuboidVertex {
+    Position pos;
+    Vector2D texCoord;
+    Vector3D normal;
+};
+
 // ShaderProgram Descript
 static ShaderProgram& GetShaderProg() {
-    static const std::string MODEL_NAME = "Cuboid";
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Cuboid.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Cuboid.fs");
-    static const std::map<std::string, int> ATTRIBUTE_NAME_MAP = {
-        {"aPos"     , 0},
-        {"aTexCoord", 1},
-        {"aNormal"  , 2},
+    static const std::vector<ShaderAttribDescriptor> descriptor = {
+        DESC_NEW("aPos",      0, CuboidVertex, pos),
+        DESC_NEW("aTexCoord", 1, CuboidVertex, texCoord),
+        DESC_NEW("aNormal",   2, CuboidVertex, normal)
     };
-    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP);
+    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, descriptor);
     return prog;
 }
 
@@ -91,133 +96,48 @@ void Cuboid::updateUniformes() {
 }
 
 void Cuboid::updateRenderData() {
-    _renderData.setVertices<Vector3D>("aPos", {
-        {-0.5f, -0.5f, -0.5f},
-        {0.5f, 0.5f, -0.5f},
-        {0.5f, -0.5f, -0.5f},
-        {0.5f, 0.5f, -0.5f},
-        {-0.5f, -0.5f, -0.5f},
-        {-0.5f, 0.5f, -0.5f},
-
-        {-0.5f, -0.5f, 0.5f},
-        {0.5f, -0.5f, 0.5f},
-        {0.5f, 0.5f, 0.5f},
-        {0.5f, 0.5f, 0.5f},
-        {-0.5f, 0.5f, 0.5f},
-        {-0.5f, -0.5f, 0.5f},
-
-        {-0.5f, 0.5f, -0.5f},
-        {-0.5f, -0.5f, 0.5f},
-        {-0.5f, 0.5f, 0.5f},
-        {-0.5f, -0.5f, 0.5f},
-        {-0.5f, 0.5f, -0.5f},
-        {-0.5f, -0.5f, -0.5f},
-
-        {0.5f, 0.5f, -0.5f},
-        {0.5f, 0.5f, 0.5f},
-        {0.5f, -0.5f, 0.5f},
-        {0.5f, -0.5f, 0.5f},
-        {0.5f, -0.5f, -0.5f},
-        {0.5f, 0.5f, -0.5f},
-
-        {0.5f, -0.5f, -0.5f},
-        {0.5f, -0.5f, 0.5f},
-        {-0.5f, -0.5f, 0.5f},
-        {0.5f, -0.5f, -0.5f},
-        {-0.5f, -0.5f, 0.5f},
-        {-0.5f, -0.5f, -0.5f},
-
-        {-0.5f, 0.5f, 0.5f},
-        {0.5f, 0.5f, 0.5f},
-        {0.5f, 0.5f, -0.5f},
-        {0.5f, 0.5f, -0.5f},
-        {-0.5f, 0.5f, -0.5f},
-        {-0.5f, 0.5f, 0.5f},
-    });
-    _renderData.setVertices<Vector2D>("aTexCoord", {
-        {0.0f, 0.0f},
-        {1.0f, 1.0f},
-        {1.0f, 0.0f},
-        {1.0f, 1.0f},
-        {0.0f, 0.0f},
-        {0.0f, 1.0f},
-
-        {0.0f, 0.0f},
-        {1.0f, 0.0f},
-        {1.0f, 1.0f},
-        {1.0f, 1.0f},
-        {0.0f, 1.0f},
-        {0.0f, 0.0f},
-
-        {1.0f, 0.0f},
-        {0.0f, 1.0f},
-        {1.0f, 1.0f},
-        {0.0f, 1.0f},
-        {1.0f, 0.0f},
-        {0.0f, 0.0f},
-
-        {1.0f, 0.0f},
-        {1.0f, 1.0f},
-        {0.0f, 1.0f},
-        {0.0f, 1.0f},
-        {0.0f, 0.0f},
-        {1.0f, 0.0f},
-
-        {1.0f, 0.0f},
-        {1.0f, 1.0f},
-        {0.0f, 1.0f},
-        {1.0f, 0.0f},
-        {0.0f, 1.0f},
-        {0.0f, 0.0f},
-
-        {0.0f, 1.0f},
-        {1.0f, 1.0f},
-        {1.0f, 0.0f},
-        {1.0f, 0.0f},
-        {0.0f, 0.0f},
-        {0.0f, 1.0f},
-    });
-    _renderData.setVertices<Vector3D>("aNormal", {
-        {0.0f,  0.0f, -1.0f},
-        {0.0f,  0.0f, -1.0f},
-        {0.0f,  0.0f, -1.0f},
-        {0.0f,  0.0f, -1.0f},
-        {0.0f,  0.0f, -1.0f},
-        {0.0f,  0.0f, -1.0f},
-
-        {0.0f,  0.0f, 1.0f},
-        {0.0f,  0.0f, 1.0f},
-        {0.0f,  0.0f, 1.0f},
-        {0.0f,  0.0f, 1.0f},
-        {0.0f,  0.0f, 1.0f},
-        {0.0f,  0.0f, 1.0f},
-
-        {-1.0f,  0.0f,  0.0f},
-        {-1.0f,  0.0f,  0.0f},
-        {-1.0f,  0.0f,  0.0f},
-        {-1.0f,  0.0f,  0.0f},
-        {-1.0f,  0.0f,  0.0f},
-        {-1.0f,  0.0f,  0.0f},
-
-        {1.0f,  0.0f,  0.0f},
-        {1.0f,  0.0f,  0.0f},
-        {1.0f,  0.0f,  0.0f},
-        {1.0f,  0.0f,  0.0f},
-        {1.0f,  0.0f,  0.0f},
-        {1.0f,  0.0f,  0.0f},
-
-        {0.0f, -1.0f,  0.0f},
-        {0.0f, -1.0f,  0.0f},
-        {0.0f, -1.0f,  0.0f},
-        {0.0f, -1.0f,  0.0f},
-        {0.0f, -1.0f,  0.0f},
-        {0.0f, -1.0f,  0.0f},
-
-        {0.0f,  1.0f,  0.0f},
-        {0.0f,  1.0f,  0.0f},
-        {0.0f,  1.0f,  0.0f},
-        {0.0f,  1.0f,  0.0f},
-        {0.0f,  1.0f,  0.0f},
-        {0.0f,  1.0f,  0.0f},
-    });
+    std::vector<CuboidVertex> vertices = {
+        {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f},  {0.0f,  0.0f, -1.0f}},
+        {{0.5f, 0.5f, -0.5f},   {1.0f, 1.0f},  {0.0f,  0.0f, -1.0f}},
+        {{0.5f, -0.5f, -0.5f},  {1.0f, 0.0f},  {0.0f,  0.0f, -1.0f}},
+        {{0.5f, 0.5f, -0.5f},   {1.0f, 1.0f},  {0.0f,  0.0f, -1.0f}},
+        {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f},  {0.0f,  0.0f, -1.0f}},
+        {{-0.5f, 0.5f, -0.5f},  {0.0f, 1.0f},  {0.0f,  0.0f, -1.0f}},
+ 
+        {{-0.5f, -0.5f, 0.5f},  {0.0f, 0.0f},  {0.0f,  0.0f, 1.0f}},
+        {{0.5f, -0.5f, 0.5f},   {1.0f, 0.0f},  {0.0f,  0.0f, 1.0f}},
+        {{0.5f, 0.5f, 0.5f},    {1.0f, 1.0f},  {0.0f,  0.0f, 1.0f}},
+        {{0.5f, 0.5f, 0.5f},    {1.0f, 1.0f},  {0.0f,  0.0f, 1.0f}},
+        {{-0.5f, 0.5f, 0.5f},   {0.0f, 1.0f},  {0.0f,  0.0f, 1.0f}},
+        {{-0.5f, -0.5f, 0.5f},  {0.0f, 0.0f},  {0.0f,  0.0f, 1.0f}},
+ 
+        {{-0.5f, 0.5f, -0.5f},  {1.0f, 0.0f},  {-1.0f,  0.0f,  0.0f}},
+        {{-0.5f, -0.5f, 0.5f},  {0.0f, 1.0f},  {-1.0f,  0.0f,  0.0f}},
+        {{-0.5f, 0.5f, 0.5f},   {1.0f, 1.0f},  {-1.0f,  0.0f,  0.0f}},
+        {{-0.5f, -0.5f, 0.5f},  {0.0f, 1.0f},  {-1.0f,  0.0f,  0.0f}},
+        {{-0.5f, 0.5f, -0.5f},  {1.0f, 0.0f},  {-1.0f,  0.0f,  0.0f}},
+        {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f},  {-1.0f,  0.0f,  0.0f}},
+ 
+        {{0.5f, 0.5f, -0.5f},   {1.0f, 0.0f},  {1.0f,  0.0f,  0.0f}},
+        {{0.5f, 0.5f, 0.5f},    {1.0f, 1.0f},  {1.0f,  0.0f,  0.0f}},
+        {{0.5f, -0.5f, 0.5f},   {0.0f, 1.0f},  {1.0f,  0.0f,  0.0f}},
+        {{0.5f, -0.5f, 0.5f},   {0.0f, 1.0f},  {1.0f,  0.0f,  0.0f}},
+        {{0.5f, -0.5f, -0.5f},  {0.0f, 0.0f},  {1.0f,  0.0f,  0.0f}},
+        {{0.5f, 0.5f, -0.5f},   {1.0f, 0.0f},  {1.0f,  0.0f,  0.0f}},
+ 
+        {{0.5f, -0.5f, -0.5f},  {1.0f, 0.0f},  {0.0f, -1.0f,  0.0f}},
+        {{0.5f, -0.5f, 0.5f},   {1.0f, 1.0f},  {0.0f, -1.0f,  0.0f}},
+        {{-0.5f, -0.5f, 0.5f},  {0.0f, 1.0f},  {0.0f, -1.0f,  0.0f}},
+        {{0.5f, -0.5f, -0.5f},  {1.0f, 0.0f},  {0.0f, -1.0f,  0.0f}},
+        {{-0.5f, -0.5f, 0.5f},  {0.0f, 1.0f},  {0.0f, -1.0f,  0.0f}},
+        {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f},  {0.0f, -1.0f,  0.0f}},
+ 
+        {{-0.5f, 0.5f, 0.5f},   {0.0f, 1.0f},  {0.0f,  1.0f,  0.0f}},
+        {{0.5f, 0.5f, 0.5f},    {1.0f, 1.0f},  {0.0f,  1.0f,  0.0f}},
+        {{0.5f, 0.5f, -0.5f},   {1.0f, 0.0f},  {0.0f,  1.0f,  0.0f}},
+        {{0.5f, 0.5f, -0.5f},   {1.0f, 0.0f},  {0.0f,  1.0f,  0.0f}},
+        {{-0.5f, 0.5f, -0.5f},  {0.0f, 0.0f},  {0.0f,  1.0f,  0.0f}},
+        {{-0.5f, 0.5f, 0.5f},   {0.0f, 1.0f},  {0.0f,  1.0f,  0.0f}},
+    };
+    _renderData.setVertices(vertices);
 }
