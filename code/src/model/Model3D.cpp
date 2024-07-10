@@ -76,7 +76,7 @@ static std::map<std::string, unsigned int> MeshTextures2TextureMap(const std::ve
 
 
 Model3D::Model3D(std::string const& path)
-: AbstractDrawObject(GetShaderProg())
+: AbstractDrawObject(GetShaderProg(), RenderDataMode::TRIANGLES)
 , _pos(0.0f, 0.0f, 0.0f)
 , _size(1.0f, 1.0f, 1.0f)
 , _attitudeCtrl({0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f})
@@ -109,7 +109,7 @@ void Model3D::updateRenderData() {
     std::vector<RenderData> renderDatas;
     renderDatas.reserve(meshes.size());
     for (const Mesh& mesh : meshes) {
-        RenderData data(_renderData.getShaderProgram());
+        RenderData data(_renderData.getShaderProgram(), RenderDataMode::TRIANGLES);
         data.setVertices(MeshVertex2Vertex(mesh.vertices));
         data.setIndices(mesh.indices);
         std::map<std::string, unsigned int> textureMap = MeshTextures2TextureMap(mesh.textures);

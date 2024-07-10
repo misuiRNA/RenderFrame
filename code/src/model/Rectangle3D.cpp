@@ -25,7 +25,7 @@ static ShaderProgram& GetShaderProg() {
 
 
 Rectangle3D::Rectangle3D(const Size3D& size)
-: AbstractDrawObject(GetShaderProg())
+: AbstractDrawObject(GetShaderProg(), RenderDataMode::TRIANGLES)
 , _pos(0.0f, 0.0f, 0.0f)
 , _size(size)
 , _attitudeCtrl({0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f})

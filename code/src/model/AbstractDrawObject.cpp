@@ -1,8 +1,8 @@
 #include "model/AbstractDrawObject.h"
 
 
-AbstractDrawObject::AbstractDrawObject(ShaderProgram& prog)
-: _renderData(prog)
+AbstractDrawObject::AbstractDrawObject(ShaderProgram& prog, RenderDataMode mode)
+: _renderData(prog, mode)
 , _needUpdateRenderData(true) {
 
 }

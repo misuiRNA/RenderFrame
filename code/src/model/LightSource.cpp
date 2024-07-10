@@ -21,7 +21,7 @@ static ShaderProgram& GetShaderProg() {
 
 
 LightSource::LightSource(bool isParallel)
-: AbstractDrawObject(GetShaderProg())
+: AbstractDrawObject(GetShaderProg(), RenderDataMode::TRIANGLES)
 , _shaderLight(isParallel)
 , _size(1.0f, 1.0f, 1.0f) {
 

@@ -29,6 +29,7 @@ struct ShaderAttribDescriptor {
 
 struct ShaderProgram {
     ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr, const std::vector<ShaderAttribDescriptor>& descriptors);
+    ShaderProgram& operator =(const ShaderProgram& oth) = delete;
 
     void setUniform(const std::string& name, int value);
     void setUniform(const std::string& name, float value);

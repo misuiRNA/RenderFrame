@@ -27,7 +27,7 @@ static ShaderProgram& GetShaderProg() {
 
 
 Cuboid::Cuboid(const Size3D& size)
-: AbstractDrawObject(GetShaderProg())
+: AbstractDrawObject(GetShaderProg(), RenderDataMode::TRIANGLES)
 , _pos({0.0f, 0.0f, 0.0f})
 , _size(size)
 , _attitudeCtrl({0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f})
@@ -38,7 +38,7 @@ Cuboid::Cuboid(const Size3D& size)
 }
 
 Cuboid::Cuboid(const Cuboid& oth)
-: AbstractDrawObject(GetShaderProg())
+: AbstractDrawObject(GetShaderProg(), RenderDataMode::TRIANGLES)
 , _pos(oth._pos)
 , _size(oth._size)
 , _attitudeCtrl(oth._attitudeCtrl.getUp(), oth._attitudeCtrl.getFront())

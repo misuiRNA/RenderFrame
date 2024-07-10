@@ -16,8 +16,27 @@ static void VAODeleter(unsigned int* VAOPtr) {
     delete VAOPtr;
 }
 
-RenderData::RenderData(ShaderProgram& prog)
+unsigned int RenderDataMode2GLMode(RenderDataMode mode) {
+    static std::map<RenderDataMode, unsigned int> MODE_MAP = {
+        { RenderDataMode::POINTS,         GL_POINTS },
+        { RenderDataMode::LINES,          GL_LINES },
+        { RenderDataMode::LINE_LOOP,      GL_LINE_LOOP },
+        { RenderDataMode::LINE_STRIP,     GL_LINE_STRIP },
+        { RenderDataMode::TRIANGLES,      GL_TRIANGLES },
+        { RenderDataMode::TRIANGLE_FAN,   GL_TRIANGLE_FAN },
+        { RenderDataMode::TRIANGLE_STRIP, GL_TRIANGLE_STRIP }
+    };
+
+    unsigned int glMode = GL_POINTS;
+    if (MODE_MAP.find(mode) != MODE_MAP.end()) {
+        glMode = MODE_MAP[mode];
+    }
+    return glMode;
+}
+
+RenderData::RenderData(ShaderProgram& prog, RenderDataMode mode)
 : _prog(prog)
+, _mode(RenderDataMode2GLMode(mode))
 , _VAOHolder(new unsigned int (0), VAODeleter)
 , _vertexCount(0)
 , _indexCount(0) {
@@ -27,6 +46,7 @@ RenderData::RenderData(ShaderProgram& prog)
 // remind: 浅拷贝VAO, 拷贝构造对象共用VAO
 RenderData::RenderData(const RenderData& oth)
 : _prog(oth._prog)
+, _mode(oth._mode)
 , _VAOHolder(oth._VAOHolder)
 , _vertexCount(oth._vertexCount)
 , _indexCount(oth._indexCount)
@@ -37,6 +57,7 @@ RenderData::RenderData(const RenderData& oth)
 
 RenderData::RenderData(RenderData&& oth) noexcept
 : _prog(oth._prog)
+, _mode(oth._mode)
 , _VAOHolder(std::move(oth._VAOHolder))
 , _vertexCount(oth._vertexCount)
 , _indexCount(oth._indexCount)
@@ -51,21 +72,6 @@ RenderData::~RenderData() {
     // remind: VAO 等 gl 资源释放交给 _VAOHolder 管理
     _textureMap.clear();
     _uniformFunctions.clear();
-}
-
-RenderData& RenderData::operator=(RenderData&& oth) noexcept {
-    if (this != &oth) {
-        _prog = oth._prog;
-        _VAOHolder = std::move(oth._VAOHolder);
-        _vertexCount = oth._vertexCount;
-        _indexCount = oth._indexCount;
-        _textureMap = std::move(oth._textureMap);
-        _uniformFunctions = std::move(oth._uniformFunctions);
-
-        oth._vertexCount = 0;
-        oth._indexCount = 0;
-    }
-    return *this;
 }
 
 void RenderData::setVertices(size_t vertexCount, size_t verticeStride, const void* data, const std::vector<ShaderAttribDescriptor>& descs) {
@@ -222,30 +228,27 @@ void RenderData::resetTextures() {
     }
 }
 
-void RenderData::drawAttributes() {
-    if (VAOID() == 0) {
-        // std::cout << "RenderData: draw failed, VAOId is 0!" << std::endl;
-        return;
-    }
-
-    glBindVertexArray(VAOID());
-    if (_indexCount > 0) {
-        glDrawElements(GL_TRIANGLES, _indexCount, GL_UNSIGNED_INT, 0);
-    } else {
-        glDrawArrays(GL_TRIANGLES, 0, _vertexCount);
-    }
-
-    // always good practice to set everything back to defaults once configured.
-    glBindVertexArray(0);
-    glActiveTexture(GL_TEXTURE0);
-}
-
 void RenderData::draw() {
     _prog.enable();
 
     useTextures();
     useUniforms();
-    drawAttributes();
+
+    unsigned int vaoId = VAOID();
+    if (vaoId != 0) {
+        glBindVertexArray(vaoId);
+        if (_indexCount > 0) {
+            glDrawElements(_mode, _indexCount, GL_UNSIGNED_INT, 0);
+        } else {
+            glDrawArrays(_mode, 0, _vertexCount);
+        }
+        // always good practice to set everything back to defaults once configured.
+        glBindVertexArray(0);
+        glActiveTexture(GL_TEXTURE0);
+    } else {
+        // std::cout << "RenderData: draw failed, VAOId is 0!" << std::endl;
+    }
+
     resetTextures();
 }
 

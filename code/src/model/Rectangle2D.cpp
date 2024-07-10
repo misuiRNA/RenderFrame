@@ -24,7 +24,7 @@ static ShaderProgram& GetShaderProg() {
 
 
 Rectangle2D::Rectangle2D(float width, float height)
-: AbstractDrawObject(GetShaderProg())
+: AbstractDrawObject(GetShaderProg(), RenderDataMode::TRIANGLES)
 , _pos(0.0f, 0.0f, 0.0f)
 , _width(width)
 , _height(height)

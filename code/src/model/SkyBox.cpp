@@ -20,7 +20,7 @@ static ShaderProgram& GetShaderProg() {
 
 
 SkyBox::SkyBox()
-: AbstractDrawObject(GetShaderProg()) {
+: AbstractDrawObject(GetShaderProg(), RenderDataMode::TRIANGLES) {
 
 }
 

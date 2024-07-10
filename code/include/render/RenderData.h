@@ -11,13 +11,24 @@
 #include <shared_mutex>
 #include <iostream>
 
+
+enum class RenderDataMode {
+    POINTS          = 0,
+    LINES           = 1,
+    LINE_LOOP       = 2,
+    LINE_STRIP      = 3,
+    TRIANGLES       = 4,
+    TRIANGLE_STRIP  = 5,
+    TRIANGLE_FAN    = 6
+};
+
+
 struct RenderData {
-    RenderData(ShaderProgram& prog);
+    RenderData(ShaderProgram& prog, RenderDataMode mode);
     RenderData(const RenderData& oth);
     RenderData(RenderData&& oth) noexcept;    // remind: 声明为 noexcept 系统才会优先使用移动构造函数
     ~RenderData();
-
-    RenderData& operator=(RenderData&& oth) noexcept;
+    RenderData& operator=(RenderData&& oth) = delete;
 
     void setIndices(const std::vector<unsigned int>& indices);
     void setTexture(const std::string& name, unsigned int textureId);
@@ -33,7 +44,6 @@ struct RenderData {
     void setUniformMat4(const std::string& name, const float* mat);
 
     ShaderProgram& getShaderProgram() const;
-
     void draw();
 
 private:
@@ -41,7 +51,6 @@ private:
     void useTextures();
     void resetTextures();
     void useUniforms();
-    void drawAttributes();
     void setUniformFunc(const std::string& name, const std::function<void(ShaderProgram& prog)>& func);
 
     unsigned int VAOID() const { return *_VAOHolder; }
@@ -72,6 +81,7 @@ public:
 
 private:
     ShaderProgram& _prog;
+    const unsigned int _mode;
     std::shared_ptr<unsigned int> _VAOHolder;
 
     int _vertexCount;

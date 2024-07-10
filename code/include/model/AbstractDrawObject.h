@@ -4,7 +4,7 @@
 #include "RenderData.h"
 
 struct AbstractDrawObject {
-    AbstractDrawObject(ShaderProgram& prog);
+    AbstractDrawObject(ShaderProgram& prog, RenderDataMode mode);
     void show();
 
     virtual ~AbstractDrawObject() { }
