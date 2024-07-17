@@ -11,6 +11,7 @@
 #include "model/LightSource.h"
 #include "model/Model3D.h"
 #include "model/SkyBox.h"
+#include "model/RichPoints.h"
 #include "Camera.h"
 #include "Image.h"
 #include "Utils.h"
@@ -308,6 +309,13 @@ int main() {
            .setUp({0.0f, 1.0f, 0.0f})
            .setFront({0.0f, 0.0f, 1.0f});
 
+    RichPoints richPoints({
+        {-0.5f, 0.5f,  0.0},
+        {0.5f,  0.5f,  0.0},
+        {0.5f,  -0.5f, 0.0},
+        {-0.5f, -0.5f, 0.0}
+    });
+
 
     float lastX = 0.0f;
     while(!glfwWindowShouldClose(window))
@@ -431,6 +439,9 @@ int main() {
         // render skybox
         skybox.setCenter(cameraFPS.getPosition());
         skybox.show();
+
+        glPointSize(100.0f);
+        richPoints.show();
 
         glfwSwapBuffers(window);
         glfwPollEvents();

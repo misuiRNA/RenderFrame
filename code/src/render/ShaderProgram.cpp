@@ -7,16 +7,30 @@
 std::map<ShaderProgram*, int> ShaderProgram::_registProgramMap;
 
 ShaderProgram::ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr, const std::vector<ShaderAttribDescriptor>& descriptors)
+: ShaderProgram(vsShaderCodeStr, fsShaderCodeStr, "", descriptors) {
+
+}
+
+ShaderProgram::ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr, const std::string& gsShaderCodeStr, const std::vector<ShaderAttribDescriptor>& descriptors)
 : _progId(0)
 , _vertexDescriptors(descriptors) {
+    bool geometryShaderEnable = !gsShaderCodeStr.empty();
+
     unsigned int vertexShader = BuildShader(vsShaderCodeStr.c_str(), GL_VERTEX_SHADER);
     unsigned int fragmentShader = BuildShader(fsShaderCodeStr.c_str(), GL_FRAGMENT_SHADER);
+    unsigned int geometryShader = 0;
+    if (geometryShaderEnable) {
+        geometryShader = BuildShader(gsShaderCodeStr.c_str(), GL_GEOMETRY_SHADER);
+    }
 
     // TODO check shader compile status
 
     unsigned int shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
+    if (geometryShaderEnable) {
+        glAttachShader(shaderProgram, geometryShader);
+    }
     glLinkProgram(shaderProgram);
 
     int  success;
@@ -147,6 +161,8 @@ unsigned int ShaderProgram::BuildShader(const char* shaderCode, unsigned int sha
             shaderTypeName = "Vertex";
         } else if (shaderType == GL_FRAGMENT_SHADER) {
             shaderTypeName = "Fragment";
+        } else if (shaderType == GL_GEOMETRY_SHADER) {
+            shaderTypeName = "Geometry";
         }
         glGetShaderInfoLog(shderId, 512, NULL, infoLog);
         std::cout << "[ERROR] COMPILATION_FAILED ("<<  shaderTypeName << ") :\n" << infoLog << std::endl;
