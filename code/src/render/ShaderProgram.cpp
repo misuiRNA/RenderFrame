@@ -1,28 +1,36 @@
 #include <iostream>
-#include <fstream>
-#include <sstream>
 #include "ShaderProgram.h"
 #include "glad/glad.h"
-#include <unistd.h>
+#include "Utils.h"
+
 
 std::map<ShaderProgram*, int> ShaderProgram::_registProgramMap;
 
-ShaderProgram::ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr)
-: ShaderProgram(vsShaderCodeStr, fsShaderCodeStr, {}) {
+ShaderProgram::ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr, const std::vector<ShaderAttribDescriptor>& descriptors)
+: ShaderProgram(vsShaderCodeStr, fsShaderCodeStr, "", descriptors) {
 
 }
 
-ShaderProgram::ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr, const std::map<std::string, int>& attrNameMap)
+ShaderProgram::ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr, const std::string& gsShaderCodeStr, const std::vector<ShaderAttribDescriptor>& descriptors)
 : _progId(0)
-, _attrNameMap(attrNameMap) {
+, _vertexDescriptors(descriptors) {
+    bool geometryShaderEnable = !gsShaderCodeStr.empty();
+
     unsigned int vertexShader = BuildShader(vsShaderCodeStr.c_str(), GL_VERTEX_SHADER);
     unsigned int fragmentShader = BuildShader(fsShaderCodeStr.c_str(), GL_FRAGMENT_SHADER);
+    unsigned int geometryShader = 0;
+    if (geometryShaderEnable) {
+        geometryShader = BuildShader(gsShaderCodeStr.c_str(), GL_GEOMETRY_SHADER);
+    }
 
     // TODO check shader compile status
 
     unsigned int shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
+    if (geometryShaderEnable) {
+        glAttachShader(shaderProgram, geometryShader);
+    }
     glLinkProgram(shaderProgram);
 
     int  success;
@@ -91,31 +99,23 @@ void ShaderProgram::setCamera(const std::string& name, const ShaderCamera& camer
 // TODO 优化, 使用组合模式封装 unigform 配置自定义结构体的复杂性, 设计思路可参考 nlohmann json
 void ShaderProgram::setUniform(const std::string& name, const ShaderLight& light) {
     // glsl 传输结构体uniform格式如 light.pos
-    setUniform(name + ".pos", light.getPosition());
+    if (light.isParallel()) {
+        setUniform(name + ".direction", light.getSpotDirection());
+    } else {
+        setUniform(name + ".pos", light.getPosition());
+        setUniform(name + ".attenuationKC", light.getAttenuationFactor().x);
+        setUniform(name + ".attenuationKL", light.getAttenuationFactor().y);
+        setUniform(name + ".attenuationKQ", light.getAttenuationFactor().z);
+        setUniform(name + ".spotDirection", light.getSpotDirection());
+        setUniform(name + ".spotCos",  MathUtils::AngleCos(light.getSpotAngle()));
+        setUniform(name + ".spotOuterCos", MathUtils::AngleCos(light.getSpotOuterAngle()));
+    }
     setUniform(name + ".ambient", light.getAmbientColor());
     setUniform(name + ".diffuse", light.getDiffuseColor());
     setUniform(name + ".specular", light.getSpecularColor());
-    setUniform(name + ".attenuationKC", light.getAttenuationFactor().x);
-    setUniform(name + ".attenuationKL", light.getAttenuationFactor().y);
-    setUniform(name + ".attenuationKQ", light.getAttenuationFactor().z);
-    setUniform(name + ".spotDirection", light.getSpotDirection());
-    setUniform(name + ".spotCos",  MathUtils::AngleCos(light.getSpotAngle()));
-    setUniform(name + ".spotOuterCos", MathUtils::AngleCos(light.getSpotOuterAngle()));
 }
 
 void ShaderProgram::setLight(const std::string& name, const ShaderLight& light) {
-    setUniform(name, light);
-}
-
-void ShaderProgram::setUniform(const std::string& name, const ShaderParallelLight& light) {
-    setUniform(name + ".direction", light.getDirection());
-    setUniform(name + ".ambient", light.getAmbientColor());
-    setUniform(name + ".diffuse", light.getDiffuseColor());
-    setUniform(name + ".specular", light.getSpecularColor());
-}
-
-void ShaderProgram::setParallelLight(const std::string& name, const ShaderParallelLight& light)
-{
     setUniform(name, light);
 }
 
@@ -124,15 +124,26 @@ void ShaderProgram::enable() {
 }
 
 bool ShaderProgram::checkVertice(const std::string& name) {
-    return _attrNameMap.find(name) != _attrNameMap.end();
+    for (const ShaderAttribDescriptor& desc : _vertexDescriptors) {
+        if (desc.name == name) {
+            return true;
+        }
+    }
+    return false;
 }
 
 unsigned int ShaderProgram::getVerticeSlotId(const std::string& name) {
-    if (_attrNameMap.find(name) == _attrNameMap.end()) {
-        std::cout << "Failed to get attribute index! name not found: " << name << std::endl;
-        return -1;
+    for (const ShaderAttribDescriptor& desc : _vertexDescriptors) {
+        if (desc.name == name) {
+            return desc.index;
+        }
     }
-    return _attrNameMap[name];
+    std::cout << "Failed to get attribute index! name not found: " << name << std::endl;
+    return -1;
+}
+
+const std::vector<ShaderAttribDescriptor>& ShaderProgram::getVertexDescriptors() const {
+    return _vertexDescriptors;
 }
 
 unsigned int ShaderProgram::BuildShader(const char* shaderCode, unsigned int shaderType) {
@@ -150,6 +161,8 @@ unsigned int ShaderProgram::BuildShader(const char* shaderCode, unsigned int sha
             shaderTypeName = "Vertex";
         } else if (shaderType == GL_FRAGMENT_SHADER) {
             shaderTypeName = "Fragment";
+        } else if (shaderType == GL_GEOMETRY_SHADER) {
+            shaderTypeName = "Geometry";
         }
         glGetShaderInfoLog(shderId, 512, NULL, infoLog);
         std::cout << "[ERROR] COMPILATION_FAILED ("<<  shaderTypeName << ") :\n" << infoLog << std::endl;
@@ -158,93 +171,11 @@ unsigned int ShaderProgram::BuildShader(const char* shaderCode, unsigned int sha
     return shderId;
 }
 
-std::string ShaderProgram::UniformArrayName(const std::string& name, int index) {
-    return name + "[" + std::to_string(index) + "]";
+std::string ShaderProgram::UniformArraySuffix(int index) {
+    return "[" + std::to_string(index) + "]";
 }
 
-static std::string ReadFile(const std::string& path) {
-    std::string path1 = GetCurPath();
-    std::string content;
-    std::ifstream fileStream;
-    fileStream.exceptions (std::ifstream::failbit | std::ifstream::badbit);
-    try  {
-        fileStream.open(path.c_str());
-        std::stringstream contentStream;
-        contentStream << fileStream.rdbuf();
-        fileStream.close();
-        content = contentStream.str();
-    }
-    catch(std::ifstream::failure e) {
-        std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ: " << path << std::endl;
-    }
-    return content;
-}
-
-ShaderProgram& ShaderProgram::getRectShaderProg() {
-    static const std::string MODEL_NAME = "Rectangle";
-    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/RectangleShader.vs");
-    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/RectangleShader.fs");
-    static const std::map<std::string, int> ATTRIBUTE_NAME_MAP = {
-        {"aPos"     , 0},
-        {"aTexCoord", 1},
-    };
-
-    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP);
-    return prog;
-}
-
-ShaderProgram& ShaderProgram::getCuboidShaderProg() {
-    static const std::string MODEL_NAME = "Cuboid";
-    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Cuboid.vs");
-    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Cuboid.fs");
-    static const std::map<std::string, int> ATTRIBUTE_NAME_MAP = {
-        {"aPos"     , 0},
-        {"aTexCoord", 1},
-        {"aNormal"  , 2},
-    };
-    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP);
-    return prog;
-}
-
-ShaderProgram& ShaderProgram::getLightSourceShaderProg() {
-    static const std::string MODEL_NAME = "LightSource";
-    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/LightSource.vs");
-    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/LightSource.fs");
-    static const std::map<std::string, int> ATTRIBUTE_NAME_MAP = {
-        {"aPos"     , 0},
-    };
-
-    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP);
-    return prog;
-}
-
-ShaderProgram& ShaderProgram::getMeshShaderProg() {
-    static const std::string MODEL_NAME = "Model3D";
-    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Model3DlShader.vs");
-    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Model3DlShader.fs");
-    static const std::map<std::string, int> ATTRIBUTE_NAME_MAP = {
-        {"aPos"      , 0},
-        {"aNormal"   , 1},
-        {"aTexCoords", 2},
-    };
-
-    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, ATTRIBUTE_NAME_MAP);
-    return prog;
-}
-
-std::map<ShaderProgram*, int>& ShaderProgram::getAllShaderProg()
+std::map<ShaderProgram*, int>& ShaderProgram::GetAllShaderProg()
 {
     return _registProgramMap;
-}
-
-// TODO: 优化, 1.shader字符串编译时确定，不读取文件；2.返回的路径位置应为可执行文件位置，而不是执行命令的位置 考虑使用 std::filesystem
-std::string GetCurPath() {
-    std::string path;
-    char buffer[FILENAME_MAX];
-    if (getcwd(buffer, sizeof(buffer)) != nullptr) {
-        path = buffer;
-    } else {
-        std::cerr << "get cur path error!" << std::endl;
-    }
-    return path;
 }

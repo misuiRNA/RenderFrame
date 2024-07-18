@@ -3,11 +3,28 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "ShaderProgram.h"
+#include "Utils.h"
 
-LightSource::LightSource(const Position& pos)
-: AbstractModel(ShaderProgram::getLightSourceShaderProg())
+struct LightSourceVertex {
+    Position pos;
+};
+
+static ShaderProgram& GetShaderProg() {
+    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/LightSource.vs");
+    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/LightSource.fs");
+    static const std::vector<ShaderAttribDescriptor> descriptor = {
+        DESC("aPos", 0, LightSourceVertex, pos)
+    };
+    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, descriptor);
+    return prog;
+}
+
+
+LightSource::LightSource(bool isParallel)
+: AbstractDrawObject(GetShaderProg(), RenderDataMode::TRIANGLES)
+, _shaderLight(isParallel)
 , _size(1.0f, 1.0f, 1.0f) {
-    _shaderLight.setPosition(pos);
+
 }
 
 LightSource::operator const ShaderLight&() const {
@@ -47,6 +64,10 @@ Color LightSource::getColor() const {
     return _shaderLight.getColor();
 }
 
+bool LightSource::isParallel() const {
+    return _shaderLight.isParallel();
+}
+
 void LightSource::updateUniformes() {
     const Color& orgColor = _shaderLight.getColor();
     _renderData.setUniform("color", orgColor.r, orgColor.g, orgColor.b, 1.0f);
@@ -59,13 +80,13 @@ void LightSource::updateUniformes() {
 }
 
 void LightSource::updateRenderData() {
-    _renderData.setVertices<Vector3D>("aPos", {
+    std::vector<Position> vertices = {
         {-0.5f, -0.5f, -0.5f},
+        {0.5f, 0.5f, -0.5f},
         {0.5f, -0.5f, -0.5f},
         {0.5f, 0.5f, -0.5f},
-        {0.5f, 0.5f, -0.5f},
-        {-0.5f, 0.5f, -0.5f},
         {-0.5f, -0.5f, -0.5f},
+        {-0.5f, 0.5f, -0.5f},
 
         {-0.5f, -0.5f, 0.5f},
         {0.5f, -0.5f, 0.5f},
@@ -74,32 +95,33 @@ void LightSource::updateRenderData() {
         {-0.5f, 0.5f, 0.5f},
         {-0.5f, -0.5f, 0.5f},
 
-        {-0.5f, 0.5f, 0.5f},
         {-0.5f, 0.5f, -0.5f},
-        {-0.5f, -0.5f, -0.5f},
-        {-0.5f, -0.5f, -0.5f},
         {-0.5f, -0.5f, 0.5f},
         {-0.5f, 0.5f, 0.5f},
-
-        {0.5f, 0.5f, 0.5f},
-        {0.5f, 0.5f, -0.5f},
-        {0.5f, -0.5f, -0.5f},
-        {0.5f, -0.5f, -0.5f},
-        {0.5f, -0.5f, 0.5f},
-        {0.5f, 0.5f, 0.5f},
-
+        {-0.5f, -0.5f, 0.5f},
+        {-0.5f, 0.5f, -0.5f},
         {-0.5f, -0.5f, -0.5f},
+
+        {0.5f, 0.5f, -0.5f},
+        {0.5f, 0.5f, 0.5f},
+        {0.5f, -0.5f, 0.5f},
+        {0.5f, -0.5f, 0.5f},
+        {0.5f, -0.5f, -0.5f},
+        {0.5f, 0.5f, -0.5f},
+
         {0.5f, -0.5f, -0.5f},
         {0.5f, -0.5f, 0.5f},
-        {0.5f, -0.5f, 0.5f},
+        {-0.5f, -0.5f, 0.5f},
+        {0.5f, -0.5f, -0.5f},
         {-0.5f, -0.5f, 0.5f},
         {-0.5f, -0.5f, -0.5f},
 
-        {-0.5f, 0.5f, -0.5f},
-        {0.5f, 0.5f, -0.5f},
-        {0.5f, 0.5f, 0.5f},
-        {0.5f, 0.5f, 0.5f},
         {-0.5f, 0.5f, 0.5f},
+        {0.5f, 0.5f, 0.5f},
+        {0.5f, 0.5f, -0.5f},
+        {0.5f, 0.5f, -0.5f},
         {-0.5f, 0.5f, -0.5f},
-    });
+        {-0.5f, 0.5f, 0.5f},
+    };
+    _renderData.setVertices("aPos", vertices);
 }

@@ -8,11 +8,30 @@
 #include "ShaderCamera.h"
 #include "ShaderLight.h"
 
-struct ShaderProgram {
-    ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr);
-    ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr, const std::map<std::string, int>& attrNameMap);
+struct ShaderAttribDescriptor {
+    ShaderAttribDescriptor(std::string name, unsigned int index, unsigned int size, unsigned int stride, const void* pointer)
+    : name(name)
+    , index(index)
+    , size(size)
+    , stride(stride)
+    , pointer(pointer) { }
 
-    // TODO 根据需要重载setUniform函数
+    std::string name;
+    unsigned int index;
+    unsigned int size;
+    unsigned int stride;
+    const void* pointer;
+};
+
+// remind: 要求MEMBER是float紧密填充的, 否则计算出的size不准
+#define DESC(NAME, INDEX, TYPE, MEMBER) ShaderAttribDescriptor(NAME, INDEX, sizeof(TYPE::MEMBER) / sizeof(float), sizeof(TYPE), (void*)offsetof(TYPE, MEMBER))
+
+
+struct ShaderProgram {
+    ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr, const std::vector<ShaderAttribDescriptor>& descriptors);
+    ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr, const std::string& gsShaderCodeStr, const std::vector<ShaderAttribDescriptor>& descriptors);
+    ShaderProgram& operator =(const ShaderProgram& oth) = delete;
+
     void setUniform(const std::string& name, int value);
     void setUniform(const std::string& name, float value);
     void setUniform(const std::string& name, float v1, float v2, float v3);
@@ -21,46 +40,37 @@ struct ShaderProgram {
     void setUniform(const std::string& name, const XYZ& value);
     void setUniform(const std::string& name, const Color& color);
     void setUniform(const std::string& name, const ShaderLight& light);
-    void setUniform(const std::string& name, const ShaderParallelLight& light);
     void setUniform(const std::string& name, const ShaderCamera& camera);
+
+    template<typename T>
+    void SetUniformList(const std::string& name, const std::vector<T>& items) {
+        for (int i = 0; i < items.size(); ++i) {
+            std::string itemName = name + UniformArraySuffix(i);
+            setUniform(itemName, items[i]);
+        }
+    }
 
     void setCamera(const std::string& name, const ShaderCamera& camera);
     void setLight(const std::string& name, const ShaderLight& light);
-    void setParallelLight(const std::string& name, const ShaderParallelLight& light);
 
     void enable();
     bool checkVertice(const std::string& name);
-    unsigned int getVerticeSlotId(const std::string& name);
+    unsigned int getVerticeSlotId(const std::string& name);    // TODO: delete
+    const std::vector<ShaderAttribDescriptor>& getVertexDescriptors() const;
 
 public:
-    static std::string UniformArrayName(const std::string& name, int index);
-    static ShaderProgram& getRectShaderProg();
-    static ShaderProgram& getCuboidShaderProg();
-    static ShaderProgram& getLightSourceShaderProg();
-    static ShaderProgram& getMeshShaderProg();
-    static std::map<ShaderProgram*, int>& getAllShaderProg();
+    static std::string UniformArraySuffix(int index);
+    static std::map<ShaderProgram*, int>& GetAllShaderProg();
 
 private:
     static unsigned int BuildShader(const char* shaderCode, unsigned int shaderType);
 
 private:
     unsigned int _progId;
+    std::vector<ShaderAttribDescriptor> _vertexDescriptors;
 
-    std::map<std::string, int> _attrNameMap;
-
+private:
     static std::map<ShaderProgram*, int> _registProgramMap;
 };
-
-
-template<typename T>
-void SetUniforms(ShaderProgram& prog, const std::string& name, const std::vector<T>& items) {
-    for (int i = 0; i < items.size(); ++i) {
-        std::string itemName = ShaderProgram::UniformArrayName(name, i);
-        prog.setUniform(itemName, items[i]);
-    }
-}
-
-
-std::string GetCurPath();
 
 #endif // #_HEAD_FLAG_SHADER_H

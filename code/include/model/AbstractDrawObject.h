@@ -3,12 +3,11 @@
 
 #include "RenderData.h"
 
-// TODO: 优化, AbstractModel及其子类目前不支持移动构造, 拷贝过程中会出现renderData失效的问题
-struct AbstractModel {
-    AbstractModel(ShaderProgram& prog);
+struct AbstractDrawObject {
+    AbstractDrawObject(ShaderProgram& prog, RenderDataMode mode);
     void show();
 
-    virtual ~AbstractModel() { }
+    virtual ~AbstractDrawObject() { }
 
 private:
     virtual void updateRenderData() = 0;

@@ -13,24 +13,45 @@ static void VAODeleter(unsigned int* VAOPtr) {
         // delete VBO
         // delete EBO
     }
+    delete VAOPtr;
 }
 
-RenderData::RenderData(ShaderProgram& prog)
+unsigned int RenderDataMode2GLMode(RenderDataMode mode) {
+    static std::map<RenderDataMode, unsigned int> MODE_MAP = {
+        { RenderDataMode::POINTS,         GL_POINTS },
+        { RenderDataMode::LINES,          GL_LINES },
+        { RenderDataMode::LINE_LOOP,      GL_LINE_LOOP },
+        { RenderDataMode::LINE_STRIP,     GL_LINE_STRIP },
+        { RenderDataMode::TRIANGLES,      GL_TRIANGLES },
+        { RenderDataMode::TRIANGLE_FAN,   GL_TRIANGLE_FAN },
+        { RenderDataMode::TRIANGLE_STRIP, GL_TRIANGLE_STRIP }
+    };
+
+    unsigned int glMode = GL_POINTS;
+    if (MODE_MAP.find(mode) != MODE_MAP.end()) {
+        glMode = MODE_MAP[mode];
+    }
+    return glMode;
+}
+
+RenderData::RenderData(ShaderProgram& prog, RenderDataMode mode)
 : _prog(prog)
-, _VAOId(0)
-, _VAOHolder(&_VAOId, VAODeleter)
+, _mode(RenderDataMode2GLMode(mode))
+, _VAOHolder(new unsigned int (0), VAODeleter)
 , _vertexCount(0)
-, _indexCount(0) {
+, _indexCount(0)
+, _instanceCount(0) {
 
 }
 
 // remind: 浅拷贝VAO, 拷贝构造对象共用VAO
 RenderData::RenderData(const RenderData& oth)
 : _prog(oth._prog)
-, _VAOId(oth._VAOId)
+, _mode(oth._mode)
 , _VAOHolder(oth._VAOHolder)
 , _vertexCount(oth._vertexCount)
 , _indexCount(oth._indexCount)
+, _instanceCount(oth._instanceCount)
 , _textureMap(oth._textureMap)
 , _uniformFunctions(oth._uniformFunctions) {
 
@@ -38,15 +59,16 @@ RenderData::RenderData(const RenderData& oth)
 
 RenderData::RenderData(RenderData&& oth) noexcept
 : _prog(oth._prog)
-, _VAOId(oth._VAOId)
+, _mode(oth._mode)
 , _VAOHolder(std::move(oth._VAOHolder))
 , _vertexCount(oth._vertexCount)
 , _indexCount(oth._indexCount)
+,_instanceCount(oth._instanceCount)
 , _textureMap(std::move(oth._textureMap))
 , _uniformFunctions(std::move(oth._uniformFunctions)) {
-    oth._VAOId = 0;
     oth._vertexCount = 0;
     oth._indexCount = 0;
+    oth._instanceCount = 0;
     oth._VAOHolder.reset();
 }
 
@@ -56,48 +78,72 @@ RenderData::~RenderData() {
     _uniformFunctions.clear();
 }
 
-RenderData& RenderData::operator=(RenderData&& oth) noexcept {
-    if (this != &oth) {
-        _prog = oth._prog;
-        _VAOId = oth._VAOId;
-        _vertexCount = oth._vertexCount;
-        _indexCount = oth._indexCount;
-        _textureMap = std::move(oth._textureMap);
-        _uniformFunctions = std::move(oth._uniformFunctions);
+void RenderData::setVertices(size_t vertexCount, size_t verticeStride, const void* data, const std::vector<ShaderAttribDescriptor>& descs) {
+    unsigned int VBO = CreateVBO(vertexCount * verticeStride, data);
 
-        oth._VAOId = 0;
-        oth._vertexCount = 0;
-        oth._indexCount = 0;
+    if (VAOID() == 0) {
+        glGenVertexArrays(1, _VAOHolder.get());
+        // printf("alloc VAO: %d\n", VAOID());
     }
-    return *this;
-}
-
-void RenderData::setVertices(unsigned int VBO, const std::vector<ShaderAttribDescriptor>& descs) {
-    if (_VAOId == 0) {
-        glGenVertexArrays(1, &_VAOId);
-    }
-    glBindVertexArray(_VAOId);
+    glBindVertexArray(VAOID());
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     for (const ShaderAttribDescriptor& desc : descs)
     {
+        if (verticeStride != desc.stride) {
+            printf("Error: vertice buffer is not match with descriptor\n");
+        }
         glVertexAttribPointer(desc.index, desc.size, GL_FLOAT, GL_FALSE, desc.stride, desc.pointer);
         glEnableVertexAttribArray(desc.index);
     }
     glBindVertexArray(0);
+
+    // VBO绑定VAO后可以直接删除缓冲区. glDeleteBuffers实际上是标记删除, 直到所有绑定的VAO删除之后才会真正删除VBO
+    glDeleteBuffers(1, &VBO);
+
+    _vertexCount = vertexCount;
+}
+
+void RenderData::setInstanceVertices(size_t vertexCount, size_t verticeStride, const void* data, const std::vector<ShaderAttribDescriptor>& descs) {
+        unsigned int VBO = CreateVBO(vertexCount * verticeStride, data);
+
+    if (VAOID() == 0) {
+        glGenVertexArrays(1, _VAOHolder.get());
+        // printf("alloc VAO: %d\n", VAOID());
+    }
+    glBindVertexArray(VAOID());
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    for (const ShaderAttribDescriptor& desc : descs)
+    {
+        if (verticeStride != desc.stride) {
+            printf("Error: vertice buffer is not match with descriptor\n");
+        }
+        glVertexAttribPointer(desc.index, desc.size, GL_FLOAT, GL_FALSE, desc.stride, desc.pointer);
+        glEnableVertexAttribArray(desc.index);
+        glVertexAttribDivisor(desc.index, 1);
+    }
+    glBindVertexArray(0);
+
+    // VBO绑定VAO后可以直接删除缓冲区. glDeleteBuffers实际上是标记删除, 直到所有绑定的VAO删除之后才会真正删除VBO
+    glDeleteBuffers(1, &VBO);
+
+    _instanceCount = vertexCount;
 }
 
 void RenderData::setIndices(const std::vector<unsigned int>& indices) {
     unsigned int EBO = CreateEBO(indices);
 
-    if (_VAOId == 0)
+    if (VAOID() == 0)
     {
-        glGenVertexArrays(1, &_VAOId);
+        glGenVertexArrays(1, _VAOHolder.get());
     }
 
-    glBindVertexArray(_VAOId);
+    glBindVertexArray(VAOID());
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
     glBindVertexArray(0);
+
+    // VBO绑定VAO后可以直接删除缓冲区. glDeleteBuffers实际上是标记删除, 直到所有绑定的VAO删除之后才会真正删除VBO
+    glDeleteBuffers(1, &EBO);
     _indexCount = indices.size();
 }
 
@@ -212,30 +258,36 @@ void RenderData::resetTextures() {
     }
 }
 
-void RenderData::drawAttributes() {
-    if (_VAOId == 0) {
-        // std::cout << "RenderData: draw failed, VAOId is 0!" << std::endl;
-        return;
-    }
-
-    glBindVertexArray(_VAOId);
-    if (_indexCount > 0) {
-        glDrawElements(GL_TRIANGLES, _indexCount, GL_UNSIGNED_INT, 0);
-    } else {
-        glDrawArrays(GL_TRIANGLES, 0, _vertexCount);
-    }
-
-    // always good practice to set everything back to defaults once configured.
-    glBindVertexArray(0);
-    glActiveTexture(GL_TEXTURE0);
-}
-
 void RenderData::draw() {
     _prog.enable();
 
     useTextures();
     useUniforms();
-    drawAttributes();
+
+    unsigned int vaoId = VAOID();
+    if (vaoId != 0) {
+        glBindVertexArray(vaoId);
+        // TODO: 优化, 考虑使用模式匹配消除if判断
+        if (isInstanceDrawMode()) {
+            if (isElementDrawMode()) {
+                glDrawElementsInstanced(_mode, _indexCount, GL_UNSIGNED_INT, 0, _instanceCount);
+            } else {
+                glDrawArraysInstanced(_mode, 0, _vertexCount, _instanceCount);
+            }
+        } else {
+            if (isElementDrawMode()) {
+                glDrawElements(_mode, _indexCount, GL_UNSIGNED_INT, 0);
+            } else {
+                glDrawArrays(_mode, 0, _vertexCount);
+            }
+        }
+        // always good practice to set everything back to defaults once configured.
+        glBindVertexArray(0);
+        glActiveTexture(GL_TEXTURE0);
+    } else {
+        // std::cout << "RenderData: draw failed, VAOId is 0!" << std::endl;
+    }
+
     resetTextures();
 }
 

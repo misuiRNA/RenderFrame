@@ -12,33 +12,23 @@
 #include <iostream>
 
 
-struct ShaderAttribDescriptor {
-    ShaderAttribDescriptor(std::string name, unsigned int index, unsigned int size, unsigned int stride, const void* pointer)
-    : name(name)
-    , index(index)
-    , size(size)
-    , stride(stride)
-    , pointer(pointer) { }
-
-    std::string name;
-    unsigned int index;
-    unsigned int size;
-    unsigned int stride;
-    const void* pointer;
+enum class RenderDataMode {
+    POINTS          = 0,
+    LINES           = 1,
+    LINE_LOOP       = 2,
+    LINE_STRIP      = 3,
+    TRIANGLES       = 4,
+    TRIANGLE_STRIP  = 5,
+    TRIANGLE_FAN    = 6
 };
-
-// remind: 要求MEMBER是float紧密填充的, 否则计算出的size不准
-#define DESC(NAME, INDEX, TYPE, MEMBER) ShaderAttribDescriptor(NAME, INDEX, sizeof(MEMBER) / sizeof(float), sizeof(TYPE), (void*)offsetof(TYPE, MEMBER))
-
 
 
 struct RenderData {
-    RenderData(ShaderProgram& prog);
+    RenderData(ShaderProgram& prog, RenderDataMode mode);
     RenderData(const RenderData& oth);
     RenderData(RenderData&& oth) noexcept;    // remind: 声明为 noexcept 系统才会优先使用移动构造函数
     ~RenderData();
-
-    RenderData& operator=(RenderData&& oth) noexcept;
+    RenderData& operator=(RenderData&& oth) = delete;
 
     void setIndices(const std::vector<unsigned int>& indices);
     void setTexture(const std::string& name, unsigned int textureId);
@@ -54,16 +44,19 @@ struct RenderData {
     void setUniformMat4(const std::string& name, const float* mat);
 
     ShaderProgram& getShaderProgram() const;
-
     void draw();
 
 private:
-    void setVertices(unsigned int VBO, const std::vector<ShaderAttribDescriptor>& descs);
+    void setVertices(size_t vertexCount, size_t verticeStride, const void* data, const std::vector<ShaderAttribDescriptor>& descs);
+    void setInstanceVertices(size_t vertexCount, size_t verticeStride, const void* data, const std::vector<ShaderAttribDescriptor>& descs);
     void useTextures();
     void resetTextures();
     void useUniforms();
-    void drawAttributes();
     void setUniformFunc(const std::string& name, const std::function<void(ShaderProgram& prog)>& func);
+
+    unsigned int VAOID() const { return *_VAOHolder; }
+    bool isElementDrawMode() const { return _indexCount > 0; }
+    bool isInstanceDrawMode() const { return _instanceCount > 0; }
 
 private:
     static unsigned int CreateVBO(size_t size, const void* data);
@@ -74,35 +67,36 @@ public:
     template<typename T>
     void setVertices(const std::string& name, const std::vector<T>& vertices) {
         if (!_prog.checkVertice(name)) {
-            std::cout << "Failed to set attribute! name not found: " << name << std::endl;
+            std::cout << "Failed to set attribute! invalid vertex name!" << name << std::endl;
             return;
         }
-        unsigned int index = _prog.getVerticeSlotId(name);
 
-        unsigned int size = sizeof(T) / sizeof(float);    // TODO: 优化, T不一定完全是float组成的
-        unsigned int stride = sizeof(T);
-        ShaderAttribDescriptor desc(name, index, size, stride, (void*)0);
-
-        unsigned int VBO = CreateVBO(vertices.size() * sizeof(T), vertices.data());
-        setVertices(VBO, {desc});
-        _vertexCount = vertices.size();
+        // TODO: 优化 ShaderAttribDescriptor.size 计算方式, T不一定完全是float组成的
+        std::vector<ShaderAttribDescriptor> descs = {{name, _prog.getVerticeSlotId(name), sizeof(T) / sizeof(float), sizeof(T), (void*)0}};
+        setVertices(vertices.size(), sizeof(T), vertices.data(), descs);
     }
 
     template <typename T>
     void setVertices(const std::vector<T>& vertices) {
-        unsigned int VBO = CreateVBO(vertices.size() * sizeof(T), vertices.data());
-        setVertices(VBO, T::descriptor);
-        _vertexCount = vertices.size();
+        setVertices(vertices.size(), sizeof(T), vertices.data(), _prog.getVertexDescriptors());
+    }
+
+    // TODO: 优化, 改名字 突出多实例差异化顶点的特征
+    template <typename T>
+    void setInstanceVertices(const std::vector<T>& vertices, const std::vector<ShaderAttribDescriptor>& descs) {
+        setInstanceVertices(vertices.size(), sizeof(T), vertices.data(), descs);
     }
 
 
 private:
     ShaderProgram& _prog;
-    unsigned int _VAOId;
+    const unsigned int _mode;
     std::shared_ptr<unsigned int> _VAOHolder;
 
     int _vertexCount;
     int _indexCount;
+
+    int _instanceCount;
 
     std::map<std::string, int> _textureMap;
     std::map<std::string, std::function<void(ShaderProgram& prog)>> _uniformFunctions;

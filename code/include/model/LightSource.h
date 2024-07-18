@@ -1,12 +1,12 @@
 #ifndef _HEAD_FLAG_MODEL_LIGHTSOURCE_H
 #define _HEAD_FLAG_MODEL_LIGHTSOURCE_H
 
-#include "model/AbstractModel.h"
+#include "model/AbstractDrawObject.h"
 #include "BaseDefine.h"
 #include "ShaderLight.h"
 
-struct LightSource : AbstractModel {
-    LightSource(const Position& pos);
+struct LightSource : AbstractDrawObject {
+    LightSource(bool isParallel);
     operator const ShaderLight&() const;
 
     void setColor(const Color& color);
@@ -17,6 +17,7 @@ struct LightSource : AbstractModel {
     void setReach(float distance);
     const Position& getPosition() const;
     Color getColor() const;
+    bool isParallel() const;
 
 private:
     void updateRenderData() override;

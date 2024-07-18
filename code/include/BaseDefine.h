@@ -2,6 +2,7 @@
 #define _HEAD_FLAG_MODEL_BASEDEFINE_H
 
 #include <initializer_list>
+#include <string>
 
 struct Color {
     Color() : Color(0.0f, 0.0f, 0.0f) { }
@@ -30,6 +31,8 @@ struct XYZ {
     float z;
 };
 
+inline XYZ operator*(float ratio, const XYZ& value) { return XYZ(value.x * ratio, value.y * ratio, value.z * ratio); }
+
 typedef XYZ Position, Vector3D, Size3D;
 
 struct XY {
@@ -41,12 +44,5 @@ struct XY {
 };
 
 typedef XY Vector2D;
-
-
-// math units
-
-struct MathUtils {
-    static float AngleCos(float angel);
-};
 
 #endif // _HEAD_FLAG_MODEL_BASEDEFINE_H

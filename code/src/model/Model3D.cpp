@@ -2,55 +2,45 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "Model3DLoader.h"
+#include "ModelMeshLoader.h"
+#include "Utils.h"
 
-Model3D::Model3D(std::string const& path)
-: AbstractModel(ShaderProgram::getMeshShaderProg())
-, _pos(0.0f, 0.0f, 0.0f)
-, _front(1.0f, 0.0f, 0.0f)
-, _up(0.0f, 0.0f, 1.0f)
-, _scaleRatio(1.0f)
-, _modelPath(path) {
+struct Model3DVertex {
+    Model3DVertex(const Vector3D& pos, const Vector3D& normal, const Vector2D& texCoords)
+    : pos(pos)
+    , normal(normal)
+    , texCoords(texCoords) {
 
+    }
+
+    Vector3D pos;
+    Vector3D normal;
+    Vector2D texCoords;
+};
+
+static ShaderProgram& GetShaderProg() {
+    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Model3DlShader.vs");
+    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Model3DlShader.fs");
+    static const std::vector<ShaderAttribDescriptor> descriptor = {
+        DESC("aPos",       0, Model3DVertex, pos),
+        DESC("aNormal",    1, Model3DVertex, normal),
+        DESC("aTexCoords", 2, Model3DVertex, texCoords),
+    };
+    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, descriptor);
+    return prog;
 }
 
-void Model3D::setPosition(const Position& pos) {
-    _pos = pos;
+
+static std::vector<Model3DVertex> MeshVertex2Vertex(const std::vector<Mesh::Vertex>& meshVertices) {
+    std::vector<Model3DVertex> vertices;
+    vertices.reserve(meshVertices.size());
+    for (const Mesh::Vertex& meshVert : meshVertices) {
+        vertices.emplace_back(meshVert.position, meshVert.normal, meshVert.texCoords);
+    }
+    return vertices;
 }
 
-void Model3D::setFront(const Vector3D& front) {
-    _front = front;
-}
-
-void Model3D::setUp(const Vector3D& up) {
-    _up = up;
-}
-
-void Model3D::setScale(float scale) {
-    _scaleRatio = scale;
-}
-
-void Model3D::updateUniformes() {
-    glm::mat4 model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(_pos.x, _pos.y, _pos.z));
-
-    // TODO: 优化, 需要保证上向量和前向量不平行, 否则旋转矩阵无效
-    glm::vec3 normalUp = glm::vec3(_up.x, _up.y, _up.z);
-    glm::vec3 normalFront = glm::normalize(glm::vec3(_front.x, _front.y, _front.z));
-    glm::vec3 normalRight = glm::normalize(glm::cross(normalUp, normalFront));
-    glm::mat4 rotationMatrix = glm::mat4(1.0f);
-    rotationMatrix[0] = glm::vec4(normalRight, 0.0f);
-    rotationMatrix[1] = glm::vec4(normalUp,    0.0f);
-    rotationMatrix[2] = glm::vec4(normalFront, 0.0f);
-    rotationMatrix[3] = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-
-    model = model * rotationMatrix;
-    model = glm::scale(model, glm::vec3(_scaleRatio, _scaleRatio, _scaleRatio));
-
-    _renderData.setUniformMat4("model", glm::value_ptr(model));
-}
-
-static std::map<std::string, unsigned int> TextureList2Map(const std::vector<Texture>& textures) {
+static std::map<std::string, unsigned int> MeshTextures2TextureMap(const std::vector<Mesh::Texture>& textures) {
     std::map<std::string, unsigned int> textureMap;
     unsigned int diffuseNr  = 0;
     unsigned int specularNr = 0;
@@ -59,20 +49,20 @@ static std::map<std::string, unsigned int> TextureList2Map(const std::vector<Tex
     for(unsigned int index = 0; index < textures.size(); index++) {
         std::string uniformName;
         switch (textures[index].type) {
-            case Texture::Type::DIFFUSE: {
-                uniformName = ShaderProgram::UniformArrayName("diffuseTexture", diffuseNr++);
+            case Mesh::Texture::Type::DIFFUSE: {
+                uniformName = "diffuseTexture" + ShaderProgram::UniformArraySuffix(diffuseNr++);
                 break;
             }
-            case Texture::Type::SPECULAR: {
-                uniformName = ShaderProgram::UniformArrayName("specularTexture", specularNr++);
+            case Mesh::Texture::Type::SPECULAR: {
+                uniformName = "specularTexture" + ShaderProgram::UniformArraySuffix(specularNr++);
                 break;
             }
-            case Texture::Type::NORMAL: {
-                uniformName = ShaderProgram::UniformArrayName("normalTexture", normalNr++);
+            case Mesh::Texture::Type::NORMAL: {
+                uniformName = "normalTexture" + ShaderProgram::UniformArraySuffix(normalNr++);
                 break;
             }
-            case Texture::Type::HEIGHT: {
-                uniformName = ShaderProgram::UniformArrayName("heightTexture", heightNr++);
+            case Mesh::Texture::Type::HEIGHT: {
+                uniformName = "heightTexture" + ShaderProgram::UniformArraySuffix(heightNr++);
                 break;
             }
             default:
@@ -84,16 +74,45 @@ static std::map<std::string, unsigned int> TextureList2Map(const std::vector<Tex
     return textureMap;
 }
 
+
+Model3D::Model3D(std::string const& path)
+: AbstractDrawObject(GetShaderProg(), RenderDataMode::TRIANGLES)
+, _pos(0.0f, 0.0f, 0.0f)
+, _size(1.0f, 1.0f, 1.0f)
+, _attitudeCtrl({0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f})
+, _modelPath(path) {
+    updateModelMatrix();
+    _attitudeCtrl.addOnAttitudeChangedListener([this](){ updateModelMatrix(); });
+}
+
+void Model3D::setPosition(const Position& pos) {
+    _pos = pos;
+    updateModelMatrix();
+}
+
+void Model3D::setSize(const Size3D& size) {
+    _size = size;
+    updateModelMatrix();
+}
+
+Attitude3DController& Model3D::getAttituedeCtrl() {
+    return _attitudeCtrl;
+}
+
+void Model3D::updateUniformes() {
+    _renderData.setUniformMat4("model", _modelMatrix);
+}
+
 void Model3D::updateRenderData() {
-    Model3DLoader loader;
+    ModelMeshLoader loader;
     const std::vector<Mesh>& meshes = loader.loadModelAsMeshes(_modelPath);
     std::vector<RenderData> renderDatas;
     renderDatas.reserve(meshes.size());
     for (const Mesh& mesh : meshes) {
-        RenderData data(_renderData.getShaderProgram());
-        data.setVertices(mesh.vertices);
+        RenderData data(_renderData.getShaderProgram(), RenderDataMode::TRIANGLES);
+        data.setVertices(MeshVertex2Vertex(mesh.vertices));
         data.setIndices(mesh.indices);
-        std::map<std::string, unsigned int> textureMap = TextureList2Map(mesh.textures);
+        std::map<std::string, unsigned int> textureMap = MeshTextures2TextureMap(mesh.textures);
         for (const auto& itr : textureMap) {
             data.setTexture(itr.first, itr.second);
         }
@@ -107,4 +126,16 @@ void Model3D::doDraw() {
     for (RenderData& data : _meshRenderDatas) {
         data.draw();
     }
+}
+
+void Model3D::updateModelMatrix() {
+    glm::mat4 model = glm::mat4(1.0f);
+    model = glm::translate(model, glm::vec3(_pos.x, _pos.y, _pos.z));
+
+    glm::mat4 attitudeMatrix = _attitudeCtrl.getAttitudeMatrix();
+    model = model * attitudeMatrix;
+
+    model = glm::scale(model, glm::vec3(_size.x, _size.y, _size.z));
+
+    memcpy(_modelMatrix, glm::value_ptr(model), sizeof(glm::mat4));
 }

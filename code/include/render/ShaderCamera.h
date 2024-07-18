@@ -3,25 +3,28 @@
 
 #include <vector>
 #include "BaseDefine.h"
+#include "Attitude3DController.h"
 
 struct ShaderCamera {
     ShaderCamera();
+    ShaderCamera(const ShaderCamera& oth);
+
     const float* getMatrix() const;
     void setPosition(const Position& pos);
-    void setFront(const Vector3D& front);
+    void move(const Vector3D& vec);
     void setFov(float fov);
 
+    Attitude3DController& getAttituedeCtrl();
     const Position& getPosition() const;
-    const Vector3D& getFront() const;
-    const Vector3D& getUp() const;
 
 private:
     void updateMatrix();
 
 private:
     Position _pos;
-    Vector3D _front;
+    Attitude3DController _attitudeCtrl;
     float _fov;
+
     float _matrix[16] = { 0.0f };
 };
 
