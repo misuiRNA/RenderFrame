@@ -216,23 +216,17 @@ int main() {
     grass.setImage(grassImage);
     grass.getAttituedeCtrl()
          .setFront({1.0f, 0.0f, 0.0f});
-    std::vector<Position> grassPositions = {
-        {-5.0f,  1.5f,  0.0f},
-        {-4.8f, -1.5f,  0.0f},
-        {-6.0f,  1.9f,  0.0f},
-        {-6.5f,  2.5f,  0.0f},
-        {-4.0f,  1.5f,  0.0f},
-        {-4.0f,  5.5f,  0.0f},
-        {-5.0f,  3.0f,  0.0f},
-        {-4.0f, -1.5f,  0.0f},
-        {-1.5f, -2.5f,  0.0f},
-        {-3.0f, -4.5f,  0.0f},
-        {-4.0f,  1.5f,  0.0f},
-        {-9.0f,  2.0f,  0.0f},
-        {-8.0f,  1.5f,  0.0f},
-        {-4.0f,  1.8f,  0.0f},
-        {-7.0f,  1.0f,  0.0f}
-    };
+
+    std::vector<Rectangle3D> grasses;
+    grasses.reserve(100 * 100);
+    for (int x = -100; x <= 100; ++x) {
+        for (int y = -100; y <= 100; ++y) {
+            grasses.emplace_back(grass);
+            grass.setPosition({x * 0.5f, y * 0.5f, 0.0f});
+        }
+    }
+    grass.setPosition({-1.0f, 3.0f, 2.0f});
+    grass.expandAsGroup(grasses);
 
     Rectangle3D transparentWindow({2.0f, 2.0f});
     transparentWindow.setPosition({0.0f, 0.0f});
@@ -379,10 +373,7 @@ int main() {
         // TODO: 优化, 抽取透明元素的绘制流程pip
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        for (int index = 0; index < grassPositions.size(); ++index) {
-            grass.setPosition(grassPositions[index]);
-            grass.show();
-        }
+        grass.show();
 
         // TODO: 优化, 受混合+深度测试影响 透明物体需要按顺序绘制, 需要提供一个排序工具
         SortWitDistance(windowPositions, ((const ShaderCamera&)cameraFPS).getPosition());
@@ -417,10 +408,7 @@ int main() {
             // TODO: 优化, 抽取透明元素的绘制流程pip
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            for (int index = 0; index < grassPositions.size(); ++index) {
-                grass.setPosition(grassPositions[index]);
-                grass.show();
-            }
+            grass.show();
 
             // TODO: 优化, 受混合+深度测试影响 透明物体需要按顺序绘制, 需要提供一个排序工具
             SortWitDistance(windowPositions, ((const ShaderCamera&)mirrorCameraFPS).getPosition());

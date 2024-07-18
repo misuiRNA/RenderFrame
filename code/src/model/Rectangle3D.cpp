@@ -34,6 +34,16 @@ Rectangle3D::Rectangle3D(const Size3D& size)
     _attitudeCtrl.addOnAttitudeChangedListener([this](){ updateModelMatrix(); });
 }
 
+Rectangle3D::Rectangle3D(const Rectangle3D& oth)
+: AbstractDrawObject(oth)
+, _pos(oth._pos)
+, _size(oth._size)
+, _attitudeCtrl(oth._attitudeCtrl.getUp(), oth._attitudeCtrl.getFront())
+, _textureEnable(oth._textureEnable) {
+    updateModelMatrix();
+    _attitudeCtrl.addOnAttitudeChangedListener([this](){ updateModelMatrix(); });
+}
+
 void Rectangle3D::setPosition(const Position& pos) {
     _pos = pos;
     updateModelMatrix();
@@ -57,10 +67,40 @@ void Rectangle3D::updateUniformes() {
     _renderData.setUniform("imageEnable", _textureEnable);
     _renderData.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
     _renderData.setUniformMat4("modelMatrix", _modelMatrix);
+    _renderData.setUniform("useInstanceModel", _useInstancemodel);
 }
 
 Attitude3DController& Rectangle3D::getAttituedeCtrl() {
     return _attitudeCtrl;
+}
+
+void Rectangle3D::expandAsGroup(std::vector<Rectangle3D>& rectangles) {
+    struct ModelMatrices {
+        float _data0[4] = { 0.0f };
+        float _data1[4] = { 0.0f };
+        float _data2[4] = { 0.0f };
+        float _data3[4] = { 0.0f };
+    };
+
+    size_t instCount = rectangles.size();
+    std::vector<ModelMatrices> modelMatrices(instCount);
+    for (int i = 0; i < instCount; ++i) {
+        Rectangle3D& rect = rectangles[i];
+        rect.updateModelMatrix();
+        memcpy(&modelMatrices[i], rect._modelMatrix, sizeof(ModelMatrices));
+    }
+
+    // OpenGL 的顶点属性指针只支持标量和向量类型（如 float、vec2、vec3、vec4），而不直接支持矩阵类型（如 mat4）。
+    // 一个 mat4 矩阵在内存中是连续存储的，但是 OpenGL 需要将其分成4个独立的 vec4 向量来处理。
+    // 因此，每个 vec4 向量必须单独绑定到一个顶点属性位置。
+    std::vector<ShaderAttribDescriptor> descs = {
+        DESC("aInstanceMat-0", 3, ModelMatrices, _data0),
+        DESC("aInstanceMat-1", 4, ModelMatrices, _data1),
+        DESC("aInstanceMat-2", 5, ModelMatrices, _data2),
+        DESC("aInstanceMat-3", 6, ModelMatrices, _data3),
+    };
+    _renderData.setInstanceVertices(modelMatrices, descs);
+    _useInstancemodel = true;
 }
 
 void Rectangle3D::updateRenderData() {

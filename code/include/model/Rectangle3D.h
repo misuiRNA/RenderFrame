@@ -8,12 +8,16 @@
 
 struct Rectangle3D : AbstractDrawObject {
     Rectangle3D(const Size3D& size);
+    Rectangle3D(const Rectangle3D& oth);
 
     void setPosition(const Position& pos);
     void setSize(const Size3D& size);
     void setImage(const AbstractImage& image);
     void setColor(const Color& color);
     Attitude3DController& getAttituedeCtrl();
+
+    // TODO: 重新设计, 保证实例话渲染特性高扩展性、易用性
+    void expandAsGroup(std::vector<Rectangle3D>& rectangles);
 
 private:
     void updateRenderData() override;
@@ -28,6 +32,7 @@ private:
     float _modelMatrix[16] = { 0.0f };
 
     bool _textureEnable;
+    bool _useInstancemodel = false;
 };
 
 #endif

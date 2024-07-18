@@ -39,7 +39,8 @@ RenderData::RenderData(ShaderProgram& prog, RenderDataMode mode)
 , _mode(RenderDataMode2GLMode(mode))
 , _VAOHolder(new unsigned int (0), VAODeleter)
 , _vertexCount(0)
-, _indexCount(0) {
+, _indexCount(0)
+, _instanceCount(0) {
 
 }
 
@@ -50,6 +51,7 @@ RenderData::RenderData(const RenderData& oth)
 , _VAOHolder(oth._VAOHolder)
 , _vertexCount(oth._vertexCount)
 , _indexCount(oth._indexCount)
+, _instanceCount(oth._instanceCount)
 , _textureMap(oth._textureMap)
 , _uniformFunctions(oth._uniformFunctions) {
 
@@ -61,10 +63,12 @@ RenderData::RenderData(RenderData&& oth) noexcept
 , _VAOHolder(std::move(oth._VAOHolder))
 , _vertexCount(oth._vertexCount)
 , _indexCount(oth._indexCount)
+,_instanceCount(oth._instanceCount)
 , _textureMap(std::move(oth._textureMap))
 , _uniformFunctions(std::move(oth._uniformFunctions)) {
     oth._vertexCount = 0;
     oth._indexCount = 0;
+    oth._instanceCount = 0;
     oth._VAOHolder.reset();
 }
 
@@ -97,6 +101,32 @@ void RenderData::setVertices(size_t vertexCount, size_t verticeStride, const voi
     glDeleteBuffers(1, &VBO);
 
     _vertexCount = vertexCount;
+}
+
+void RenderData::setInstanceVertices(size_t vertexCount, size_t verticeStride, const void* data, const std::vector<ShaderAttribDescriptor>& descs) {
+        unsigned int VBO = CreateVBO(vertexCount * verticeStride, data);
+
+    if (VAOID() == 0) {
+        glGenVertexArrays(1, _VAOHolder.get());
+        // printf("alloc VAO: %d\n", VAOID());
+    }
+    glBindVertexArray(VAOID());
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    for (const ShaderAttribDescriptor& desc : descs)
+    {
+        if (verticeStride != desc.stride) {
+            printf("Error: vertice buffer is not match with descriptor\n");
+        }
+        glVertexAttribPointer(desc.index, desc.size, GL_FLOAT, GL_FALSE, desc.stride, desc.pointer);
+        glEnableVertexAttribArray(desc.index);
+        glVertexAttribDivisor(desc.index, 1);
+    }
+    glBindVertexArray(0);
+
+    // VBO绑定VAO后可以直接删除缓冲区. glDeleteBuffers实际上是标记删除, 直到所有绑定的VAO删除之后才会真正删除VBO
+    glDeleteBuffers(1, &VBO);
+
+    _instanceCount = vertexCount;
 }
 
 void RenderData::setIndices(const std::vector<unsigned int>& indices) {
@@ -237,10 +267,19 @@ void RenderData::draw() {
     unsigned int vaoId = VAOID();
     if (vaoId != 0) {
         glBindVertexArray(vaoId);
-        if (_indexCount > 0) {
-            glDrawElements(_mode, _indexCount, GL_UNSIGNED_INT, 0);
+        // TODO: 优化, 考虑使用模式匹配消除if判断
+        if (isInstanceDrawMode()) {
+            if (isElementDrawMode()) {
+                glDrawElementsInstanced(_mode, _indexCount, GL_UNSIGNED_INT, 0, _instanceCount);
+            } else {
+                glDrawArraysInstanced(_mode, 0, _vertexCount, _instanceCount);
+            }
         } else {
-            glDrawArrays(_mode, 0, _vertexCount);
+            if (isElementDrawMode()) {
+                glDrawElements(_mode, _indexCount, GL_UNSIGNED_INT, 0);
+            } else {
+                glDrawArrays(_mode, 0, _vertexCount);
+            }
         }
         // always good practice to set everything back to defaults once configured.
         glBindVertexArray(0);

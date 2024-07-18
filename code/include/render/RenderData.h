@@ -48,12 +48,15 @@ struct RenderData {
 
 private:
     void setVertices(size_t vertexCount, size_t verticeStride, const void* data, const std::vector<ShaderAttribDescriptor>& descs);
+    void setInstanceVertices(size_t vertexCount, size_t verticeStride, const void* data, const std::vector<ShaderAttribDescriptor>& descs);
     void useTextures();
     void resetTextures();
     void useUniforms();
     void setUniformFunc(const std::string& name, const std::function<void(ShaderProgram& prog)>& func);
 
     unsigned int VAOID() const { return *_VAOHolder; }
+    bool isElementDrawMode() const { return _indexCount > 0; }
+    bool isInstanceDrawMode() const { return _instanceCount > 0; }
 
 private:
     static unsigned int CreateVBO(size_t size, const void* data);
@@ -78,6 +81,12 @@ public:
         setVertices(vertices.size(), sizeof(T), vertices.data(), _prog.getVertexDescriptors());
     }
 
+    // TODO: 优化, 改名字 突出多实例差异化顶点的特征
+    template <typename T>
+    void setInstanceVertices(const std::vector<T>& vertices, const std::vector<ShaderAttribDescriptor>& descs) {
+        setInstanceVertices(vertices.size(), sizeof(T), vertices.data(), descs);
+    }
+
 
 private:
     ShaderProgram& _prog;
@@ -86,6 +95,8 @@ private:
 
     int _vertexCount;
     int _indexCount;
+
+    int _instanceCount;
 
     std::map<std::string, int> _textureMap;
     std::map<std::string, std::function<void(ShaderProgram& prog)>> _uniformFunctions;
