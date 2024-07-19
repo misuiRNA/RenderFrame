@@ -86,13 +86,13 @@ void Cuboid::updateModelMatrix() {
     model = model * attitudeMatrix;
     model = glm::scale(model, glm::vec3(_size.x, _size.y, _size.z));
 
-    memcpy(_modelMatrix, glm::value_ptr(model), sizeof(glm::mat4));
+    memcpy(&_modelMatrix, glm::value_ptr(model), sizeof(glm::mat4));
 }
 
 void Cuboid::updateUniformes() {
     _renderData.setUniform("imageEnable", _imageCount);
     _renderData.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
-    _renderData.setUniformMat4("modelMatrix", _modelMatrix);
+    _renderData.setUniform("modelMatrix", _modelMatrix);
 }
 
 void Cuboid::updateRenderData() {

@@ -100,7 +100,7 @@ Attitude3DController& Model3D::getAttituedeCtrl() {
 }
 
 void Model3D::updateUniformes() {
-    _renderData.setUniformMat4("model", _modelMatrix);
+    _renderData.setUniform("model", _modelMatrix);
 }
 
 void Model3D::updateRenderData() {
@@ -137,5 +137,5 @@ void Model3D::updateModelMatrix() {
 
     model = glm::scale(model, glm::vec3(_size.x, _size.y, _size.z));
 
-    memcpy(_modelMatrix, glm::value_ptr(model), sizeof(glm::mat4));
+    memcpy(&_modelMatrix, glm::value_ptr(model), sizeof(glm::mat4));
 }

@@ -41,7 +41,7 @@ struct RenderData {
     void setUniform(const std::string& name, const XYZ& value);
     void setUniform(const std::string& name, const Color& color);
     void setUniform(const std::string& name, const ShaderMaterial& material);
-    void setUniformMat4(const std::string& name, const float* mat);
+    void setUniform(const std::string& name, const Matrix4X4& material);
 
     ShaderProgram& getShaderProgram() const;
     void draw();

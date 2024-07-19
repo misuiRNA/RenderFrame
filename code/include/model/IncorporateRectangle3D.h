@@ -1,15 +1,17 @@
-#ifndef _HEAD_FLAG_MODEL_RECTANGLE_H
-#define _HEAD_FLAG_MODEL_RECTANGLE_H
+#ifndef _HEAD_FLAG_MODEL_INCORPORATERECTANGLE3D_H
+#define _HEAD_FLAG_MODEL_INCORPORATERECTANGLE3D_H
 
 #include "model/AbstractDrawObject.h"
 #include "BaseDefine.h"
 #include "Image.h"
 #include "Attitude3DController.h"
 
-struct Rectangle3D : AbstractDrawObject {
-    Rectangle3D(const Size3D& size);
-    Rectangle3D(const Rectangle3D& oth);
+struct IncorporateRectangle3D : AbstractDrawObject {
+    IncorporateRectangle3D(const Size3D& size);
+    IncorporateRectangle3D(const IncorporateRectangle3D& oth);
 
+    // TODO: 优化, 考虑优化设计提升opengl实例化属性的可复用性
+    void mergeCopies(std::vector<IncorporateRectangle3D>& rectangles);
     void setPosition(const Position& pos);
     void setSize(const Size3D& size);
     void setImage(const AbstractImage& image);

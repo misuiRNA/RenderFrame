@@ -12,6 +12,7 @@
 #include "model/Model3D.h"
 #include "model/SkyBox.h"
 #include "model/RichPoints.h"
+#include "model/IncorporateRectangle3D.h"
 #include "Camera.h"
 #include "Image.h"
 #include "Utils.h"
@@ -211,22 +212,21 @@ int main() {
     // rectangle1.setImage(containerImage);
     // rectangle1.setPosition({0.0f, 0.0f});
 
-    Rectangle3D grass({1.0f, 1.0f});
-    grass.setPosition({0.0f, 0.0f});
+    IncorporateRectangle3D grass({1.0f, 1.0f});
+    grass.setPosition({-1.0f, 3.0f, 2.0f});
     grass.setImage(grassImage);
     grass.getAttituedeCtrl()
          .setFront({1.0f, 0.0f, 0.0f});
 
-    std::vector<Rectangle3D> grasses;
+    std::vector<IncorporateRectangle3D> grasses;
     grasses.reserve(100 * 100);
     for (int x = -100; x <= 100; ++x) {
         for (int y = -100; y <= 100; ++y) {
             grasses.emplace_back(grass);
-            grass.setPosition({x * 0.5f, y * 0.5f, 0.0f});
+            grasses.back().setPosition({x * 0.5f, y * 0.5f, 0.0f});
         }
     }
-    grass.setPosition({-1.0f, 3.0f, 2.0f});
-    grass.expandAsGroup(grasses);
+    grass.mergeCopies(grasses);
 
     Rectangle3D transparentWindow({2.0f, 2.0f});
     transparentWindow.setPosition({0.0f, 0.0f});

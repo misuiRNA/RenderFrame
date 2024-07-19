@@ -73,10 +73,10 @@ void ShaderProgram::setUniform(const std::string& name, float v1, float v2, floa
     glUniform4f(uniformLocation, v1, v2, v3, v4);
 }
 
-void ShaderProgram::setUniformMat4(const std::string& name, const float* mat) {
+void ShaderProgram::setUniform(const std::string& name, const Matrix4X4& mat) {
     int uniformLocation = glGetUniformLocation(_progId, name.c_str());
     glUseProgram(_progId);
-    glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, mat);
+    glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, (const float*)&mat);
 }
 
 void ShaderProgram::setUniform(const std::string& name, const XYZ& value) {
@@ -88,7 +88,7 @@ void ShaderProgram::setUniform(const std::string& name, const Color& color) {
 }
 
 void ShaderProgram::setUniform(const std::string& name, const ShaderCamera& camera) {
-    setUniformMat4(name + ".matrix", camera.getMatrix());
+    setUniform(name + ".matrix", camera.getMatrix());
     setUniform(name + ".pos", camera.getPosition());
 }
 

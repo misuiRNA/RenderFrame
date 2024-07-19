@@ -52,8 +52,9 @@ void Rectangle2D::updateUniformes() {
     glm::mat4 model;
     model = glm::translate(model, glm::vec3(_pos.x, _pos.y, 0.0f));
     model = glm::scale(model, glm::vec3(_width, _height, 1.0f));
-
-    _renderData.setUniformMat4("modelMatrix", glm::value_ptr(model));
+    Matrix4X4 modelMatrix;
+    memcpy(&modelMatrix, glm::value_ptr(model), sizeof(glm::mat4));
+    _renderData.setUniform("modelMatrix", modelMatrix);
 }
 
 void Rectangle2D::updateRenderData() {

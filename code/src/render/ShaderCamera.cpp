@@ -45,7 +45,7 @@ const Position& ShaderCamera::getPosition() const {
     return _pos;
 }
 
-const float* ShaderCamera::getMatrix() const {
+const Matrix4X4& ShaderCamera::getMatrix() const {
     return _matrix;
 }
 
@@ -62,5 +62,5 @@ void ShaderCamera::updateMatrix() {
     projection = glm::perspective(glm::radians(_fov), 1.0f * 800 / 600, 0.1f, 100.0f);
     view = projection * view;
 
-    memcpy(_matrix, glm::value_ptr(view), sizeof(glm::mat4));
+    memcpy(&_matrix, glm::value_ptr(view), sizeof(glm::mat4));
 }

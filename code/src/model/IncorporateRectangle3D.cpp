@@ -1,4 +1,4 @@
-#include "model/Rectangle3D.h"
+#include "model/IncorporateRectangle3D.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -6,25 +6,25 @@
 #include "ShaderProgram.h"
 #include "Utils.h"
 
-struct Rectangle3DVertex {
+struct Instance3DVertex {
     Position pos;
     Vector2D texcoord;
 };
 
 // TODO: 优化, 1.shader字符串编译时确定，不读取文件；2.返回的路径位置应为可执行文件位置，而不是执行命令的位置 考虑使用 std::filesystem
 static ShaderProgram& GetShaderProg() {
-    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Rectangle3DShader.vs");
-    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Rectangle3DShader.fs");
+    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Instanced3DShader.vs");
+    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Instanced3DShader.fs");
     static const std::vector<ShaderAttribDescriptor> descriptor = {
-        DESC("aPos",      0, Rectangle3DVertex, pos),
-        DESC("aTexCoord", 1, Rectangle3DVertex, texcoord),
+        DESC("aPos",      0, Instance3DVertex, pos),
+        DESC("aTexCoord", 1, Instance3DVertex, texcoord),
     };
     static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, descriptor);
     return prog;
 }
 
 
-Rectangle3D::Rectangle3D(const Size3D& size)
+IncorporateRectangle3D::IncorporateRectangle3D(const Size3D& size)
 : AbstractDrawObject(GetShaderProg(), RenderDataMode::TRIANGLES)
 , _pos(0.0f, 0.0f, 0.0f)
 , _size(size)
@@ -34,7 +34,7 @@ Rectangle3D::Rectangle3D(const Size3D& size)
     _attitudeCtrl.addOnAttitudeChangedListener([this](){ updateModelMatrix(); });
 }
 
-Rectangle3D::Rectangle3D(const Rectangle3D& oth)
+IncorporateRectangle3D::IncorporateRectangle3D(const IncorporateRectangle3D& oth)
 : AbstractDrawObject(oth)
 , _pos(oth._pos)
 , _size(oth._size)
@@ -44,37 +44,56 @@ Rectangle3D::Rectangle3D(const Rectangle3D& oth)
     _attitudeCtrl.addOnAttitudeChangedListener([this](){ updateModelMatrix(); });
 }
 
-void Rectangle3D::setPosition(const Position& pos) {
+void IncorporateRectangle3D::setPosition(const Position& pos) {
     _pos = pos;
     updateModelMatrix();
 }
 
-void Rectangle3D::setSize(const Size3D& size) {
+void IncorporateRectangle3D::setSize(const Size3D& size) {
     _size = size;
     updateModelMatrix();
 }
 
-void Rectangle3D::setImage(const AbstractImage& image) {
+void IncorporateRectangle3D::setImage(const AbstractImage& image) {
     _renderData.setTexture("texture1", image.getTexture(ImageWrapMode::ClampToEdge));
     _textureEnable = true;
 }
 
-void Rectangle3D::setColor(const Color& color) {
+void IncorporateRectangle3D::setColor(const Color& color) {
     _color = color;
 }
 
-void Rectangle3D::updateUniformes() {
+void IncorporateRectangle3D::updateUniformes() {
     _renderData.setUniform("imageEnable", _textureEnable);
     _renderData.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
     _renderData.setUniform("modelMatrix", _modelMatrix);
 }
 
-Attitude3DController& Rectangle3D::getAttituedeCtrl() {
+Attitude3DController& IncorporateRectangle3D::getAttituedeCtrl() {
     return _attitudeCtrl;
 }
 
-void Rectangle3D::updateRenderData() {
-    std::vector<Rectangle3DVertex> vertices = {
+void IncorporateRectangle3D::mergeCopies(std::vector<IncorporateRectangle3D>& rectangles) {
+    size_t instCount = rectangles.size();
+    std::vector<Matrix4X4> modelMatrices(instCount);
+    for (int i = 0; i < instCount; ++i) {
+        IncorporateRectangle3D& rect = rectangles[i];
+        rect.updateModelMatrix();
+        modelMatrices[i] = rect._modelMatrix;
+    }
+
+    // OpenGL 不直接支持矩阵类型 mat4, 需要把它分成4个独立的 vec4 处理, 每个 vec4 必须单独绑定到一个顶点属性位置
+    std::vector<ShaderAttribDescriptor> descs = {
+        DESC("aInstanceMat-0", 3, Matrix4X4, _data0),
+        DESC("aInstanceMat-1", 4, Matrix4X4, _data1),
+        DESC("aInstanceMat-2", 5, Matrix4X4, _data2),
+        DESC("aInstanceMat-3", 6, Matrix4X4, _data3),
+    };
+    _renderData.setInstanceVertices(modelMatrices, descs);
+}
+
+void IncorporateRectangle3D::updateRenderData() {
+    std::vector<Instance3DVertex> vertices = {
         {{-0.5f, -0.5f, 0.0f},  {0.0f, 0.0f}},
         {{0.5f,  -0.5f, 0.0f},  {1.0f, 0.0f}},
         {{0.5f,  0.5f,  0.0f},  {1.0f, 1.0f}},
@@ -88,7 +107,7 @@ void Rectangle3D::updateRenderData() {
     });
 }
 
-void Rectangle3D::updateModelMatrix() {
+void IncorporateRectangle3D::updateModelMatrix() {
     glm::mat4 model;
     model = glm::translate(model, glm::vec3(_pos.x, _pos.y, _pos.z));
 

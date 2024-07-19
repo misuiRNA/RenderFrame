@@ -27,7 +27,7 @@ private:
     Size3D _size;
     Attitude3DController _attitudeCtrl;
     Color _color;
-    float _modelMatrix[16] = { 0.0f };
+    Matrix4X4 _modelMatrix;
 
     int _imageCount;
 };

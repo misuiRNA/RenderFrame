@@ -76,7 +76,9 @@ void LightSource::updateUniformes() {
     const Position& pos = _shaderLight.getPosition();
     model = glm::translate(model, glm::vec3(pos.x, pos.y, pos.z));
     model = glm::scale(model, glm::vec3(_size.x, _size.y, _size.z));
-    _renderData.setUniformMat4("modelMatrix", glm::value_ptr(model));
+    Matrix4X4 modelMatrix;
+    memcpy(&modelMatrix, glm::value_ptr(model), sizeof(glm::mat4));
+    _renderData.setUniform("modelMatrix", modelMatrix);
 }
 
 void LightSource::updateRenderData() {

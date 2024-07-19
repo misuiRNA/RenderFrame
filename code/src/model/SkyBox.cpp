@@ -40,7 +40,9 @@ void SkyBox::updateUniformes() {
     Attitude3DController attitudeCtrl({0.0f, 0.0f, -1.0f}, {-1.0f, 0.0f, 0.0f});
     glm::mat4 attitudeMatrix = attitudeCtrl.getAttitudeMatrix();
     model = model * attitudeMatrix;
-    _renderData.setUniformMat4("modelMatrix", glm::value_ptr(model));
+    Matrix4X4 modelMatrix;
+    memcpy(&modelMatrix, glm::value_ptr(model), sizeof(glm::mat4));
+    _renderData.setUniform("modelMatrix", modelMatrix);
 }
 
 void SkyBox::updateRenderData() {

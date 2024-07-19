@@ -23,7 +23,7 @@ private:
     Position _pos;
     Size3D _size;
     Attitude3DController _attitudeCtrl;
-    float _modelMatrix[16] = { 0.0f };
+    Matrix4X4 _modelMatrix;
 
     std::string _modelPath;
     std::vector<RenderData> _meshRenderDatas;
