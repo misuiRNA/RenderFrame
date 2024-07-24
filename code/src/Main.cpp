@@ -33,6 +33,7 @@ GLFWwindow* InitWindows() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_SAMPLES, 4);    // 抗锯齿 4x MSAA
 
     GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "LearnOpenGL", NULL, NULL);
     if (window == NULL) {
@@ -51,6 +52,7 @@ GLFWwindow* InitWindows() {
         return nullptr;
     }
     // glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    glEnable(GL_MULTISAMPLE);    // 抗锯齿
     return window;
 }
 
