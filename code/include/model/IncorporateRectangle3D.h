@@ -8,7 +8,6 @@
 
 struct IncorporateRectangle3D : AbstractDrawObject {
     IncorporateRectangle3D(const Size3D& size);
-    IncorporateRectangle3D(const IncorporateRectangle3D& oth);
 
     // TODO: 优化, 考虑优化设计提升opengl实例化属性的可复用性
     void mergeCopies(std::vector<IncorporateRectangle3D>& rectangles);
@@ -21,14 +20,10 @@ struct IncorporateRectangle3D : AbstractDrawObject {
 private:
     void updateRenderData() override;
     void updateUniformes() override;
-    void updateModelMatrix();
 
 private:
-    Position _pos;
-    Size3D _size;
     Attitude3DController _attitudeCtrl;
     Color _color;
-    Matrix4X4 _modelMatrix;
 
     bool _textureEnable;
 };

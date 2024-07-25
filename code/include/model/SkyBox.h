@@ -14,7 +14,7 @@ private:
     void updateRenderData() override;
     void updateUniformes() override;
 private:
-    Position _center;
+    Attitude3DController _attitudeCtrl;
 };
 
 

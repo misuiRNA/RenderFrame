@@ -8,7 +8,6 @@
 
 struct Rectangle3D : AbstractDrawObject {
     Rectangle3D(const Size3D& size);
-    Rectangle3D(const Rectangle3D& oth);
 
     void setPosition(const Position& pos);
     void setSize(const Size3D& size);
@@ -19,14 +18,10 @@ struct Rectangle3D : AbstractDrawObject {
 private:
     void updateRenderData() override;
     void updateUniformes() override;
-    void updateModelMatrix();
 
 private:
-    Position _pos;
-    Size3D _size;
     Attitude3DController _attitudeCtrl;
     Color _color;
-    Matrix4X4 _modelMatrix;
 
     bool _textureEnable;
 };

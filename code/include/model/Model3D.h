@@ -17,13 +17,9 @@ private:
     void updateRenderData() override;
     void updateUniformes() override;
     void doDraw() override;
-    void updateModelMatrix();
 
 private:
-    Position _pos;
-    Size3D _size;
     Attitude3DController _attitudeCtrl;
-    Matrix4X4 _modelMatrix;
 
     std::string _modelPath;
     std::vector<RenderData> _meshRenderDatas;

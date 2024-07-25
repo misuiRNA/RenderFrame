@@ -1,7 +1,5 @@
 #include "model/SkyBox.h"
 #include "Utils.h"
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 
 struct SkyBoxVertex {
@@ -20,7 +18,8 @@ static ShaderProgram& GetShaderProg() {
 
 
 SkyBox::SkyBox()
-: AbstractDrawObject(GetShaderProg(), RenderDataMode::TRIANGLES) {
+: AbstractDrawObject(GetShaderProg(), RenderDataMode::TRIANGLES)
+, _attitudeCtrl({0.0f, 0.0f, -1.0f}, {-1.0f, 0.0f, 0.0f}) {
 
 }
 
@@ -30,19 +29,11 @@ void SkyBox::setImage(const AbstractImage& image) {
 
 // TODO: 优化, 天空盒子实现方式依赖外部设置中心点位置, 需要优化
 void SkyBox::setCenter(const Position& center) {
-    _center = center;
+    _attitudeCtrl.setPosition(center);
 }
 
 void SkyBox::updateUniformes() {
-    glm::mat4 model;
-    model = glm::translate(model, glm::vec3(_center.x, _center.y, _center.z));
-    // 调整天空盒子姿态
-    Attitude3DController attitudeCtrl({0.0f, 0.0f, -1.0f}, {-1.0f, 0.0f, 0.0f});
-    glm::mat4 attitudeMatrix = attitudeCtrl.getAttitudeMatrix();
-    model = model * attitudeMatrix;
-    Matrix4X4 modelMatrix;
-    memcpy(&modelMatrix, glm::value_ptr(model), sizeof(glm::mat4));
-    _renderData.setUniform("modelMatrix", modelMatrix);
+    _renderData.setUniform("modelMatrix", _attitudeCtrl.getMatrix());
 }
 
 void SkyBox::updateRenderData() {

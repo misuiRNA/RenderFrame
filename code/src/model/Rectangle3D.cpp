@@ -1,8 +1,4 @@
 #include "model/Rectangle3D.h"
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glad/glad.h>
 #include "ShaderProgram.h"
 #include "Utils.h"
 
@@ -26,32 +22,17 @@ static ShaderProgram& GetShaderProg() {
 
 Rectangle3D::Rectangle3D(const Size3D& size)
 : AbstractDrawObject(GetShaderProg(), RenderDataMode::TRIANGLES)
-, _pos(0.0f, 0.0f, 0.0f)
-, _size(size)
-, _attitudeCtrl({0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f})
+, _attitudeCtrl({0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, size)
 , _textureEnable(false) {
-    updateModelMatrix();
-    _attitudeCtrl.addOnAttitudeChangedListener([this](){ updateModelMatrix(); });
-}
 
-Rectangle3D::Rectangle3D(const Rectangle3D& oth)
-: AbstractDrawObject(oth)
-, _pos(oth._pos)
-, _size(oth._size)
-, _attitudeCtrl(oth._attitudeCtrl.getUp(), oth._attitudeCtrl.getFront())
-, _textureEnable(oth._textureEnable) {
-    updateModelMatrix();
-    _attitudeCtrl.addOnAttitudeChangedListener([this](){ updateModelMatrix(); });
 }
 
 void Rectangle3D::setPosition(const Position& pos) {
-    _pos = pos;
-    updateModelMatrix();
+    _attitudeCtrl.setPosition(pos);
 }
 
 void Rectangle3D::setSize(const Size3D& size) {
-    _size = size;
-    updateModelMatrix();
+    _attitudeCtrl.setSize(size);
 }
 
 void Rectangle3D::setImage(const AbstractImage& image) {
@@ -66,7 +47,7 @@ void Rectangle3D::setColor(const Color& color) {
 void Rectangle3D::updateUniformes() {
     _renderData.setUniform("imageEnable", _textureEnable);
     _renderData.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
-    _renderData.setUniform("modelMatrix", _modelMatrix);
+    _renderData.setUniform("modelMatrix", _attitudeCtrl.getMatrix());
 }
 
 Attitude3DController& Rectangle3D::getAttituedeCtrl() {
@@ -86,16 +67,4 @@ void Rectangle3D::updateRenderData() {
         0, 1, 2,
         0, 2, 3
     });
-}
-
-void Rectangle3D::updateModelMatrix() {
-    glm::mat4 model;
-    model = glm::translate(model, glm::vec3(_pos.x, _pos.y, _pos.z));
-
-    glm::mat4 attitudeMatrix = _attitudeCtrl.getAttitudeMatrix();
-    model = model * attitudeMatrix;
-
-    model = glm::scale(model, glm::vec3(_size.x,  _size.y, 1.0f));
-
-    memcpy(&_modelMatrix, glm::value_ptr(model), sizeof(glm::mat4));
 }

@@ -20,14 +20,10 @@ struct Cuboid : AbstractDrawObject {
 private:
     void updateRenderData() override;
     void updateUniformes() override;
-    void updateModelMatrix();
 
 private:
-    Position _pos;
-    Size3D _size;
     Attitude3DController _attitudeCtrl;
     Color _color;
-    Matrix4X4 _modelMatrix;
 
     int _imageCount;
 };

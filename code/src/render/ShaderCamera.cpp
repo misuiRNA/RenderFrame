@@ -3,28 +3,29 @@
 #include <glm/gtc/type_ptr.hpp>
 
 ShaderCamera::ShaderCamera()
-: _pos(0.0f, 0.0f, 0.0f)
-, _attitudeCtrl({0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f})
+: _attitudeCtrl({0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f})
 , _fov(45.0f) {
     updateMatrix();
-    _attitudeCtrl.addOnAttitudeChangedListener([this]() { updateMatrix(); });
 }
 
 ShaderCamera::ShaderCamera(const ShaderCamera& oth)
-: _pos(oth._pos)
-, _attitudeCtrl(oth._attitudeCtrl.getUp(), oth._attitudeCtrl.getFront())
+: _attitudeCtrl(oth._attitudeCtrl)
 , _fov(oth._fov) {
     updateMatrix();
-    _attitudeCtrl.addOnAttitudeChangedListener([this]() { updateMatrix(); });
 }
 
 void ShaderCamera::setPosition(const Position& pos) {
-    _pos = pos;
+    _attitudeCtrl.setPosition(pos);
     updateMatrix();
 }
 
 void ShaderCamera::move(const Vector3D& vec) {
-    setPosition(_pos + vec);
+    setPosition(_attitudeCtrl.getPosition() + vec);
+}
+
+void ShaderCamera::setFront(const Vector3D& front) {
+    _attitudeCtrl.setFront(front);
+    updateMatrix();
 }
 
 void ShaderCamera::setFov(float fov) {
@@ -37,12 +38,12 @@ void ShaderCamera::setFov(float fov) {
     updateMatrix();
 }
 
-Attitude3DController& ShaderCamera::getAttituedeCtrl() {
+const Attitude3DController& ShaderCamera::getAttituedeCtrl() const {
     return _attitudeCtrl;
 }
 
 const Position& ShaderCamera::getPosition() const {
-    return _pos;
+    return _attitudeCtrl.getPosition();
 }
 
 const Matrix4X4& ShaderCamera::getMatrix() const {
@@ -52,10 +53,11 @@ const Matrix4X4& ShaderCamera::getMatrix() const {
 void ShaderCamera::updateMatrix() {
     glm::mat4 view;
 
+    const Position& pos = _attitudeCtrl.getPosition();
     const Vector3D& front = _attitudeCtrl.getFront();
     const Vector3D& up = _attitudeCtrl.getUp();
-    view = glm::lookAt(glm::vec3(_pos.x, _pos.y, _pos.z),
-                       glm::vec3(_pos.x + front.x, _pos.y + front.y, _pos.z + front.z),
+    view = glm::lookAt(glm::vec3(pos.x, pos.y, pos.z),
+                       glm::vec3(pos.x + front.x, pos.y + front.y, pos.z + front.z),
                        glm::vec3(up.x, up.y, up.z));
 
     glm::mat4 projection;
