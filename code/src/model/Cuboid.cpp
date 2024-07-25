@@ -12,12 +12,7 @@ struct CuboidVertex {
 static ShaderProgram& GetShaderProg() {
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Cuboid.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Cuboid.fs");
-    static const std::vector<ShaderAttribDescriptor> descriptor = {
-        DESC("aPos",      0, CuboidVertex, pos),
-        DESC("aTexCoord", 1, CuboidVertex, texCoord),
-        DESC("aNormal",   2, CuboidVertex, normal)
-    };
-    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, descriptor);
+    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR);
     return prog;
 }
 
@@ -74,6 +69,12 @@ void Cuboid::updateUniformes() {
 }
 
 void Cuboid::updateRenderData() {
+    static const std::vector<ShaderAttribDescriptor> descriptor = {
+        DESC("aPos",      0, CuboidVertex, pos),
+        DESC("aTexCoord", 1, CuboidVertex, texCoord),
+        DESC("aNormal",   2, CuboidVertex, normal)
+    };
+
     std::vector<CuboidVertex> vertices = {
         {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f},  {0.0f,  0.0f, -1.0f}},
         {{0.5f, 0.5f, -0.5f},   {1.0f, 1.0f},  {0.0f,  0.0f, -1.0f}},
@@ -117,5 +118,5 @@ void Cuboid::updateRenderData() {
         {{-0.5f, 0.5f, -0.5f},  {0.0f, 0.0f},  {0.0f,  1.0f,  0.0f}},
         {{-0.5f, 0.5f, 0.5f},   {0.0f, 1.0f},  {0.0f,  1.0f,  0.0f}},
     };
-    _renderData.setVertices(vertices);
+    _renderData.setVertices(vertices, descriptor);
 }

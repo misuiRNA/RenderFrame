@@ -9,10 +9,7 @@ struct SkyBoxVertex {
 static ShaderProgram& GetShaderProg() {
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/SkyBox.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/SkyBox.fs");
-    static const std::vector<ShaderAttribDescriptor> descriptor = {
-        DESC("aPos", 0, SkyBoxVertex, pos),
-    };
-    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, descriptor);
+    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR);
     return prog;
 }
 
@@ -37,6 +34,10 @@ void SkyBox::updateUniformes() {
 }
 
 void SkyBox::updateRenderData() {
+    static const std::vector<ShaderAttribDescriptor> descriptor = {
+        DESC("aPos", 0, SkyBoxVertex, pos),
+    };
+
     std::vector<SkyBoxVertex> vertices = {
         {{-1.0f,  1.0f, -1.0f}},
         {{-1.0f, -1.0f, -1.0f}},
@@ -80,5 +81,5 @@ void SkyBox::updateRenderData() {
         {{-1.0f, -1.0f,  1.0f}},
         {{1.0f, -1.0f,  1.0f}}
     };
-    _renderData.setVertices(vertices);
+    _renderData.setVertices(vertices, descriptor);
 }

@@ -12,6 +12,24 @@
 #include <iostream>
 
 
+struct ShaderAttribDescriptor {
+    ShaderAttribDescriptor(std::string name, unsigned int index, unsigned int size, unsigned int stride, const void* pointer)
+    : name(name)
+    , index(index)
+    , size(size)
+    , stride(stride)
+    , pointer(pointer) { }
+
+    std::string name;
+    unsigned int index;
+    unsigned int size;
+    unsigned int stride;
+    const void* pointer;
+};
+
+// remind: 要求MEMBER是float紧密填充的, 否则计算出的size不准
+#define DESC(NAME, INDEX, TYPE, MEMBER) ShaderAttribDescriptor(NAME, INDEX, sizeof(TYPE::MEMBER) / sizeof(float), sizeof(TYPE), (void*)offsetof(TYPE, MEMBER))
+
 enum class RenderDataMode {
     POINTS          = 0,
     LINES           = 1,
@@ -30,9 +48,6 @@ struct RenderData {
     ~RenderData();
     RenderData& operator=(RenderData&& oth) = delete;
 
-    void setIndices(const std::vector<unsigned int>& indices);
-    void setTexture(const std::string& name, unsigned int textureId);
-
     // TODO 根据需要重载setUniform函数
     void setUniform(const std::string& name, int value);
     void setUniform(const std::string& name, float value);
@@ -42,9 +57,21 @@ struct RenderData {
     void setUniform(const std::string& name, const Color& color);
     void setUniform(const std::string& name, const ShaderMaterial& material);
     void setUniform(const std::string& name, const Matrix4X4& material);
+    void setIndices(const std::vector<unsigned int>& indices);
+    void setTexture(const std::string& name, unsigned int textureId);
 
     ShaderProgram& getShaderProgram() const;
     void draw();
+
+    template <typename T>
+    void setVertices(const std::vector<T>& vertices, const std::vector<ShaderAttribDescriptor>& descs) {
+        setVertices(vertices.size(), sizeof(T), vertices.data(), descs);
+    }
+
+    template <typename T>
+    void setInstanceVertices(const std::vector<T>& vertices, const std::vector<ShaderAttribDescriptor>& descs) {
+        setInstanceVertices(vertices.size(), sizeof(T), vertices.data(), descs);
+    }
 
 private:
     void setVertices(size_t vertexCount, size_t verticeStride, const void* data, const std::vector<ShaderAttribDescriptor>& descs);
@@ -61,32 +88,6 @@ private:
 private:
     static unsigned int CreateVBO(size_t size, const void* data);
     static unsigned int CreateEBO(const std::vector<unsigned int>& indices);
-
-public:
-
-    template<typename T>
-    void setVertices(const std::string& name, const std::vector<T>& vertices) {
-        if (!_prog.checkVertice(name)) {
-            std::cout << "Failed to set attribute! invalid vertex name!" << name << std::endl;
-            return;
-        }
-
-        // TODO: 优化 ShaderAttribDescriptor.size 计算方式, T不一定完全是float组成的
-        std::vector<ShaderAttribDescriptor> descs = {{name, _prog.getVerticeSlotId(name), sizeof(T) / sizeof(float), sizeof(T), (void*)0}};
-        setVertices(vertices.size(), sizeof(T), vertices.data(), descs);
-    }
-
-    template <typename T>
-    void setVertices(const std::vector<T>& vertices) {
-        setVertices(vertices.size(), sizeof(T), vertices.data(), _prog.getVertexDescriptors());
-    }
-
-    // TODO: 优化, 改名字 突出多实例差异化顶点的特征
-    template <typename T>
-    void setInstanceVertices(const std::vector<T>& vertices, const std::vector<ShaderAttribDescriptor>& descs) {
-        setInstanceVertices(vertices.size(), sizeof(T), vertices.data(), descs);
-    }
-
 
 private:
     ShaderProgram& _prog;

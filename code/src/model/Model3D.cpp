@@ -15,15 +15,16 @@ struct Model3DVertex {
     Vector2D texCoords;
 };
 
+static const std::vector<ShaderAttribDescriptor> MODEL3DVERTEX_DESCRIPTOR = {
+    DESC("aPos",       0, Model3DVertex, pos),
+    DESC("aNormal",    1, Model3DVertex, normal),
+    DESC("aTexCoords", 2, Model3DVertex, texCoords),
+};
+
 static ShaderProgram& GetShaderProg() {
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Model3DlShader.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Model3DlShader.fs");
-    static const std::vector<ShaderAttribDescriptor> descriptor = {
-        DESC("aPos",       0, Model3DVertex, pos),
-        DESC("aNormal",    1, Model3DVertex, normal),
-        DESC("aTexCoords", 2, Model3DVertex, texCoords),
-    };
-    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, descriptor);
+    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR);
     return prog;
 }
 
@@ -102,7 +103,7 @@ void Model3D::updateRenderData() {
     renderDatas.reserve(meshes.size());
     for (const Mesh& mesh : meshes) {
         RenderData data(_renderData.getShaderProgram(), RenderDataMode::TRIANGLES);
-        data.setVertices(MeshVertex2Vertex(mesh.vertices));
+        data.setVertices(MeshVertex2Vertex(mesh.vertices), MODEL3DVERTEX_DESCRIPTOR);
         data.setIndices(mesh.indices);
         std::map<std::string, unsigned int> textureMap = MeshTextures2TextureMap(mesh.textures);
         for (const auto& itr : textureMap) {

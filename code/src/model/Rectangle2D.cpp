@@ -14,11 +14,7 @@ struct Rectangle2DVertex {
 static ShaderProgram& GetShaderProg() {
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Rectangle2DShader.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Rectangle2DShader.fs");
-    static const std::vector<ShaderAttribDescriptor> descriptor = {
-        DESC("aPos",      0, Rectangle2DVertex, pos),
-        DESC("aTexCoord", 1, Rectangle2DVertex, texCoord),
-    };
-    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, descriptor);
+    static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR);
     return prog;
 }
 
@@ -58,13 +54,18 @@ void Rectangle2D::updateUniformes() {
 }
 
 void Rectangle2D::updateRenderData() {
+    static const std::vector<ShaderAttribDescriptor> descriptor = {
+        DESC("aPos",      0, Rectangle2DVertex, pos),
+        DESC("aTexCoord", 1, Rectangle2DVertex, texCoord),
+    };
+
     std::vector<Rectangle2DVertex> vertices = {
         {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}},
         {{0.5f, -0.5f,  0.0f}, {1.0f, 0.0f}},
         {{0.5f,  0.5f,  0.0f}, {1.0f, 1.0f}},
         {{-0.5f, 0.5f,  0.0f}, {0.0f, 1.0f}},
     };
-    _renderData.setVertices(vertices);
+    _renderData.setVertices(vertices, descriptor);
 
     _renderData.setIndices({
         0, 1, 2,
