@@ -1,4 +1,5 @@
 gcc -xc++ \
+ code/test/Main.cpp \
  code/src/*.cpp code/src/render/*.cpp code/src/model/*.cpp \
  3rd/src/glad.c \
  -I3rd/include \
