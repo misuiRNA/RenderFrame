@@ -2,13 +2,7 @@
 #include "ShaderProgram.h"
 #include "Utils.h"
 
-struct CuboidVertex {
-    Position pos;
-    Vector2D texCoord;
-    Vector3D normal;
-};
 
-// ShaderProgram Descript
 static ShaderProgram& GetShaderProg() {
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Cuboid.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Cuboid.fs");
@@ -62,61 +56,22 @@ void Cuboid::setMaterial(const ShaderMaterial& material) {
     _renderData.setUniform("material", material);
 }
 
+// TODO: 优化, 重新设置顶点数据后需要清除旧顶点VBO
+void Cuboid::setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
+    static const std::vector<ShaderAttribDescriptor> descriptor = {
+        DESC("aPos",      0, Vertex, pos),
+        DESC("aTexCoord", 1, Vertex, texCoord),
+        DESC("aNormal",   2, Vertex, normal)
+    };
+    _renderData.setVertices(vertices, descriptor);
+
+    if (!indices.empty()) {
+        _renderData.setIndices(indices);
+    }
+}
+
 void Cuboid::updateUniformes() {
     _renderData.setUniform("imageEnable", _imageCount);
     _renderData.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
     _renderData.setUniform("modelMatrix", _attitudeCtrl.getMatrix());
-}
-
-void Cuboid::updateRenderData() {
-    static const std::vector<ShaderAttribDescriptor> descriptor = {
-        DESC("aPos",      0, CuboidVertex, pos),
-        DESC("aTexCoord", 1, CuboidVertex, texCoord),
-        DESC("aNormal",   2, CuboidVertex, normal)
-    };
-
-    std::vector<CuboidVertex> vertices = {
-        {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f},  {0.0f,  0.0f, -1.0f}},
-        {{0.5f, 0.5f, -0.5f},   {1.0f, 1.0f},  {0.0f,  0.0f, -1.0f}},
-        {{0.5f, -0.5f, -0.5f},  {1.0f, 0.0f},  {0.0f,  0.0f, -1.0f}},
-        {{0.5f, 0.5f, -0.5f},   {1.0f, 1.0f},  {0.0f,  0.0f, -1.0f}},
-        {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f},  {0.0f,  0.0f, -1.0f}},
-        {{-0.5f, 0.5f, -0.5f},  {0.0f, 1.0f},  {0.0f,  0.0f, -1.0f}},
- 
-        {{-0.5f, -0.5f, 0.5f},  {0.0f, 0.0f},  {0.0f,  0.0f, 1.0f}},
-        {{0.5f, -0.5f, 0.5f},   {1.0f, 0.0f},  {0.0f,  0.0f, 1.0f}},
-        {{0.5f, 0.5f, 0.5f},    {1.0f, 1.0f},  {0.0f,  0.0f, 1.0f}},
-        {{0.5f, 0.5f, 0.5f},    {1.0f, 1.0f},  {0.0f,  0.0f, 1.0f}},
-        {{-0.5f, 0.5f, 0.5f},   {0.0f, 1.0f},  {0.0f,  0.0f, 1.0f}},
-        {{-0.5f, -0.5f, 0.5f},  {0.0f, 0.0f},  {0.0f,  0.0f, 1.0f}},
- 
-        {{-0.5f, 0.5f, -0.5f},  {1.0f, 0.0f},  {-1.0f,  0.0f,  0.0f}},
-        {{-0.5f, -0.5f, 0.5f},  {0.0f, 1.0f},  {-1.0f,  0.0f,  0.0f}},
-        {{-0.5f, 0.5f, 0.5f},   {1.0f, 1.0f},  {-1.0f,  0.0f,  0.0f}},
-        {{-0.5f, -0.5f, 0.5f},  {0.0f, 1.0f},  {-1.0f,  0.0f,  0.0f}},
-        {{-0.5f, 0.5f, -0.5f},  {1.0f, 0.0f},  {-1.0f,  0.0f,  0.0f}},
-        {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f},  {-1.0f,  0.0f,  0.0f}},
- 
-        {{0.5f, 0.5f, -0.5f},   {1.0f, 0.0f},  {1.0f,  0.0f,  0.0f}},
-        {{0.5f, 0.5f, 0.5f},    {1.0f, 1.0f},  {1.0f,  0.0f,  0.0f}},
-        {{0.5f, -0.5f, 0.5f},   {0.0f, 1.0f},  {1.0f,  0.0f,  0.0f}},
-        {{0.5f, -0.5f, 0.5f},   {0.0f, 1.0f},  {1.0f,  0.0f,  0.0f}},
-        {{0.5f, -0.5f, -0.5f},  {0.0f, 0.0f},  {1.0f,  0.0f,  0.0f}},
-        {{0.5f, 0.5f, -0.5f},   {1.0f, 0.0f},  {1.0f,  0.0f,  0.0f}},
- 
-        {{0.5f, -0.5f, -0.5f},  {1.0f, 0.0f},  {0.0f, -1.0f,  0.0f}},
-        {{0.5f, -0.5f, 0.5f},   {1.0f, 1.0f},  {0.0f, -1.0f,  0.0f}},
-        {{-0.5f, -0.5f, 0.5f},  {0.0f, 1.0f},  {0.0f, -1.0f,  0.0f}},
-        {{0.5f, -0.5f, -0.5f},  {1.0f, 0.0f},  {0.0f, -1.0f,  0.0f}},
-        {{-0.5f, -0.5f, 0.5f},  {0.0f, 1.0f},  {0.0f, -1.0f,  0.0f}},
-        {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f},  {0.0f, -1.0f,  0.0f}},
- 
-        {{-0.5f, 0.5f, 0.5f},   {0.0f, 1.0f},  {0.0f,  1.0f,  0.0f}},
-        {{0.5f, 0.5f, 0.5f},    {1.0f, 1.0f},  {0.0f,  1.0f,  0.0f}},
-        {{0.5f, 0.5f, -0.5f},   {1.0f, 0.0f},  {0.0f,  1.0f,  0.0f}},
-        {{0.5f, 0.5f, -0.5f},   {1.0f, 0.0f},  {0.0f,  1.0f,  0.0f}},
-        {{-0.5f, 0.5f, -0.5f},  {0.0f, 0.0f},  {0.0f,  1.0f,  0.0f}},
-        {{-0.5f, 0.5f, 0.5f},   {0.0f, 1.0f},  {0.0f,  1.0f,  0.0f}},
-    };
-    _renderData.setVertices(vertices, descriptor);
 }

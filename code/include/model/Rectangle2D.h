@@ -6,14 +6,19 @@
 #include "Image.h"
 
 struct Rectangle2D : AbstractDrawObject {
+    struct Vertex {
+        Vector3D pos;
+        Vector2D texCoord;
+    };
+
     Rectangle2D(float width, float height);
 
     void setPosition(const Position& pos);
     void setImage(const AbstractImage& image);
     void setColor(const Color& color);
+    void setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices);
 
 private:
-    void updateRenderData() override;
     void updateUniformes() override;
 
 private:

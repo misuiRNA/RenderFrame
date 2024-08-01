@@ -5,13 +5,16 @@
 #include "BaseDefine.h"
 #include "Image.h"
 
-class SkyBox : public AbstractDrawObject {
-public:
+struct SkyBox : public AbstractDrawObject {
+    struct Vertex {
+        Position pos;
+    };
+
     SkyBox();
     void setImage(const AbstractImage& image);
     void setCenter(const Position& center);
+    void setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices = {});
 private:
-    void updateRenderData() override;
     void updateUniformes() override;
 private:
     Attitude3DController _attitudeCtrl;

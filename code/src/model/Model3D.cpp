@@ -15,12 +15,6 @@ struct Model3DVertex {
     Vector2D texCoords;
 };
 
-static const std::vector<ShaderAttribDescriptor> MODEL3DVERTEX_DESCRIPTOR = {
-    DESC("aPos",       0, Model3DVertex, pos),
-    DESC("aNormal",    1, Model3DVertex, normal),
-    DESC("aTexCoords", 2, Model3DVertex, texCoords),
-};
-
 static ShaderProgram& GetShaderProg() {
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Model3DlShader.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Model3DlShader.fs");
@@ -77,7 +71,7 @@ Model3D::Model3D(std::string const& path)
 : AbstractDrawObject(GetShaderProg(), RenderDataMode::TRIANGLES)
 , _attitudeCtrl({0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f})
 , _modelPath(path) {
-
+    load(path);
 }
 
 void Model3D::setPosition(const Position& pos) {
@@ -96,14 +90,20 @@ void Model3D::updateUniformes() {
     _renderData.setUniform("model", _attitudeCtrl.getMatrix());
 }
 
-void Model3D::updateRenderData() {
+void Model3D::load(const std::string& _modelPath) {
+    static const std::vector<ShaderAttribDescriptor> descriptor = {
+        DESC("aPos",       0, Model3DVertex, pos),
+        DESC("aNormal",    1, Model3DVertex, normal),
+        DESC("aTexCoords", 2, Model3DVertex, texCoords),
+    };
+
     ModelMeshLoader loader;
     const std::vector<Mesh>& meshes = loader.loadModelAsMeshes(_modelPath);
     std::vector<RenderData> renderDatas;
     renderDatas.reserve(meshes.size());
     for (const Mesh& mesh : meshes) {
         RenderData data(_renderData.getShaderProgram(), RenderDataMode::TRIANGLES);
-        data.setVertices(MeshVertex2Vertex(mesh.vertices), MODEL3DVERTEX_DESCRIPTOR);
+        data.setVertices(MeshVertex2Vertex(mesh.vertices), descriptor);
         data.setIndices(mesh.indices);
         std::map<std::string, unsigned int> textureMap = MeshTextures2TextureMap(mesh.textures);
         for (const auto& itr : textureMap) {

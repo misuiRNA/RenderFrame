@@ -2,10 +2,6 @@
 #include "ShaderProgram.h"
 #include "Utils.h"
 
-struct Rectangle3DVertex {
-    Position pos;
-    Vector2D texcoord;
-};
 
 // TODO: 优化, 1.shader字符串编译时确定，不读取文件；2.返回的路径位置应为可执行文件位置，而不是执行命令的位置 考虑使用 std::filesystem
 static ShaderProgram& GetShaderProg() {
@@ -40,6 +36,19 @@ void Rectangle3D::setColor(const Color& color) {
     _color = color;
 }
 
+void Rectangle3D::setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
+    static const std::vector<ShaderAttribDescriptor> descriptor = {
+        DESC("aPos",      0, Vertex, pos),
+        DESC("aTexCoord", 1, Vertex, texcoord),
+    };
+
+    _renderData.setVertices(vertices, descriptor);
+
+    if (!indices.empty()) {
+        _renderData.setIndices(indices);
+    }
+}
+
 void Rectangle3D::updateUniformes() {
     _renderData.setUniform("imageEnable", _textureEnable);
     _renderData.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
@@ -48,24 +57,4 @@ void Rectangle3D::updateUniformes() {
 
 Attitude3DController& Rectangle3D::getAttituedeCtrl() {
     return _attitudeCtrl;
-}
-
-void Rectangle3D::updateRenderData() {
-    static const std::vector<ShaderAttribDescriptor> descriptor = {
-        DESC("aPos",      0, Rectangle3DVertex, pos),
-        DESC("aTexCoord", 1, Rectangle3DVertex, texcoord),
-    };
-
-    std::vector<Rectangle3DVertex> vertices = {
-        {{-0.5f, -0.5f, 0.0f},  {0.0f, 0.0f}},
-        {{0.5f,  -0.5f, 0.0f},  {1.0f, 0.0f}},
-        {{0.5f,  0.5f,  0.0f},  {1.0f, 1.0f}},
-        {{-0.5f, 0.5f,  0.0f},  {0.0f, 1.0f}},
-    };
-    _renderData.setVertices(vertices, descriptor);
-
-    _renderData.setIndices({
-        0, 1, 2,
-        0, 2, 3
-    });
 }

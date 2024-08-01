@@ -5,9 +5,6 @@
 #include "ShaderProgram.h"
 #include "Utils.h"
 
-struct LightSourceVertex {
-    Position pos;
-};
 
 static ShaderProgram& GetShaderProg() {
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/LightSource.vs");
@@ -53,6 +50,18 @@ void LightSource::setReach(float distance) {
     _shaderLight.setReach(distance);
 }
 
+void LightSource::setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
+    static const std::vector<ShaderAttribDescriptor> descriptor = {
+        DESC("aPos", 0, Vertex, pos)
+    };
+
+    _renderData.setVertices(vertices, descriptor);
+
+    if (!indices.empty()) {
+        _renderData.setIndices(indices);
+    }
+}
+
 const Position& LightSource::getPosition() const {
     return _shaderLight.getPosition();
 }
@@ -76,55 +85,4 @@ void LightSource::updateUniformes() {
     Matrix4X4 modelMatrix;
     memcpy(&modelMatrix, glm::value_ptr(model), sizeof(glm::mat4));
     _renderData.setUniform("modelMatrix", modelMatrix);
-}
-
-void LightSource::updateRenderData() {
-    static const std::vector<ShaderAttribDescriptor> descriptor = {
-        DESC("aPos", 0, LightSourceVertex, pos)
-    };
-
-    std::vector<LightSourceVertex> vertices = {
-        {{-0.5f, -0.5f, -0.5f}},
-        {{0.5f, 0.5f, -0.5f}},
-        {{0.5f, -0.5f, -0.5f}},
-        {{0.5f, 0.5f, -0.5f}},
-        {{-0.5f, -0.5f, -0.5f}},
-        {{-0.5f, 0.5f, -0.5f}},
-
-        {{-0.5f, -0.5f, 0.5f}},
-        {{0.5f, -0.5f, 0.5f}},
-        {{0.5f, 0.5f, 0.5f}},
-        {{0.5f, 0.5f, 0.5f}},
-        {{-0.5f, 0.5f, 0.5f}},
-        {{-0.5f, -0.5f, 0.5f}},
-
-        {{-0.5f, 0.5f, -0.5f}},
-        {{-0.5f, -0.5f, 0.5f}},
-        {{-0.5f, 0.5f, 0.5f}},
-        {{-0.5f, -0.5f, 0.5f}},
-        {{-0.5f, 0.5f, -0.5f}},
-        {{-0.5f, -0.5f, -0.5f}},
-
-        {{0.5f, 0.5f, -0.5f}},
-        {{0.5f, 0.5f, 0.5f}},
-        {{0.5f, -0.5f, 0.5f}},
-        {{0.5f, -0.5f, 0.5f}},
-        {{0.5f, -0.5f, -0.5f}},
-        {{0.5f, 0.5f, -0.5f}},
-
-        {{0.5f, -0.5f, -0.5f}},
-        {{0.5f, -0.5f, 0.5f}},
-        {{-0.5f, -0.5f, 0.5f}},
-        {{0.5f, -0.5f, -0.5f}},
-        {{-0.5f, -0.5f, 0.5f}},
-        {{-0.5f, -0.5f, -0.5f}},
-
-        {{-0.5f, 0.5f, 0.5f}},
-        {{0.5f, 0.5f, 0.5f}},
-        {{0.5f, 0.5f, -0.5f}},
-        {{0.5f, 0.5f, -0.5f}},
-        {{-0.5f, 0.5f, -0.5f}},
-        {{-0.5f, 0.5f, 0.5f}},
-    };
-    _renderData.setVertices(vertices, descriptor);
 }

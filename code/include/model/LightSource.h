@@ -6,6 +6,10 @@
 #include "ShaderLight.h"
 
 struct LightSource : AbstractDrawObject {
+    struct Vertex {
+        Position pos;
+    };
+
     LightSource(bool isParallel);
     operator const ShaderLight&() const;
 
@@ -15,12 +19,12 @@ struct LightSource : AbstractDrawObject {
     void setSize(const Size3D& size);
     void setSpotFacor(float angle, float expandSmoothRatio = 0.1f);
     void setReach(float distance);
+    void setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices = {});
     const Position& getPosition() const;
     Color getColor() const;
     bool isParallel() const;
 
 private:
-    void updateRenderData() override;
     void updateUniformes() override;
 
 private:

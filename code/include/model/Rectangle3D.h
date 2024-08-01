@@ -7,16 +7,21 @@
 #include "Attitude3DController.h"
 
 struct Rectangle3D : AbstractDrawObject {
+    struct Vertex {
+        Position pos;
+        Vector2D texcoord;
+    };
+
     Rectangle3D(const Size3D& size);
 
     void setPosition(const Position& pos);
     void setSize(const Size3D& size);
     void setImage(const AbstractImage& image);
     void setColor(const Color& color);
+    void setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices = {});
     Attitude3DController& getAttituedeCtrl();
 
 private:
-    void updateRenderData() override;
     void updateUniformes() override;
 
 private:

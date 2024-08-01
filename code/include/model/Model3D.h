@@ -14,7 +14,7 @@ struct Model3D : AbstractDrawObject {
     Attitude3DController& getAttituedeCtrl();
 
 private:
-    void updateRenderData() override;
+    void load(const std::string& modelPath);
     void updateUniformes() override;
     void doDraw() override;
 

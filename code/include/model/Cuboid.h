@@ -7,6 +7,12 @@
 #include "Attitude3DController.h"
 
 struct Cuboid : AbstractDrawObject {
+    struct Vertex {
+        Position pos;
+        Vector2D texCoord;
+        Vector3D normal;
+    };
+
     Cuboid(const Size3D& size);
     Cuboid(const Cuboid& oth);
 
@@ -15,10 +21,11 @@ struct Cuboid : AbstractDrawObject {
     void setColor(const Color& color);
     void addImage(const AbstractImage& image);
     void setMaterial(const ShaderMaterial& material);
+    void setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices = {});
+    
     Attitude3DController& getAttituedeCtrl();
 
 private:
-    void updateRenderData() override;
     void updateUniformes() override;
 
 private:

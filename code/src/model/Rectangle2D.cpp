@@ -6,10 +6,6 @@
 #include "ShaderProgram.h"
 #include "Utils.h"
 
-struct Rectangle2DVertex {
-    Vector3D pos;
-    Vector2D texCoord;
-};
 
 static ShaderProgram& GetShaderProg() {
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Rectangle2DShader.vs");
@@ -41,6 +37,19 @@ void Rectangle2D::setColor(const Color& color) {
     _color = color;
 }
 
+void Rectangle2D::setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices = {}) {
+    static const std::vector<ShaderAttribDescriptor> descriptor = {
+        DESC("aPos",      0, Vertex, pos),
+        DESC("aTexCoord", 1, Vertex, texCoord),
+    };
+
+    _renderData.setVertices(vertices, descriptor);
+
+    if (!indices.empty()) {
+        _renderData.setIndices(indices);
+    }
+}
+
 void Rectangle2D::updateUniformes() {
     _renderData.setUniform("imageEnable", _textureEnable);
     _renderData.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
@@ -51,24 +60,4 @@ void Rectangle2D::updateUniformes() {
     Matrix4X4 modelMatrix;
     memcpy(&modelMatrix, glm::value_ptr(model), sizeof(glm::mat4));
     _renderData.setUniform("modelMatrix", modelMatrix);
-}
-
-void Rectangle2D::updateRenderData() {
-    static const std::vector<ShaderAttribDescriptor> descriptor = {
-        DESC("aPos",      0, Rectangle2DVertex, pos),
-        DESC("aTexCoord", 1, Rectangle2DVertex, texCoord),
-    };
-
-    std::vector<Rectangle2DVertex> vertices = {
-        {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}},
-        {{0.5f, -0.5f,  0.0f}, {1.0f, 0.0f}},
-        {{0.5f,  0.5f,  0.0f}, {1.0f, 1.0f}},
-        {{-0.5f, 0.5f,  0.0f}, {0.0f, 1.0f}},
-    };
-    _renderData.setVertices(vertices, descriptor);
-
-    _renderData.setIndices({
-        0, 1, 2,
-        0, 2, 3
-    });
 }

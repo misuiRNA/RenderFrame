@@ -2,16 +2,11 @@
 
 
 AbstractDrawObject::AbstractDrawObject(ShaderProgram& prog, RenderDataMode mode)
-: _renderData(prog, mode)
-, _needUpdateRenderData(true) {
+: _renderData(prog, mode) {
 
 }
 
 void AbstractDrawObject::show() {
-    if (_needUpdateRenderData) {
-        _needUpdateRenderData = false;
-        updateRenderData();
-    }
     updateUniformes();
 
     doDraw();

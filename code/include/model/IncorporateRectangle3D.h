@@ -7,6 +7,11 @@
 #include "Attitude3DController.h"
 
 struct IncorporateRectangle3D : AbstractDrawObject {
+    struct Vertex {
+        Position pos;
+        Vector2D texcoord;
+    };
+
     IncorporateRectangle3D(const Size3D& size);
 
     // TODO: 优化, 考虑优化设计提升opengl实例化属性的可复用性
@@ -15,10 +20,11 @@ struct IncorporateRectangle3D : AbstractDrawObject {
     void setSize(const Size3D& size);
     void setImage(const AbstractImage& image);
     void setColor(const Color& color);
+    void setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices = {});
+
     Attitude3DController& getAttituedeCtrl();
 
 private:
-    void updateRenderData() override;
     void updateUniformes() override;
 
 private:

@@ -16,24 +16,29 @@ RichPoints::RichPoints()
 
 }
 
-RichPoints::RichPoints(const std::vector<RichPointsNode>& points)
+RichPoints::RichPoints(const std::vector<Vertex>& points)
 : AbstractDrawObject(GetShaderProg(), RenderDataMode::POINTS)
 , _points(points) {
-
+    setVertexData(points);
 }
 
-void RichPoints::setPoints(const std::vector<RichPointsNode>& points) {
+void RichPoints::setPoints(const std::vector<Vertex>& points) {
+    _points = points;
+    setVertexData(points);
+}
 
+void RichPoints::setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
+    static const std::vector<ShaderAttribDescriptor> descriptor = {
+        DESC("aPos",   0, Vertex, pos),
+        DESC("aColor", 1, Vertex, color)
+    };
+    _renderData.setVertices(_points, descriptor);
+
+    if (!indices.empty()) {
+        _renderData.setIndices(indices);
+    }
 }
 
 void RichPoints::updateUniformes() {
 
-}
-
-void RichPoints::updateRenderData() {
-    static const std::vector<ShaderAttribDescriptor> descriptor = {
-        DESC("aPos",   0, RichPointsNode, pos),
-        DESC("aColor", 1, RichPointsNode, color)
-    };
-    _renderData.setVertices(_points, descriptor);
 }
