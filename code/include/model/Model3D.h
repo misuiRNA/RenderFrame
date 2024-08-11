@@ -1,5 +1,5 @@
-#ifndef MODEL_H
-#define MODEL_H
+#ifndef MODEL3D_H
+#define MODEL3D_H
 
 #include "model/AbstractDrawObject.h"
 #include "Attitude3DController.h"
@@ -8,21 +8,24 @@
 #include <vector>
 
 struct Model3D : AbstractDrawObject {
-    Model3D(std::string const& path);
+    struct Vertex {
+        Vector3D pos;
+        Vector3D normal;
+        Vector2D texCoords;
+    };
+
+    Model3D();
     void setPosition(const Position& pos);
     void setSize(const Size3D& size);
+    void setTexture(const std::string& name, unsigned int textureId);
+    void setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices);
     Attitude3DController& getAttituedeCtrl();
 
 private:
-    void load(const std::string& modelPath);
     void updateUniformes() override;
-    void doDraw() override;
 
 private:
     Attitude3DController _attitudeCtrl;
-
-    std::string _modelPath;
-    std::vector<RenderData> _meshRenderDatas;
 };
 
 #endif

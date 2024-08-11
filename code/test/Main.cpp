@@ -17,6 +17,7 @@
 #include "Image.h"
 #include "Utils.h"
 #include "KeyboardEventHandler.h"
+#include "Model.h"
 
 
 static unsigned int WINDOW_WIDTH = 800;
@@ -318,18 +319,15 @@ int main() {
     // cuboid1.getAttituedeCtrl().setFront({0.0f, 1.0f, 0.0f});
     cuboid1.setVertexData(tetrahedronVertices);
 
-    Model3D nanosuit(GetCurPath() + "/resource/models/nanosuit/nanosuit.obj");
+    Model3DDrawObject nanosuit(GetCurPath() + "/resource/models/nanosuit/nanosuit.obj");
     nanosuit.setSize({0.1, 0.1, 0.1});
     nanosuit.setPosition({0.0f, 1.5f, 1.5f});
-    nanosuit.getAttituedeCtrl()
-            .setFront({1.0f, 0.0f, 0.0f});
+    nanosuit.setAttituedeCtrl({0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f});
 
-    Model3D airplan(GetCurPath() + "/resource/models/Airplane/11803_Airplane_v1_l1.obj");
+    Model3DDrawObject airplan(GetCurPath() + "/resource/models/Airplane/11803_Airplane_v1_l1.obj");
     airplan.setSize({0.001, 0.001, 0.001});
     airplan.setPosition({0.0f, 5.0f, 1.5f});
-    airplan.getAttituedeCtrl()
-           .setUp({0.0f, 1.0f, 0.0f})
-           .setFront({0.0f, 0.0f, 1.0f});
+    airplan.setAttituedeCtrl({0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f});
 
     RichPoints richPoints(points_richPoints);
 
