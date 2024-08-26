@@ -1,9 +1,8 @@
-#ifndef _HEAD_FLAG_MODEL_LIGHTSOURCE_H
-#define _HEAD_FLAG_MODEL_LIGHTSOURCE_H
+#ifndef _HEAD_FLAG_SHADER_COLOR3D_H
+#define _HEAD_FLAG_SHADER_COLOR3D_H
 
 #include "shader/AbstractShader.h"
 #include "BaseDefine.h"
-#include "ShaderLight.h"
 
 struct Color3D : AbstractShader {
     struct Vertex {
@@ -11,25 +10,19 @@ struct Color3D : AbstractShader {
     };
 
     Color3D(bool isParallel);
-    operator const ShaderLight&() const;
 
     void setColor(const Color& color);
     void setPosition(const Position& pos);
-    void setDirection(const Vector3D& dir);
     void setSize(const Size3D& size);
-    void setSpotFacor(float angle, float expandSmoothRatio = 0.1f);
-    void setReach(float distance);
     void setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices = {});
-    const Position& getPosition() const;
-    Color getColor() const;
-    bool isParallel() const;
 
 private:
     void updateUniformes() override;
 
 private:
-    ShaderLight _shaderLight;
+    Position _pos;
     Size3D _size;
+    Color _color;
 };
 
-#endif    // _HEAD_FLAG_MODEL_LIGHTSOURCE_H
+#endif    // _HEAD_FLAG_SHADER_COLOR3D_H

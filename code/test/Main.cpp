@@ -18,6 +18,7 @@
 #include "Utils.h"
 #include "KeyboardEventHandler.h"
 #include "Model.h"
+#include "object/LightSource.h"
 
 
 static unsigned int WINDOW_WIDTH = 800;
@@ -57,7 +58,7 @@ GLFWwindow* InitWindows() {
     return window;
 }
 
-static void SetGlobalLights(const Color3D& parallelLight, const std::vector<Color3D>& pointLights) {
+static void SetGlobalLights(const LightSource& parallelLight, const std::vector<LightSource>& pointLights) {
     for (auto itr : ShaderProgram::GetAllShaderProg())
     {
         if (!itr.first) {
@@ -168,15 +169,15 @@ int main() {
     keyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, [&mirrorCameraFPS, &deltaTime]() { mirrorCameraFPS.move(deltaTime * MOVE_SPEED * Vector3D(0.0f, 1.0f, 0.0f)); });
 
 
-    Color3D parallelLight(true);
+    LightSource parallelLight(true);
     parallelLight.setDirection({-1.0f, 1.0f, -1.0f});
     // parallelLight.setColor({1.0f, 0.0f, 0.0f});
 
-    std::vector<Color3D> pointLights;
+    std::vector<LightSource> pointLights;
     pointLights.emplace_back(false);
     pointLights.emplace_back(false);
 
-    Color3D& light = pointLights[0];
+    LightSource& light = pointLights[0];
     light.setVertexData(tetrahedronVertices_light);
     light.setPosition({-1.0f, 2.0f, 2.0f});
     light.setSize({0.5f, 0.5f, 0.5f});
@@ -186,7 +187,7 @@ int main() {
     light.setSpotFacor(45.0f);
     light.setReach(50.0f);
 
-    Color3D& light1 = pointLights[1];
+    LightSource& light1 = pointLights[1];
     light1.setVertexData(cubeVertices_light);
     light1.setPosition({1.0f, -2.0f, 2.0f});
     light1.setSize({0.5f, 0.5f, 0.5f});
