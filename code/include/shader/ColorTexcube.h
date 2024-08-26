@@ -1,16 +1,16 @@
 #ifndef _HEAD_FLAG_MODEL_SKYBOX_H
 #define _HEAD_FLAG_MODEL_SKYBOX_H
 
-#include "model/AbstractDrawObject.h"
+#include "shader/AbstractShader.h"
 #include "BaseDefine.h"
 #include "Image.h"
 
-struct SkyBox : public AbstractDrawObject {
+struct ColorTexcube : public AbstractShader {
     struct Vertex {
         Position pos;
     };
 
-    SkyBox();
+    ColorTexcube();
     void setImage(const AbstractImage& image);
     void setCenter(const Position& center);
     void setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices = {});

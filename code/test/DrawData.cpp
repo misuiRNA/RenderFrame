@@ -1,14 +1,14 @@
-#include "model/Cuboid.h"
-#include "model/IncorporateRectangle3D.h"
-#include "model/LightSource.h"
-#include "model/Rectangle2D.h"
-#include "model/Rectangle3D.h"
-#include "model/RichPoints.h"
-#include "model/SkyBox.h"
+#include "shader/ColorTexMulilight3D.h"
+#include "shader/IncorporateColorTex3D.h"
+#include "shader/Color3D.h"
+#include "shader/ColorTex2D.h"
+#include "shader/ColorTex3D.h"
+#include "shader/ColorGeometryPoint.h"
+#include "shader/ColorTexcube.h"
 
 
-// Cuboid
-std::vector<Cuboid::Vertex> cubeVertices = {
+// ColorTexMulilight3D
+std::vector<ColorTexMulilight3D::Vertex> cubeVertices = {
     {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f},  {0.0f,  0.0f, -1.0f}},
     {{0.5f, 0.5f, -0.5f},   {1.0f, 1.0f},  {0.0f,  0.0f, -1.0f}},
     {{0.5f, -0.5f, -0.5f},  {1.0f, 0.0f},  {0.0f,  0.0f, -1.0f}},
@@ -53,7 +53,7 @@ std::vector<Cuboid::Vertex> cubeVertices = {
 };
 
 
-std::vector<Cuboid::Vertex> tetrahedronVertices = {
+std::vector<ColorTexMulilight3D::Vertex> tetrahedronVertices = {
     {{ 0.5f,  0.5f,  0.5f}, {0.0f, 0.0f}, { 0.577f,  0.577f,  0.577f}},
     {{-0.5f,  0.5f, -0.5f}, {0.5f, 1.0f}, {-0.577f,  0.577f, -0.577f}},
     {{-0.5f, -0.5f,  0.5f}, {1.0f, 0.0f}, {-0.577f, -0.577f,  0.577f}},
@@ -72,7 +72,7 @@ std::vector<Cuboid::Vertex> tetrahedronVertices = {
 };
 
 
-std::vector<IncorporateRectangle3D::Vertex> rectVertices = {
+std::vector<IncorporateColorTex3D::Vertex> rectVertices = {
     {{-0.5f, -0.5f, 0.0f},  {0.0f, 0.0f}},
     {{0.5f,  -0.5f, 0.0f},  {1.0f, 0.0f}},
     {{0.5f,  0.5f,  0.0f},  {1.0f, 1.0f}},
@@ -84,7 +84,7 @@ std::vector<unsigned int> rectIndices = {
 };
 
 
-std::vector<LightSource::Vertex> cubeVertices_light = {
+std::vector<Color3D::Vertex> cubeVertices_light = {
     {{-0.5f, -0.5f, -0.5f}},
     {{0.5f, 0.5f, -0.5f}},
     {{0.5f, -0.5f, -0.5f}},
@@ -129,7 +129,7 @@ std::vector<LightSource::Vertex> cubeVertices_light = {
 };
 
 
-std::vector<LightSource::Vertex> tetrahedronVertices_light = {
+std::vector<Color3D::Vertex> tetrahedronVertices_light = {
     {{ 0.5f,  0.5f,  0.5f}},
     {{-0.5f,  0.5f, -0.5f}},
     {{-0.5f, -0.5f,  0.5f}},
@@ -145,7 +145,7 @@ std::vector<LightSource::Vertex> tetrahedronVertices_light = {
 };
 
 
-std::vector<Rectangle2D::Vertex> rectVertices_rect2D = {
+std::vector<ColorTex2D::Vertex> rectVertices_rect2D = {
     {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f}},
     {{0.5f, -0.5f,  0.0f}, {1.0f, 0.0f}},
     {{0.5f,  0.5f,  0.0f}, {1.0f, 1.0f}},
@@ -157,7 +157,7 @@ std::vector<unsigned int> rectIndices_rect2D = {
 };
 
 
-std::vector<Rectangle3D::Vertex> rectVertices_rect3D = {
+std::vector<ColorTex3D::Vertex> rectVertices_rect3D = {
     {{-0.5f, -0.5f, 0.0f},  {0.0f, 0.0f}},
     {{0.5f,  -0.5f, 0.0f},  {1.0f, 0.0f}},
     {{0.5f,  0.5f,  0.0f},  {1.0f, 1.0f}},
@@ -169,7 +169,7 @@ std::vector<unsigned int> rectIndices_rect3D = {
 };
 
 
-std::vector<RichPoints::Vertex> points_richPoints = {
+std::vector<ColorGeometryPoint::Vertex> points_richPoints = {
     {{-0.5f, 0.5f,  0.0}, {1.0f, 0.0f, 0.0f}},
     {{0.5f,  0.5f,  0.0}, {0.0f, 1.0f, 0.0f}},
     {{0.5f,  -0.5f, 0.0}, {0.0f, 0.0f, 1.0f}},
@@ -177,7 +177,7 @@ std::vector<RichPoints::Vertex> points_richPoints = {
 };
 
 
-std::vector<SkyBox::Vertex> cubeVertices_skybox = {
+std::vector<ColorTexcube::Vertex> cubeVertices_skybox = {
     {{-1.0f,  1.0f, -1.0f}},
     {{-1.0f, -1.0f, -1.0f}},
     {{1.0f, -1.0f, -1.0f}},
@@ -222,7 +222,7 @@ std::vector<SkyBox::Vertex> cubeVertices_skybox = {
 };
 
 
-std::vector<SkyBox::Vertex> tetrahedronVertices_skybox = {
+std::vector<ColorTexcube::Vertex> tetrahedronVertices_skybox = {
     {{ 1.0f,  1.0f,  1.0f}},
     {{-1.0f,  1.0f, -1.0f}},
     {{-1.0f, -1.0f,  1.0f}},

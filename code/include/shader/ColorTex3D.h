@@ -1,18 +1,18 @@
 #ifndef _HEAD_FLAG_MODEL_RECTANGLE_H
 #define _HEAD_FLAG_MODEL_RECTANGLE_H
 
-#include "model/AbstractDrawObject.h"
+#include "shader/AbstractShader.h"
 #include "BaseDefine.h"
 #include "Image.h"
 #include "Attitude3DController.h"
 
-struct Rectangle3D : AbstractDrawObject {
+struct ColorTex3D : AbstractShader {
     struct Vertex {
         Position pos;
         Vector2D texcoord;
     };
 
-    Rectangle3D(const Size3D& size);
+    ColorTex3D(const Size3D& size);
 
     void setPosition(const Position& pos);
     void setSize(const Size3D& size);

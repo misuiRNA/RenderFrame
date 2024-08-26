@@ -5,14 +5,14 @@
 #include <GLFW/glfw3.h>
 
 #include "ShaderProgram.h"
-#include "model/Rectangle3D.h"
-#include "model/Rectangle2D.h"
-#include "model/Cuboid.h"
-#include "model/LightSource.h"
-#include "model/Model3D.h"
-#include "model/SkyBox.h"
-#include "model/RichPoints.h"
-#include "model/IncorporateRectangle3D.h"
+#include "shader/ColorTex3D.h"
+#include "shader/ColorTex2D.h"
+#include "shader/ColorTexMulilight3D.h"
+#include "shader/Color3D.h"
+#include "shader/Model3D.h"
+#include "shader/ColorTexcube.h"
+#include "shader/ColorGeometryPoint.h"
+#include "shader/IncorporateColorTex3D.h"
 #include "Camera.h"
 #include "Image.h"
 #include "Utils.h"
@@ -57,7 +57,7 @@ GLFWwindow* InitWindows() {
     return window;
 }
 
-static void SetGlobalLights(const LightSource& parallelLight, const std::vector<LightSource>& pointLights) {
+static void SetGlobalLights(const Color3D& parallelLight, const std::vector<Color3D>& pointLights) {
     for (auto itr : ShaderProgram::GetAllShaderProg())
     {
         if (!itr.first) {
@@ -82,7 +82,7 @@ static void SetGlobalCamera(const CameraFPS& camera) {
 
 
 // TODO: 优化, 设计模板测试类, 支持任意形状
-static void EnableViewMask(Rectangle3D& outlineMask, Rectangle3D& throughMask) {
+static void EnableViewMask(ColorTex3D& outlineMask, ColorTex3D& throughMask) {
         glDepthMask(GL_FALSE);
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
         glStencilMask(0x00);
@@ -110,19 +110,19 @@ static void SortWitDistance(std::vector<Position>& positions, Position centerPos
 }
 
 
-extern std::vector<Cuboid::Vertex> cubeVertices;
-extern std::vector<Cuboid::Vertex> tetrahedronVertices;
-extern std::vector<IncorporateRectangle3D::Vertex> rectVertices;
+extern std::vector<ColorTexMulilight3D::Vertex> cubeVertices;
+extern std::vector<ColorTexMulilight3D::Vertex> tetrahedronVertices;
+extern std::vector<IncorporateColorTex3D::Vertex> rectVertices;
 extern std::vector<unsigned int> rectIndices;
-extern std::vector<LightSource::Vertex> cubeVertices_light;
-extern std::vector<LightSource::Vertex> tetrahedronVertices_light;
-extern std::vector<Rectangle2D::Vertex> rectVertices_rect2D;
+extern std::vector<Color3D::Vertex> cubeVertices_light;
+extern std::vector<Color3D::Vertex> tetrahedronVertices_light;
+extern std::vector<ColorTex2D::Vertex> rectVertices_rect2D;
 extern std::vector<unsigned int> rectIndices_rect2D;
-extern std::vector<Rectangle3D::Vertex> rectVertices_rect3D;
+extern std::vector<ColorTex3D::Vertex> rectVertices_rect3D;
 extern std::vector<unsigned int> rectIndices_rect3D;
-extern std::vector<RichPoints::Vertex> points_richPoints;
-extern std::vector<SkyBox::Vertex> cubeVertices_skybox;
-extern std::vector<SkyBox::Vertex> tetrahedronVertices_skybox;
+extern std::vector<ColorGeometryPoint::Vertex> points_richPoints;
+extern std::vector<ColorTexcube::Vertex> cubeVertices_skybox;
+extern std::vector<ColorTexcube::Vertex> tetrahedronVertices_skybox;
 
 int main() {
     GLFWwindow* window = InitWindows();
@@ -168,15 +168,15 @@ int main() {
     keyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, [&mirrorCameraFPS, &deltaTime]() { mirrorCameraFPS.move(deltaTime * MOVE_SPEED * Vector3D(0.0f, 1.0f, 0.0f)); });
 
 
-    LightSource parallelLight(true);
+    Color3D parallelLight(true);
     parallelLight.setDirection({-1.0f, 1.0f, -1.0f});
     // parallelLight.setColor({1.0f, 0.0f, 0.0f});
 
-    std::vector<LightSource> pointLights;
+    std::vector<Color3D> pointLights;
     pointLights.emplace_back(false);
     pointLights.emplace_back(false);
 
-    LightSource& light = pointLights[0];
+    Color3D& light = pointLights[0];
     light.setVertexData(tetrahedronVertices_light);
     light.setPosition({-1.0f, 2.0f, 2.0f});
     light.setSize({0.5f, 0.5f, 0.5f});
@@ -186,7 +186,7 @@ int main() {
     light.setSpotFacor(45.0f);
     light.setReach(50.0f);
 
-    LightSource& light1 = pointLights[1];
+    Color3D& light1 = pointLights[1];
     light1.setVertexData(cubeVertices_light);
     light1.setPosition({1.0f, -2.0f, 2.0f});
     light1.setSize({0.5f, 0.5f, 0.5f});
@@ -214,11 +214,11 @@ int main() {
                       , GetCurPath() + "/resource/skybox/back.jpg"
                       );
 
-    SkyBox skybox;
+    ColorTexcube skybox;
     skybox.setVertexData(cubeVertices_skybox);
     skybox.setImage(cubeImage);
 
-    Rectangle3D rectangle({0.6f, 0.6f});
+    ColorTex3D rectangle({0.6f, 0.6f});
     rectangle.setVertexData(rectVertices_rect3D, rectIndices_rect3D);
     rectangle.setPosition({0.0f, 0.0f});
     // rectangle.setColor(Color(0.8f, 0.3f, 0.2f));
@@ -227,21 +227,21 @@ int main() {
     rectangle.getAttituedeCtrl()
              .setFront({1.0f, 0.0f, 0.0f});
 
-    Rectangle3D rectangle1({1.0f, 1.0f});
+    ColorTex3D rectangle1({1.0f, 1.0f});
     rectangle1.setVertexData(rectVertices_rect3D, rectIndices_rect3D);
     rectangle1.setPosition({-1.0, 0.0f});
     rectangle1.setColor(Color(0.8f, 0.3f, 0.2f));
     // rectangle1.setImage(containerImage);
     // rectangle1.setPosition({0.0f, 0.0f});
 
-    IncorporateRectangle3D grass({1.0f, 1.0f});
+    IncorporateColorTex3D grass({1.0f, 1.0f});
     grass.setVertexData(rectVertices, rectIndices);
     grass.setPosition({-1.0f, 3.0f, 2.0f});
     grass.setImage(grassImage);
     grass.getAttituedeCtrl()
          .setFront({1.0f, 0.0f, 0.0f});
 
-    std::vector<IncorporateRectangle3D> grasses;
+    std::vector<IncorporateColorTex3D> grasses;
     grasses.reserve(100 * 100);
     for (int x = -100; x <= 100; ++x) {
         for (int y = -100; y <= 100; ++y) {
@@ -251,7 +251,7 @@ int main() {
     }
     grass.mergeCopies(grasses);
 
-    Rectangle3D transparentWindow({2.0f, 2.0f});
+    ColorTex3D transparentWindow({2.0f, 2.0f});
     transparentWindow.setVertexData(rectVertices_rect3D, rectIndices_rect3D);
     transparentWindow.setPosition({0.0f, 0.0f});
     transparentWindow.setImage(windowImage);
@@ -267,7 +267,7 @@ int main() {
     PaintImage mirrorCanva(800, 600);
     mirrorCanva.setBackgroundColor({0.3f, 0.2f, 0.3f});
 
-    Rectangle2D mirror(0.8f, 0.6f);
+    ColorTex2D mirror(0.8f, 0.6f);
     mirror.setVertexData(rectVertices_rect2D, rectIndices_rect2D);
     mirror.setPosition({-0.6f, 0.7f});
     mirror.setColor(Color(0.8f, 0.3f, 0.2f));
@@ -286,11 +286,11 @@ int main() {
         {0.0f, 0.0f, 9.0f}
     };
 
-    std::vector<Cuboid> cuboids;
+    std::vector<ColorTexMulilight3D> cuboids;
     cuboids.reserve(10);
     for (int index = 0; index < 10; ++index) {
         cuboids.emplace_back(Vector3D(1.0f, 1.0f, 1.0f));
-        Cuboid& cuboid = cuboids.back();
+        ColorTexMulilight3D& cuboid = cuboids.back();
         cuboid.setPosition(cuboidPositions[index]);
         // cuboid.addImage(mirrorCanva);
         cuboid.addImage(awesomefaceImage);
@@ -302,7 +302,7 @@ int main() {
 
     ShaderMaterial material(containerImage2.getTexture(ImageWrapMode::Repeat), containerImage2_specular.getTexture(ImageWrapMode::Repeat));
 
-    Cuboid cuboid({2.0f, 2.0f, 2.0f});
+    ColorTexMulilight3D cuboid({2.0f, 2.0f, 2.0f});
     cuboid.setPosition({0.0f, 2.0f, 0.0f});
     // cuboid.setColor(Color(1.0f, 0.5f, 0.31f));
     cuboid.setColor(Color(1.0f, 1.0f, 1.0f));
@@ -311,7 +311,7 @@ int main() {
     cuboid.setMaterial(material);
     cuboid.setVertexData(cubeVertices);
 
-    Cuboid cuboid1({1.0f, 1.0f, 1.0f});
+    ColorTexMulilight3D cuboid1({1.0f, 1.0f, 1.0f});
     cuboid1.setPosition({1.0f, -3.5f, 0.0f});
     cuboid1.setSize({1.25f, 5.0f, 0.75f});
     cuboid1.addImage(wallImage);
@@ -329,7 +329,7 @@ int main() {
     airplan.setPosition({0.0f, 5.0f, 1.5f});
     airplan.setAttituedeCtrl({0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f});
 
-    RichPoints richPoints(points_richPoints);
+    ColorGeometryPoint richPoints(points_richPoints);
 
 
     float lastX = 0.0f;

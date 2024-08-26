@@ -1,42 +1,42 @@
-#include "model/IncorporateRectangle3D.h"
+#include "shader/IncorporateColorTex3D.h"
 #include "ShaderProgram.h"
 #include "Utils.h"
 
 
 // TODO: 优化, 1.shader字符串编译时确定，不读取文件；2.返回的路径位置应为可执行文件位置，而不是执行命令的位置 考虑使用 std::filesystem
 static ShaderProgram& GetShaderProg() {
-    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Instanced3DShader.vs");
-    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Instanced3DShader.fs");
+    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/glsl/Instanced3DShader.vs");
+    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/glsl/Instanced3DShader.fs");
     static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR);
     return prog;
 }
 
 
-IncorporateRectangle3D::IncorporateRectangle3D(const Size3D& size)
-: AbstractDrawObject(GetShaderProg(), RenderDataMode::TRIANGLES)
+IncorporateColorTex3D::IncorporateColorTex3D(const Size3D& size)
+: AbstractShader(GetShaderProg(), RenderDataMode::TRIANGLES)
 , _attitudeCtrl({0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {size.x, size.y, 1.0f})
 , _textureEnable(false) {
 
 }
 
-void IncorporateRectangle3D::setPosition(const Position& pos) {
+void IncorporateColorTex3D::setPosition(const Position& pos) {
     _attitudeCtrl.setPosition(pos);
 }
 
-void IncorporateRectangle3D::setSize(const Size3D& size) {
+void IncorporateColorTex3D::setSize(const Size3D& size) {
     _attitudeCtrl.setSize({size.x, size.y, 1.0f});
 }
 
-void IncorporateRectangle3D::setImage(const AbstractImage& image) {
+void IncorporateColorTex3D::setImage(const AbstractImage& image) {
     _renderData.setTexture("texture1", image.getTexture(ImageWrapMode::ClampToEdge));
     _textureEnable = true;
 }
 
-void IncorporateRectangle3D::setColor(const Color& color) {
+void IncorporateColorTex3D::setColor(const Color& color) {
     _color = color;
 }
 
-void IncorporateRectangle3D::setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
+void IncorporateColorTex3D::setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
     static const std::vector<ShaderAttribDescriptor> descriptor = {
         DESC("aPos",      0, Vertex, pos),
         DESC("aTexCoord", 1, Vertex, texcoord),
@@ -49,17 +49,17 @@ void IncorporateRectangle3D::setVertexData(const std::vector<Vertex>& vertices, 
     }
 }
 
-void IncorporateRectangle3D::updateUniformes() {
+void IncorporateColorTex3D::updateUniformes() {
     _renderData.setUniform("imageEnable", _textureEnable);
     _renderData.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
     _renderData.setUniform("modelMatrix", _attitudeCtrl.getMatrix());
 }
 
-Attitude3DController& IncorporateRectangle3D::getAttituedeCtrl() {
+Attitude3DController& IncorporateColorTex3D::getAttituedeCtrl() {
     return _attitudeCtrl;
 }
 
-void IncorporateRectangle3D::mergeCopies(std::vector<IncorporateRectangle3D>& rectangles) {
+void IncorporateColorTex3D::mergeCopies(std::vector<IncorporateColorTex3D>& rectangles) {
     size_t instCount = rectangles.size();
     std::vector<Matrix4X4> modelMatrices(instCount);
     for (int i = 0; i < instCount; ++i) {

@@ -1,7 +1,7 @@
 #ifndef MODELD_H
 #define MODELD_H
 
-#include "model/Model3D.h"
+#include "shader/Model3D.h"
 
 
 struct Model3DDrawObject {

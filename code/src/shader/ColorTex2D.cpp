@@ -1,4 +1,4 @@
-#include "model/Rectangle2D.h"
+#include "shader/ColorTex2D.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -8,15 +8,15 @@
 
 
 static ShaderProgram& GetShaderProg() {
-    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Rectangle2DShader.vs");
-    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/Rectangle2DShader.fs");
+    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/glsl/ColorTex2DShader.vs");
+    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/glsl/ColorTex2DShader.fs");
     static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR);
     return prog;
 }
 
 
-Rectangle2D::Rectangle2D(float width, float height)
-: AbstractDrawObject(GetShaderProg(), RenderDataMode::TRIANGLES)
+ColorTex2D::ColorTex2D(float width, float height)
+: AbstractShader(GetShaderProg(), RenderDataMode::TRIANGLES)
 , _pos(0.0f, 0.0f, 0.0f)
 , _width(width)
 , _height(height)
@@ -24,20 +24,20 @@ Rectangle2D::Rectangle2D(float width, float height)
 
 }
 
-void Rectangle2D::setPosition(const Position& pos) {
+void ColorTex2D::setPosition(const Position& pos) {
     _pos = pos;
 }
 
-void Rectangle2D::setImage(const AbstractImage& image) {
+void ColorTex2D::setImage(const AbstractImage& image) {
     _renderData.setTexture("texture1", image.getTexture(ImageWrapMode::ClampToEdge));
     _textureEnable = true;
 }
 
-void Rectangle2D::setColor(const Color& color) {
+void ColorTex2D::setColor(const Color& color) {
     _color = color;
 }
 
-void Rectangle2D::setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices = {}) {
+void ColorTex2D::setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices = {}) {
     static const std::vector<ShaderAttribDescriptor> descriptor = {
         DESC("aPos",      0, Vertex, pos),
         DESC("aTexCoord", 1, Vertex, texCoord),
@@ -50,7 +50,7 @@ void Rectangle2D::setVertexData(const std::vector<Vertex>& vertices, const std::
     }
 }
 
-void Rectangle2D::updateUniformes() {
+void ColorTex2D::updateUniformes() {
     _renderData.setUniform("imageEnable", _textureEnable);
     _renderData.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
 

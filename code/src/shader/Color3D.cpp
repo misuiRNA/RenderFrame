@@ -1,4 +1,4 @@
-#include "model/LightSource.h"
+#include "shader/Color3D.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -7,50 +7,50 @@
 
 
 static ShaderProgram& GetShaderProg() {
-    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/LightSource.vs");
-    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/shader/LightSource.fs");
+    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/glsl/Color3DShader.vs");
+    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/glsl/Color3DShader.fs");
     static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR);
     return prog;
 }
 
 
-LightSource::LightSource(bool isParallel)
-: AbstractDrawObject(GetShaderProg(), RenderDataMode::TRIANGLES)
+Color3D::Color3D(bool isParallel)
+: AbstractShader(GetShaderProg(), RenderDataMode::TRIANGLES)
 , _shaderLight(isParallel)
 , _size(1.0f, 1.0f, 1.0f) {
 
 }
 
-LightSource::operator const ShaderLight&() const {
+Color3D::operator const ShaderLight&() const {
     return _shaderLight;
 }
 
-void LightSource::setColor(const Color& color) {
+void Color3D::setColor(const Color& color) {
     _shaderLight.setColor(color);
 }
 
-void LightSource::setSize(const Size3D& size) {
+void Color3D::setSize(const Size3D& size) {
     _size = size;
 }
 
-void LightSource::setSpotFacor(float angle, float expandSmoothRatio) {
+void Color3D::setSpotFacor(float angle, float expandSmoothRatio) {
     _shaderLight.setSpotAngle(angle);
     _shaderLight.setSpotOuterRatio(expandSmoothRatio);
 }
 
-void LightSource::setPosition(const Position& pos) {
+void Color3D::setPosition(const Position& pos) {
     _shaderLight.setPosition(pos);
 }
 
-void LightSource::setDirection(const Vector3D& dir) {
+void Color3D::setDirection(const Vector3D& dir) {
     _shaderLight.setSpotDirection(dir);
 }
 
-void LightSource::setReach(float distance) {
+void Color3D::setReach(float distance) {
     _shaderLight.setReach(distance);
 }
 
-void LightSource::setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
+void Color3D::setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
     static const std::vector<ShaderAttribDescriptor> descriptor = {
         DESC("aPos", 0, Vertex, pos)
     };
@@ -62,19 +62,19 @@ void LightSource::setVertexData(const std::vector<Vertex>& vertices, const std::
     }
 }
 
-const Position& LightSource::getPosition() const {
+const Position& Color3D::getPosition() const {
     return _shaderLight.getPosition();
 }
 
-Color LightSource::getColor() const {
+Color Color3D::getColor() const {
     return _shaderLight.getColor();
 }
 
-bool LightSource::isParallel() const {
+bool Color3D::isParallel() const {
     return _shaderLight.isParallel();
 }
 
-void LightSource::updateUniformes() {
+void Color3D::updateUniformes() {
     const Color& orgColor = _shaderLight.getColor();
     _renderData.setUniform("color", orgColor.r, orgColor.g, orgColor.b, 1.0f);
 

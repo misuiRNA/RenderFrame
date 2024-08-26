@@ -1,16 +1,16 @@
 #ifndef _HEAD_FLAG_MODEL_LIGHTSOURCE_H
 #define _HEAD_FLAG_MODEL_LIGHTSOURCE_H
 
-#include "model/AbstractDrawObject.h"
+#include "shader/AbstractShader.h"
 #include "BaseDefine.h"
 #include "ShaderLight.h"
 
-struct LightSource : AbstractDrawObject {
+struct Color3D : AbstractShader {
     struct Vertex {
         Position pos;
     };
 
-    LightSource(bool isParallel);
+    Color3D(bool isParallel);
     operator const ShaderLight&() const;
 
     void setColor(const Color& color);

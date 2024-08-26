@@ -1,20 +1,20 @@
 #ifndef _HEAD_FLAG_MODEL_CUBOID_H
 #define _HEAD_FLAG_MODEL_CUBOID_H
 
-#include "model/AbstractDrawObject.h"
+#include "shader/AbstractShader.h"
 #include "BaseDefine.h"
 #include "Image.h"
 #include "Attitude3DController.h"
 
-struct Cuboid : AbstractDrawObject {
+struct ColorTexMulilight3D : AbstractShader {
     struct Vertex {
         Position pos;
         Vector2D texCoord;
         Vector3D normal;
     };
 
-    Cuboid(const Size3D& size);
-    Cuboid(const Cuboid& oth);
+    ColorTexMulilight3D(const Size3D& size);
+    ColorTexMulilight3D(const ColorTexMulilight3D& oth);
 
     void setPosition(const Position& pos);
     void setSize(const Size3D& size);

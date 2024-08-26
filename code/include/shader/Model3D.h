@@ -1,13 +1,13 @@
 #ifndef MODEL3D_H
 #define MODEL3D_H
 
-#include "model/AbstractDrawObject.h"
+#include "shader/AbstractShader.h"
 #include "Attitude3DController.h"
 #include <string>
 #include <map>
 #include <vector>
 
-struct Model3D : AbstractDrawObject {
+struct Model3D : AbstractShader {
     struct Vertex {
         Vector3D pos;
         Vector3D normal;
