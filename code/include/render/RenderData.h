@@ -40,6 +40,20 @@ enum class RenderDataMode {
     TRIANGLE_FAN    = 6
 };
 
+struct RenderShape {
+    struct Vertex {
+        Position pos;
+        Vector3D normal;
+        Vector2D texcoord;
+        Color color;
+    };
+
+    RenderShape(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices = {}) : vertices(vertices), indices(indices) { }
+
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
+};
+
 
 struct RenderData {
     RenderData(ShaderProgram& prog, RenderDataMode mode);

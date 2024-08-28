@@ -32,11 +32,20 @@ void ColorGeometryPoint::setVertexData(const std::vector<Vertex>& vertices, cons
         DESC("aPos",   0, Vertex, pos),
         DESC("aColor", 1, Vertex, color)
     };
-    _renderData.setVertices(_points, descriptor);
+    _renderData.setVertices(vertices, descriptor);
 
     if (!indices.empty()) {
         _renderData.setIndices(indices);
     }
+}
+
+void ColorGeometryPoint::setVertexData(const RenderShape& shape) {
+    std::vector<Vertex> vertices;
+    vertices.reserve(shape.vertices.size());
+    for (const auto& vertex : shape.vertices) {
+        vertices.emplace_back(vertex.pos, vertex.color);
+    }
+    setVertexData(vertices, shape.indices);
 }
 
 void ColorGeometryPoint::updateUniformes() {

@@ -46,6 +46,15 @@ void Color3D::setVertexData(const std::vector<Vertex>& vertices, const std::vect
     }
 }
 
+void Color3D::setVertexData(const RenderShape& shape) {
+    std::vector<Vertex> vertices;
+    vertices.reserve(shape.vertices.size());
+    for (const auto& vertex : shape.vertices) {
+        vertices.emplace_back(vertex.pos);
+    }
+    setVertexData(vertices, shape.indices);
+}
+
 void Color3D::updateUniformes() {
     const Color& orgColor = _color;
     _renderData.setUniform("color", orgColor.r, orgColor.g, orgColor.b, 1.0f);

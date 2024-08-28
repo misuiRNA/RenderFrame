@@ -110,20 +110,10 @@ static void SortWitDistance(std::vector<Position>& positions, Position centerPos
     });
 }
 
-
-extern std::vector<ColorTexMulilight3D::Vertex> cubeVertices;
-extern std::vector<ColorTexMulilight3D::Vertex> tetrahedronVertices;
-extern std::vector<IncorporateColorTex3D::Vertex> rectVertices;
-extern std::vector<unsigned int> rectIndices;
-extern std::vector<Color3D::Vertex> cubeVertices_light;
-extern std::vector<Color3D::Vertex> tetrahedronVertices_light;
-extern std::vector<ColorTex2D::Vertex> rectVertices_rect2D;
-extern std::vector<unsigned int> rectIndices_rect2D;
-extern std::vector<ColorTex3D::Vertex> rectVertices_rect3D;
-extern std::vector<unsigned int> rectIndices_rect3D;
-extern std::vector<ColorGeometryPoint::Vertex> points_richPoints;
+extern RenderShape cubeShape;
+extern RenderShape tetrahedronShape;
+extern RenderShape rectShape;
 extern std::vector<ColorTexcube::Vertex> cubeVertices_skybox;
-extern std::vector<ColorTexcube::Vertex> tetrahedronVertices_skybox;
 
 int main() {
     GLFWwindow* window = InitWindows();
@@ -178,7 +168,7 @@ int main() {
     pointLights.emplace_back(false);
 
     LightSource& light = pointLights[0];
-    light.setVertexData(tetrahedronVertices_light);
+    light.setVertexData(tetrahedronShape);
     light.setPosition({-1.0f, 2.0f, 2.0f});
     light.setSize({0.5f, 0.5f, 0.5f});
     light.setDirection(Position(0.0f, 0.0f, 0.0f) - light.getPosition());
@@ -188,7 +178,7 @@ int main() {
     light.setReach(50.0f);
 
     LightSource& light1 = pointLights[1];
-    light1.setVertexData(cubeVertices_light);
+    light1.setVertexData(cubeShape);
     light1.setPosition({1.0f, -2.0f, 2.0f});
     light1.setSize({0.5f, 0.5f, 0.5f});
     light1.setDirection(Position(0.0f, 0.0f, 2.0f) - light1.getPosition());
@@ -220,7 +210,7 @@ int main() {
     skybox.setImage(cubeImage);
 
     ColorTex3D rectangle({0.6f, 0.6f});
-    rectangle.setVertexData(rectVertices_rect3D, rectIndices_rect3D);
+    rectangle.setVertexData(rectShape);
     rectangle.setPosition({0.0f, 0.0f});
     // rectangle.setColor(Color(0.8f, 0.3f, 0.2f));
     rectangle.setColor(Color(0.0f, 0.0f, 0.0f));
@@ -229,14 +219,14 @@ int main() {
              .setFront({1.0f, 0.0f, 0.0f});
 
     ColorTex3D rectangle1({1.0f, 1.0f});
-    rectangle1.setVertexData(rectVertices_rect3D, rectIndices_rect3D);
+    rectangle1.setVertexData(rectShape);
     rectangle1.setPosition({-1.0, 0.0f});
     rectangle1.setColor(Color(0.8f, 0.3f, 0.2f));
     // rectangle1.setImage(containerImage);
     // rectangle1.setPosition({0.0f, 0.0f});
 
     IncorporateColorTex3D grass({1.0f, 1.0f});
-    grass.setVertexData(rectVertices, rectIndices);
+    grass.setVertexData(rectShape);
     grass.setPosition({-1.0f, 3.0f, 2.0f});
     grass.setImage(grassImage);
     grass.getAttituedeCtrl()
@@ -253,7 +243,7 @@ int main() {
     grass.mergeCopies(grasses);
 
     ColorTex3D transparentWindow({2.0f, 2.0f});
-    transparentWindow.setVertexData(rectVertices_rect3D, rectIndices_rect3D);
+    transparentWindow.setVertexData(rectShape);
     transparentWindow.setPosition({0.0f, 0.0f});
     transparentWindow.setImage(windowImage);
     transparentWindow.getAttituedeCtrl()
@@ -269,7 +259,7 @@ int main() {
     mirrorCanva.setBackgroundColor({0.3f, 0.2f, 0.3f});
 
     ColorTex2D mirror(0.8f, 0.6f);
-    mirror.setVertexData(rectVertices_rect2D, rectIndices_rect2D);
+    mirror.setVertexData(rectShape);
     mirror.setPosition({-0.6f, 0.7f});
     mirror.setColor(Color(0.8f, 0.3f, 0.2f));
     mirror.setImage(mirrorCanva);
@@ -298,7 +288,7 @@ int main() {
         cuboid.addImage(containerImage);
         // cuboid.addImage(matrixImage);
 
-        cuboid.setVertexData(cubeVertices);
+        cuboid.setVertexData(cubeShape);
     }
 
     ShaderMaterial material(containerImage2.getTexture(ImageWrapMode::Repeat), containerImage2_specular.getTexture(ImageWrapMode::Repeat));
@@ -310,7 +300,7 @@ int main() {
     // cuboid.addImage(containerImage);
     // cuboid.addImage(awesomefaceImage);
     cuboid.setMaterial(material);
-    cuboid.setVertexData(cubeVertices);
+    cuboid.setVertexData(cubeShape);
 
     ColorTexMulilight3D cuboid1({1.0f, 1.0f, 1.0f});
     cuboid1.setPosition({1.0f, -3.5f, 0.0f});
@@ -318,7 +308,7 @@ int main() {
     cuboid1.addImage(wallImage);
     // cuboid1.setMaterial(material);
     // cuboid1.getAttituedeCtrl().setFront({0.0f, 1.0f, 0.0f});
-    cuboid1.setVertexData(tetrahedronVertices);
+    cuboid1.setVertexData(tetrahedronShape);
 
     Model3DDrawObject nanosuit(GetCurPath() + "/resource/models/nanosuit/nanosuit.obj");
     nanosuit.setSize({0.1, 0.1, 0.1});
@@ -330,7 +320,8 @@ int main() {
     airplan.setPosition({0.0f, 5.0f, 1.5f});
     airplan.setAttituedeCtrl({0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f});
 
-    ColorGeometryPoint richPoints(points_richPoints);
+    ColorGeometryPoint richPoints;
+    richPoints.setVertexData(rectShape);
 
 
     float lastX = 0.0f;

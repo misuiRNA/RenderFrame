@@ -8,6 +8,7 @@
 
 struct IncorporateColorTex3D : AbstractShader {
     struct Vertex {
+        Vertex(Position pos, Vector2D texcoord) : pos(pos), texcoord(texcoord) { }
         Position pos;
         Vector2D texcoord;
     };
@@ -21,6 +22,7 @@ struct IncorporateColorTex3D : AbstractShader {
     void setImage(const AbstractImage& image);
     void setColor(const Color& color);
     void setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices = {});
+    void setVertexData(const RenderShape& shape);
 
     Attitude3DController& getAttituedeCtrl();
 

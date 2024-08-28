@@ -6,6 +6,7 @@
 
 struct Color3D : AbstractShader {
     struct Vertex {
+        Vertex(const Position& pos) : pos(pos) { }
         Position pos;
     };
 
@@ -15,6 +16,7 @@ struct Color3D : AbstractShader {
     void setPosition(const Position& pos);
     void setSize(const Size3D& size);
     void setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices = {});
+    void setVertexData(const RenderShape& shape);
 
 private:
     void updateUniformes() override;

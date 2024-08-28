@@ -7,6 +7,7 @@
 
 struct ColorTex2D : AbstractShader {
     struct Vertex {
+        Vertex(Vector3D pos, Vector2D texCoord) : pos(pos), texCoord(texCoord){ }
         Vector3D pos;
         Vector2D texCoord;
     };
@@ -17,6 +18,7 @@ struct ColorTex2D : AbstractShader {
     void setImage(const AbstractImage& image);
     void setColor(const Color& color);
     void setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices);
+    void setVertexData(const RenderShape& shape);
 
 private:
     void updateUniformes() override;

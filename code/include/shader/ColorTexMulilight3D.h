@@ -8,6 +8,7 @@
 
 struct ColorTexMulilight3D : AbstractShader {
     struct Vertex {
+        Vertex(Position pos, Vector3D normal, Vector2D texCoord) : pos(pos), texCoord(texCoord), normal(normal) { }
         Position pos;
         Vector2D texCoord;
         Vector3D normal;
@@ -22,6 +23,7 @@ struct ColorTexMulilight3D : AbstractShader {
     void addImage(const AbstractImage& image);
     void setMaterial(const ShaderMaterial& material);
     void setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices = {});
+    void setVertexData(const RenderShape& shape);
     
     Attitude3DController& getAttituedeCtrl();
 

@@ -50,6 +50,15 @@ void ColorTex2D::setVertexData(const std::vector<Vertex>& vertices, const std::v
     }
 }
 
+void ColorTex2D::setVertexData(const RenderShape& shape) {
+    std::vector<Vertex> vertices;
+    vertices.reserve(shape.vertices.size());
+    for (const auto& vertex : shape.vertices) {
+        vertices.emplace_back(vertex.pos, vertex.texcoord);
+    }
+    setVertexData(vertices, shape.indices);
+}
+
 void ColorTex2D::updateUniformes() {
     _renderData.setUniform("imageEnable", _textureEnable);
     _renderData.setUniform("color", _color.r, _color.g, _color.b, 1.0f);

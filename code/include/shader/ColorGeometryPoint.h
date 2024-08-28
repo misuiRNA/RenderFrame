@@ -6,6 +6,7 @@
 
 struct ColorGeometryPoint : AbstractShader {
     struct Vertex {
+        Vertex(const Position& pos, const Color& color) : pos(pos), color(color) { }
         Position pos;
         Color color;
     };
@@ -15,6 +16,7 @@ struct ColorGeometryPoint : AbstractShader {
 
     void setPoints(const std::vector<Vertex>& points);
     void setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices = {});
+    void setVertexData(const RenderShape& shape);
 
 private:
     void updateUniformes() override;

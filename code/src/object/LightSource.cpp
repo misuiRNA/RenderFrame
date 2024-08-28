@@ -36,8 +36,8 @@ void LightSource::setReach(float distance) {
     _shaderLight.setReach(distance);
 }
 
-void LightSource::setVertexData(const std::vector<Color3D::Vertex>& vertices, const std::vector<unsigned int>& indices) {
-    _shader.setVertexData(vertices, indices);
+void LightSource::setVertexData(const RenderShape& shape) {
+    _shader.setVertexData(shape);
 }
 
 const Position& LightSource::getPosition() const {

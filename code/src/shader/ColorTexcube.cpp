@@ -37,6 +37,15 @@ void ColorTexcube::setVertexData(const std::vector<Vertex>& vertices, const std:
     }
 }
 
+void ColorTexcube::setVertexData(const RenderShape& shape) {
+    std::vector<Vertex> vertices;
+    vertices.reserve(shape.vertices.size());
+    for (const auto& vertex : shape.vertices) {
+        vertices.emplace_back(vertex.pos);
+    }
+    setVertexData(vertices, shape.indices);
+}
+
 void ColorTexcube::updateUniformes() {
     _renderData.setUniform("modelMatrix", _attitudeCtrl.getMatrix());
 }
