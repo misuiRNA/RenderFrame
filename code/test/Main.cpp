@@ -8,9 +8,6 @@
 #include "shader/ColorTex3D.h"
 #include "shader/ColorTex2D.h"
 #include "shader/ColorTexMulilight3D.h"
-#include "shader/Color3D.h"
-#include "shader/Model3D.h"
-#include "shader/ColorTexcube.h"
 #include "shader/ColorGeometryPoint.h"
 #include "shader/IncorporateColorTex3D.h"
 #include "Camera.h"
@@ -114,7 +111,6 @@ static void SortWitDistance(std::vector<Position>& positions, Position centerPos
 extern RenderShape cubeShape;
 extern RenderShape tetrahedronShape;
 extern RenderShape rectShape;
-extern std::vector<ColorTexcube::Vertex> cubeVertices_skybox;
 
 int main() {
     GLFWwindow* window = InitWindows();
