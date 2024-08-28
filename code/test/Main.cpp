@@ -17,8 +17,9 @@
 #include "Image.h"
 #include "Utils.h"
 #include "KeyboardEventHandler.h"
-#include "Model.h"
+#include "object/Model.h"
 #include "object/LightSource.h"
+#include "object/Skybox.h"
 
 
 static unsigned int WINDOW_WIDTH = 800;
@@ -205,8 +206,7 @@ int main() {
                       , GetCurPath() + "/resource/skybox/back.jpg"
                       );
 
-    ColorTexcube skybox;
-    skybox.setVertexData(cubeVertices_skybox);
+    Skybox skybox;
     skybox.setImage(cubeImage);
 
     ColorTex3D rectangle({0.6f, 0.6f});
@@ -438,8 +438,7 @@ int main() {
         mirror.show();
 
         // render skybox
-        skybox.setCenter(cameraFPS.getPosition());
-        skybox.show();
+        skybox.show(cameraFPS.getPosition());
 
         glPointSize(100.0f);
         richPoints.show();

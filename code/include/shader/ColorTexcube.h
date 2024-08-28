@@ -1,5 +1,5 @@
-#ifndef _HEAD_FLAG_MODEL_SKYBOX_H
-#define _HEAD_FLAG_MODEL_SKYBOX_H
+#ifndef _HEAD_FLAG_MODEL_COLORTEXCUBE_H
+#define _HEAD_FLAG_MODEL_COLORTEXCUBE_H
 
 #include "shader/AbstractShader.h"
 #include "BaseDefine.h"
@@ -13,7 +13,7 @@ struct ColorTexcube : public AbstractShader {
 
     ColorTexcube();
     void setImage(const AbstractImage& image);
-    void setCenter(const Position& center);
+    void setPosition(const Position& pos);
     void setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices = {});
     void setVertexData(const RenderShape& shape);
 private:

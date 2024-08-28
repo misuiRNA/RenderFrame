@@ -20,9 +20,8 @@ void ColorTexcube::setImage(const AbstractImage& image) {
     _renderData.setTexture("skybox", image.getTexture(ImageWrapMode::ClampToEdge));
 }
 
-// TODO: 优化, 天空盒子实现方式依赖外部设置中心点位置, 需要优化
-void ColorTexcube::setCenter(const Position& center) {
-    _attitudeCtrl.setPosition(center);
+void ColorTexcube::setPosition(const Position& pos) {
+    _attitudeCtrl.setPosition(pos);
 }
 
 void ColorTexcube::setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
