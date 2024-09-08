@@ -33,6 +33,7 @@ GLFWwindow* InitWindows() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);    // 窗口支持透明
     glfwWindowHint(GLFW_SAMPLES, 4);    // 抗锯齿 4x MSAA
 
     GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "LearnOpenGL", NULL, NULL);
@@ -201,6 +202,7 @@ int main() {
                       , GetCurPath() + "/resource/skybox/front.jpg"
                       , GetCurPath() + "/resource/skybox/back.jpg"
                       );
+    LocalImage winMaskImage(GetCurPath() + "/resource/minimap_mask.png");
 
     Skybox skybox;
     skybox.setImage(cubeImage);
@@ -250,6 +252,10 @@ int main() {
         {4.0f, 3.0f, 0.0f},
         {5.0f, 4.0f, 0.0f},
     };
+
+    ColorTex2D winMask(2.0f, 2.0f);
+    winMask.setVertexData(rectShape);
+    winMask.setImage(awesomefaceImage);
 
     PaintImage mirrorCanva(800, 600);
     mirrorCanva.setBackgroundColor({0.3f, 0.2f, 0.3f});
@@ -438,6 +444,14 @@ int main() {
 
         glPointSize(100.0f);
         richPoints.show();
+
+        // TODO: 优化, 1. 抽取抠图流程pip  2. 打开窗口透明后草地透明也会透明, 需要设置细粒度开关
+        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+        winMask.show();
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
 
         glfwSwapBuffers(window);
         glfwPollEvents();
