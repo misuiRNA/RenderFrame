@@ -183,11 +183,9 @@ void RenderData::setUniform(const std::string& name, float v1, float v2, float v
     setUniformFunc(name, func);
 }
 
-void RenderData::setUniformMat4(const std::string& name, const float* mat)
-{
-    glm::mat4 matrix = glm::make_mat4(mat);
-    std::function<void(ShaderProgram& prog)> func = [name, matrix](ShaderProgram& prog) -> void {
-        prog.setUniformMat4(name, glm::value_ptr(matrix));
+void RenderData::setUniform(const std::string& name, const Matrix4X4& mat) {
+    std::function<void(ShaderProgram& prog)> func = [name, mat](ShaderProgram& prog) -> void {
+        prog.setUniform(name, mat);
     };
     setUniformFunc(name, func);
 }

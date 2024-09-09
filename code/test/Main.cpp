@@ -5,18 +5,19 @@
 #include <GLFW/glfw3.h>
 
 #include "ShaderProgram.h"
-#include "model/Rectangle3D.h"
-#include "model/Rectangle2D.h"
-#include "model/Cuboid.h"
-#include "model/LightSource.h"
-#include "model/Model3D.h"
-#include "model/SkyBox.h"
-#include "model/RichPoints.h"
+#include "shader/ColorTex3D.h"
+#include "shader/ColorTex2D.h"
+#include "shader/ColorTexMulilight3D.h"
+#include "shader/ColorGeometryPoint.h"
+#include "shader/IncorporateColorTex3D.h"
 #include "Camera.h"
 #include "Image.h"
 #include "Utils.h"
 #include "KeyboardEventHandler.h"
 #include <algorithm>
+#include "object/Model.h"
+#include "object/LightSource.h"
+#include "object/Skybox.h"
 
 
 static unsigned int WINDOW_WIDTH = 800;
@@ -33,6 +34,8 @@ GLFWwindow* InitWindows() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);    // 窗口支持透明
+    glfwWindowHint(GLFW_SAMPLES, 4);    // 抗锯齿 4x MSAA
 
     GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "LearnOpenGL", NULL, NULL);
     if (window == NULL) {
@@ -51,6 +54,7 @@ GLFWwindow* InitWindows() {
         return nullptr;
     }
     // glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
+    glEnable(GL_MULTISAMPLE);    // 抗锯齿
     return window;
 }
 
@@ -79,7 +83,7 @@ static void SetGlobalCamera(const CameraFPS& camera) {
 
 
 // TODO: 优化, 设计模板测试类, 支持任意形状
-static void EnableViewMask(Rectangle3D& outlineMask, Rectangle3D& throughMask) {
+static void EnableViewMask(ColorTex3D& outlineMask, ColorTex3D& throughMask) {
         glDepthMask(GL_FALSE);
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
         glStencilMask(0x00);
@@ -106,6 +110,9 @@ static void SortWitDistance(std::vector<Position>& positions, Position centerPos
     });
 }
 
+extern RenderShape cubeShape;
+extern RenderShape tetrahedronShape;
+extern RenderShape rectShape;
 
 int main() {
     GLFWwindow* window = InitWindows();
@@ -160,6 +167,7 @@ int main() {
     pointLights.emplace_back(false);
 
     LightSource& light = pointLights[0];
+    light.setVertexData(tetrahedronShape);
     light.setPosition({-1.0f, 2.0f, 2.0f});
     light.setSize({0.5f, 0.5f, 0.5f});
     light.setDirection(Position(0.0f, 0.0f, 0.0f) - light.getPosition());
@@ -169,6 +177,7 @@ int main() {
     light.setReach(50.0f);
 
     LightSource& light1 = pointLights[1];
+    light1.setVertexData(cubeShape);
     light1.setPosition({1.0f, -2.0f, 2.0f});
     light1.setSize({0.5f, 0.5f, 0.5f});
     light1.setDirection(Position(0.0f, 0.0f, 2.0f) - light1.getPosition());
@@ -194,11 +203,13 @@ int main() {
                       , GetCurPath() + "/resource/skybox/front.jpg"
                       , GetCurPath() + "/resource/skybox/back.jpg"
                       );
+    LocalImage winMaskImage(GetCurPath() + "/resource/minimap_mask.png");
 
-    SkyBox skybox;
+    Skybox skybox;
     skybox.setImage(cubeImage);
 
-    Rectangle3D rectangle({0.6f, 0.6f});
+    ColorTex3D rectangle({0.6f, 0.6f});
+    rectangle.setVertexData(rectShape);
     rectangle.setPosition({0.0f, 0.0f});
     // rectangle.setColor(Color(0.8f, 0.3f, 0.2f));
     rectangle.setColor(Color(0.0f, 0.0f, 0.0f));
@@ -206,30 +217,32 @@ int main() {
     rectangle.getAttituedeCtrl()
              .setFront({1.0f, 0.0f, 0.0f});
 
-    Rectangle3D rectangle1({1.0f, 1.0f});
+    ColorTex3D rectangle1({1.0f, 1.0f});
+    rectangle1.setVertexData(rectShape);
     rectangle1.setPosition({-1.0, 0.0f});
     rectangle1.setColor(Color(0.8f, 0.3f, 0.2f));
     // rectangle1.setImage(containerImage);
     // rectangle1.setPosition({0.0f, 0.0f});
 
-    Rectangle3D grass({1.0f, 1.0f});
-    grass.setPosition({0.0f, 0.0f});
+    IncorporateColorTex3D grass({1.0f, 1.0f});
+    grass.setVertexData(rectShape);
+    grass.setPosition({-1.0f, 3.0f, 2.0f});
     grass.setImage(grassImage);
     grass.getAttituedeCtrl()
          .setFront({1.0f, 0.0f, 0.0f});
 
-    std::vector<Rectangle3D> grasses;
+    std::vector<IncorporateColorTex3D> grasses;
     grasses.reserve(100 * 100);
     for (int x = -100; x <= 100; ++x) {
         for (int y = -100; y <= 100; ++y) {
             grasses.emplace_back(grass);
-            grass.setPosition({x * 0.5f, y * 0.5f, 0.0f});
+            grasses.back().setPosition({x * 0.5f, y * 0.5f, 0.0f});
         }
     }
-    grass.setPosition({-1.0f, 3.0f, 2.0f});
-    grass.expandAsGroup(grasses);
+    grass.mergeCopies(grasses);
 
-    Rectangle3D transparentWindow({2.0f, 2.0f});
+    ColorTex3D transparentWindow({2.0f, 2.0f});
+    transparentWindow.setVertexData(rectShape);
     transparentWindow.setPosition({0.0f, 0.0f});
     transparentWindow.setImage(windowImage);
     transparentWindow.getAttituedeCtrl()
@@ -241,10 +254,15 @@ int main() {
         {5.0f, 4.0f, 0.0f},
     };
 
+    ColorTex2D winMask(2.0f, 2.0f);
+    winMask.setVertexData(rectShape);
+    winMask.setImage(awesomefaceImage);
+
     PaintImage mirrorCanva(800, 600);
     mirrorCanva.setBackgroundColor({0.3f, 0.2f, 0.3f});
 
-    Rectangle2D mirror(0.8f, 0.6f);
+    ColorTex2D mirror(0.8f, 0.6f);
+    mirror.setVertexData(rectShape);
     mirror.setPosition({-0.6f, 0.7f});
     mirror.setColor(Color(0.8f, 0.3f, 0.2f));
     mirror.setImage(mirrorCanva);
@@ -262,54 +280,51 @@ int main() {
         {0.0f, 0.0f, 9.0f}
     };
 
-    std::vector<Cuboid> cuboids;
+    std::vector<ColorTexMulilight3D> cuboids;
     cuboids.reserve(10);
     for (int index = 0; index < 10; ++index) {
         cuboids.emplace_back(Vector3D(1.0f, 1.0f, 1.0f));
-        Cuboid& cuboid = cuboids.back();
+        ColorTexMulilight3D& cuboid = cuboids.back();
         cuboid.setPosition(cuboidPositions[index]);
         // cuboid.addImage(mirrorCanva);
         cuboid.addImage(awesomefaceImage);
         cuboid.addImage(containerImage);
         // cuboid.addImage(matrixImage);
+
+        cuboid.setVertexData(cubeShape);
     }
 
     ShaderMaterial material(containerImage2.getTexture(ImageWrapMode::Repeat), containerImage2_specular.getTexture(ImageWrapMode::Repeat));
 
-    Cuboid cuboid({2.0f, 2.0f, 2.0f});
+    ColorTexMulilight3D cuboid({2.0f, 2.0f, 2.0f});
     cuboid.setPosition({0.0f, 2.0f, 0.0f});
     // cuboid.setColor(Color(1.0f, 0.5f, 0.31f));
     cuboid.setColor(Color(1.0f, 1.0f, 1.0f));
     // cuboid.addImage(containerImage);
     // cuboid.addImage(awesomefaceImage);
     cuboid.setMaterial(material);
+    cuboid.setVertexData(cubeShape);
 
-    Cuboid cuboid1({1.0f, 1.0f, 1.0f});
+    ColorTexMulilight3D cuboid1({1.0f, 1.0f, 1.0f});
     cuboid1.setPosition({1.0f, -3.5f, 0.0f});
     cuboid1.setSize({1.25f, 5.0f, 0.75f});
     cuboid1.addImage(wallImage);
     // cuboid1.setMaterial(material);
     // cuboid1.getAttituedeCtrl().setFront({0.0f, 1.0f, 0.0f});
+    cuboid1.setVertexData(tetrahedronShape);
 
-    Model3D nanosuit(GetCurPath() + "/resource/models/nanosuit/nanosuit.obj");
+    Model3DDrawObject nanosuit(GetCurPath() + "/resource/models/nanosuit/nanosuit.obj");
     nanosuit.setSize({0.1, 0.1, 0.1});
     nanosuit.setPosition({0.0f, 1.5f, 1.5f});
-    nanosuit.getAttituedeCtrl()
-            .setFront({1.0f, 0.0f, 0.0f});
+    nanosuit.setAttituedeCtrl({0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f});
 
-    Model3D airplan(GetCurPath() + "/resource/models/Airplane/11803_Airplane_v1_l1.obj");
+    Model3DDrawObject airplan(GetCurPath() + "/resource/models/Airplane/11803_Airplane_v1_l1.obj");
     airplan.setSize({0.001, 0.001, 0.001});
     airplan.setPosition({0.0f, 5.0f, 1.5f});
-    airplan.getAttituedeCtrl()
-           .setUp({0.0f, 1.0f, 0.0f})
-           .setFront({0.0f, 0.0f, 1.0f});
+    airplan.setAttituedeCtrl({0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f});
 
-    RichPoints richPoints({
-        {{-0.5f, 0.5f,  0.0}, {1.0f, 0.0f, 0.0f}},
-        {{0.5f,  0.5f,  0.0}, {0.0f, 1.0f, 0.0f}},
-        {{0.5f,  -0.5f, 0.0}, {0.0f, 0.0f, 1.0f}},
-        {{-0.5f, -0.5f, 0.0}, {0.0f, 0.0f, 0.0f}}
-    });
+    ColorGeometryPoint richPoints;
+    richPoints.setVertexData(rectShape);
 
 
     float lastX = 0.0f;
@@ -426,11 +441,18 @@ int main() {
         mirror.show();
 
         // render skybox
-        skybox.setCenter(cameraFPS.getPosition());
-        skybox.show();
+        skybox.show(cameraFPS.getPosition());
 
         glPointSize(100.0f);
         richPoints.show();
+
+        // TODO: 优化, 1. 抽取抠图流程pip  2. 打开窗口透明后草地透明也会透明, 需要设置细粒度开关
+        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+        winMask.show();
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

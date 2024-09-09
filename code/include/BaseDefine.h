@@ -45,4 +45,12 @@ struct XY {
 
 typedef XY Vector2D;
 
+struct Matrix4X4 {
+    float _data0[4] = { 0.0f };
+    float _data1[4] = { 0.0f };
+    float _data2[4] = { 0.0f };
+    float _data3[4] = { 0.0f };
+};
+
+
 #endif // _HEAD_FLAG_MODEL_BASEDEFINE_H

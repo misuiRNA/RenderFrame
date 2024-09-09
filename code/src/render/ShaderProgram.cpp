@@ -6,14 +6,13 @@
 
 std::map<ShaderProgram*, int> ShaderProgram::_registProgramMap;
 
-ShaderProgram::ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr, const std::vector<ShaderAttribDescriptor>& descriptors)
-: ShaderProgram(vsShaderCodeStr, fsShaderCodeStr, "", descriptors) {
+ShaderProgram::ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr)
+: ShaderProgram(vsShaderCodeStr, fsShaderCodeStr, "") {
 
 }
 
-ShaderProgram::ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr, const std::string& gsShaderCodeStr, const std::vector<ShaderAttribDescriptor>& descriptors)
-: _progId(0)
-, _vertexDescriptors(descriptors) {
+ShaderProgram::ShaderProgram(const std::string& vsShaderCodeStr, const std::string& fsShaderCodeStr, const std::string& gsShaderCodeStr)
+: _progId(0) {
     bool geometryShaderEnable = !gsShaderCodeStr.empty();
 
     unsigned int vertexShader = BuildShader(vsShaderCodeStr.c_str(), GL_VERTEX_SHADER);
@@ -73,10 +72,10 @@ void ShaderProgram::setUniform(const std::string& name, float v1, float v2, floa
     glUniform4f(uniformLocation, v1, v2, v3, v4);
 }
 
-void ShaderProgram::setUniformMat4(const std::string& name, const float* mat) {
+void ShaderProgram::setUniform(const std::string& name, const Matrix4X4& mat) {
     int uniformLocation = glGetUniformLocation(_progId, name.c_str());
     glUseProgram(_progId);
-    glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, mat);
+    glUniformMatrix4fv(uniformLocation, 1, GL_FALSE, (const float*)&mat);
 }
 
 void ShaderProgram::setUniform(const std::string& name, const XYZ& value) {
@@ -88,7 +87,7 @@ void ShaderProgram::setUniform(const std::string& name, const Color& color) {
 }
 
 void ShaderProgram::setUniform(const std::string& name, const ShaderCamera& camera) {
-    setUniformMat4(name + ".matrix", camera.getMatrix());
+    setUniform(name + ".matrix", camera.getMatrix());
     setUniform(name + ".pos", camera.getPosition());
 }
 
@@ -121,29 +120,6 @@ void ShaderProgram::setLight(const std::string& name, const ShaderLight& light) 
 
 void ShaderProgram::enable() {
     glUseProgram(_progId);
-}
-
-bool ShaderProgram::checkVertice(const std::string& name) {
-    for (const ShaderAttribDescriptor& desc : _vertexDescriptors) {
-        if (desc.name == name) {
-            return true;
-        }
-    }
-    return false;
-}
-
-unsigned int ShaderProgram::getVerticeSlotId(const std::string& name) {
-    for (const ShaderAttribDescriptor& desc : _vertexDescriptors) {
-        if (desc.name == name) {
-            return desc.index;
-        }
-    }
-    std::cout << "Failed to get attribute index! name not found: " << name << std::endl;
-    return -1;
-}
-
-const std::vector<ShaderAttribDescriptor>& ShaderProgram::getVertexDescriptors() const {
-    return _vertexDescriptors;
 }
 
 unsigned int ShaderProgram::BuildShader(const char* shaderCode, unsigned int shaderType) {

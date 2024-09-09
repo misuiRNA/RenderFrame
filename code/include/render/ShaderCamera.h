@@ -9,23 +9,23 @@ struct ShaderCamera {
     ShaderCamera();
     ShaderCamera(const ShaderCamera& oth);
 
-    const float* getMatrix() const;
+    const Matrix4X4& getMatrix() const;
     void setPosition(const Position& pos);
     void move(const Vector3D& vec);
+    void setFront(const Vector3D& front);
     void setFov(float fov);
 
-    Attitude3DController& getAttituedeCtrl();
+    const Attitude3DController& getAttituedeCtrl() const;
     const Position& getPosition() const;
 
 private:
     void updateMatrix();
 
 private:
-    Position _pos;
     Attitude3DController _attitudeCtrl;
     float _fov;
 
-    float _matrix[16] = { 0.0f };
+    Matrix4X4 _matrix;
 };
 
 #endif // _HEAD_FLAG_SHADERCAMERA_H
