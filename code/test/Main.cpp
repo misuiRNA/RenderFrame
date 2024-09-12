@@ -202,7 +202,6 @@ int main() {
                       , GetCurPath() + "/resource/skybox/front.jpg"
                       , GetCurPath() + "/resource/skybox/back.jpg"
                       );
-    LocalImage winMaskImage(GetCurPath() + "/resource/minimap_mask.png");
 
     Skybox skybox;
     skybox.setImage(cubeImage);
@@ -257,7 +256,7 @@ int main() {
     winMask.setVertexData(rectShape);
     winMask.setImage(awesomefaceImage);
 
-    PaintImage mirrorCanva(800, 600);
+    PaintImage mirrorCanva(800, 600, 4);
     mirrorCanva.setBackgroundColor({0.3f, 0.2f, 0.3f});
 
     ColorTex2D mirror(0.8f, 0.6f);
@@ -437,13 +436,15 @@ int main() {
         };
         mirrorCanva.paint(painter);
 
-        mirror.show();
-
         // render skybox
         skybox.show(cameraFPS.getPosition());
 
         glPointSize(100.0f);
         richPoints.show();
+
+        glEnable(GL_BLEND);
+        mirror.show();
+        glDisable(GL_BLEND);
 
         // TODO: 优化, 1. 抽取抠图流程pip  2. 打开窗口透明后草地透明也会透明, 需要设置细粒度开关
         glDisable(GL_DEPTH_TEST);

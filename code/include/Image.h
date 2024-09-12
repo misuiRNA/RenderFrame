@@ -38,7 +38,7 @@ private:
 
 
 struct PaintImage : AbstractImage {
-    PaintImage(unsigned int witdh, unsigned int height);
+    PaintImage(unsigned int witdh, unsigned int height, int nrChannels = 3);
     void setBackgroundColor(const Color& color);
     void paint(std::function<void()> painter);
     // TODO: 优化, 离屏渲染纹理实现暂不支持选择环绕方式
