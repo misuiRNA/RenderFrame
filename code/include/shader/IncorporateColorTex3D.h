@@ -6,12 +6,15 @@
 #include "Image.h"
 #include "Attitude3DController.h"
 
-struct IncorporateColorTex3D : AbstractShader {
-    struct Vertex {
-        Vertex(Position pos, Vector2D texcoord) : pos(pos), texcoord(texcoord) { }
-        Position pos;
-        Vector2D texcoord;
-    };
+struct IncorporateColorTex3DVertex {
+    IncorporateColorTex3DVertex(const RenderShape::Vertex& data) : pos(data.pos), texcoord(data.texcoord) { }
+    Position pos;
+    Vector2D texcoord;
+
+    static const std::vector<ShaderAttribDescriptor> DESCRIPTOR;
+};
+
+struct IncorporateColorTex3D : AbstractShader<IncorporateColorTex3DVertex> {
 
     IncorporateColorTex3D(const Size3D& size);
 
@@ -21,9 +24,6 @@ struct IncorporateColorTex3D : AbstractShader {
     void setSize(const Size3D& size);
     void setImage(const AbstractImage& image);
     void setColor(const Color& color);
-    void setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices = {});
-    void setVertexData(const RenderShape& shape);
-
     Attitude3DController& getAttituedeCtrl();
 
 private:

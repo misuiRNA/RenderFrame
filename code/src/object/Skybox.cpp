@@ -1,10 +1,10 @@
 #include "object/Skybox.h"
 
 
-extern std::vector<ColorTexcube::Vertex> CUBE_SKYBOX_VERTICES;
+extern std::vector<ColorTexcubeVertex> CUBE_SKYBOX_VERTICES;
 
 Skybox::Skybox() {
-    _shader.setVertexData(CUBE_SKYBOX_VERTICES);
+    _shader.setVertexData(CUBE_SKYBOX_VERTICES, {});
 }
 
 void Skybox::setImage(const AbstractImage& image) {
@@ -18,7 +18,7 @@ void Skybox::show(const Position& center) {
 }
 
 
-std::vector<ColorTexcube::Vertex> CUBE_SKYBOX_VERTICES = {
+std::vector<ColorTexcubeVertex> CUBE_SKYBOX_VERTICES = {
     {{-1.0f,  1.0f, -1.0f}},
     {{-1.0f, -1.0f, -1.0f}},
     {{1.0f, -1.0f, -1.0f}},

@@ -9,6 +9,12 @@ static ShaderProgram& GetShaderProg() {
     return prog;
 }
 
+const std::vector<ShaderAttribDescriptor> Model3DVertex::DESCRIPTOR = {
+    DESC("aPos",       0, Model3DVertex, pos),
+    DESC("aNormal",    1, Model3DVertex, normal),
+    DESC("aTexCoords", 2, Model3DVertex, texCoords),
+};
+
 
 Model3D::Model3D()
 : AbstractShader(GetShaderProg(), RenderDataMode::TRIANGLES)
@@ -26,20 +32,6 @@ void Model3D::setSize(const Size3D& size) {
 
 void Model3D::setTexture(const std::string& name, unsigned int textureId) {
     _renderData.setTexture(name, textureId);
-}
-
-void Model3D::setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
-    static const std::vector<ShaderAttribDescriptor> descriptor = {
-        DESC("aPos",       0, Model3D::Vertex, pos),
-        DESC("aNormal",    1, Model3D::Vertex, normal),
-        DESC("aTexCoords", 2, Model3D::Vertex, texCoords),
-    };
-
-    _renderData.setVertices(vertices, descriptor);
-
-    if (!indices.empty()) {
-        _renderData.setIndices(indices);
-    }
 }
 
 Attitude3DController& Model3D::getAttituedeCtrl() {

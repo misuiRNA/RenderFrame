@@ -9,6 +9,11 @@ static ShaderProgram& GetShaderProg() {
     return prog;
 }
 
+const std::vector<ShaderAttribDescriptor> ColorTexcubeVertex::DESCRIPTOR = {
+    DESC("aPos", 0, ColorTexcubeVertex, pos),
+};
+
+
 
 ColorTexcube::ColorTexcube()
 : AbstractShader(GetShaderProg(), RenderDataMode::TRIANGLES)
@@ -22,27 +27,6 @@ void ColorTexcube::setImage(const AbstractImage& image) {
 
 void ColorTexcube::setPosition(const Position& pos) {
     _attitudeCtrl.setPosition(pos);
-}
-
-void ColorTexcube::setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
-    static const std::vector<ShaderAttribDescriptor> descriptor = {
-        DESC("aPos", 0, Vertex, pos),
-    };
-
-    _renderData.setVertices(vertices, descriptor);
-
-    if (!indices.empty()) {
-        _renderData.setIndices(indices);
-    }
-}
-
-void ColorTexcube::setVertexData(const RenderShape& shape) {
-    std::vector<Vertex> vertices;
-    vertices.reserve(shape.vertices.size());
-    for (const auto& vertex : shape.vertices) {
-        vertices.emplace_back(vertex.pos);
-    }
-    setVertexData(vertices, shape.indices);
 }
 
 void ColorTexcube::updateUniformes() {

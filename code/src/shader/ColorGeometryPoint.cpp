@@ -10,42 +10,26 @@ static ShaderProgram& GetShaderProg() {
     return prog;
 }
 
+const std::vector<ShaderAttribDescriptor> ColorGeometryPointVertex::DESCRIPTOR = {
+    DESC("aPos",   0, ColorGeometryPointVertex, pos),
+    DESC("aColor", 1, ColorGeometryPointVertex, color)
+};
+
 
 ColorGeometryPoint::ColorGeometryPoint()
 : AbstractShader(GetShaderProg(), RenderDataMode::POINTS) {
 
 }
 
-ColorGeometryPoint::ColorGeometryPoint(const std::vector<Vertex>& points)
+ColorGeometryPoint::ColorGeometryPoint(const std::vector<ColorGeometryPointVertex>& points)
 : AbstractShader(GetShaderProg(), RenderDataMode::POINTS)
 , _points(points) {
-    setVertexData(points);
+    setVertexData(points, {});
 }
 
-void ColorGeometryPoint::setPoints(const std::vector<Vertex>& points) {
+void ColorGeometryPoint::setPoints(const std::vector<ColorGeometryPointVertex>& points) {
     _points = points;
-    setVertexData(points);
-}
-
-void ColorGeometryPoint::setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
-    static const std::vector<ShaderAttribDescriptor> descriptor = {
-        DESC("aPos",   0, Vertex, pos),
-        DESC("aColor", 1, Vertex, color)
-    };
-    _renderData.setVertices(vertices, descriptor);
-
-    if (!indices.empty()) {
-        _renderData.setIndices(indices);
-    }
-}
-
-void ColorGeometryPoint::setVertexData(const RenderShape& shape) {
-    std::vector<Vertex> vertices;
-    vertices.reserve(shape.vertices.size());
-    for (const auto& vertex : shape.vertices) {
-        vertices.emplace_back(vertex.pos, vertex.color);
-    }
-    setVertexData(vertices, shape.indices);
+    setVertexData(points, {});
 }
 
 void ColorGeometryPoint::updateUniformes() {

@@ -13,6 +13,10 @@ static ShaderProgram& GetShaderProg() {
     return prog;
 }
 
+const std::vector<ShaderAttribDescriptor> Color3DVertex::DESCRIPTOR = {
+    DESC("aPos", 0, Color3DVertex, pos)
+};
+
 
 Color3D::Color3D(bool isParallel)
 : AbstractShader(GetShaderProg(), RenderDataMode::TRIANGLES)
@@ -32,27 +36,6 @@ void Color3D::setSize(const Size3D& size) {
 
 void Color3D::setPosition(const Position& pos) {
     _pos = pos;
-}
-
-void Color3D::setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
-    static const std::vector<ShaderAttribDescriptor> descriptor = {
-        DESC("aPos", 0, Vertex, pos)
-    };
-
-    _renderData.setVertices(vertices, descriptor);
-
-    if (!indices.empty()) {
-        _renderData.setIndices(indices);
-    }
-}
-
-void Color3D::setVertexData(const RenderShape& shape) {
-    std::vector<Vertex> vertices;
-    vertices.reserve(shape.vertices.size());
-    for (const auto& vertex : shape.vertices) {
-        vertices.emplace_back(vertex.pos);
-    }
-    setVertexData(vertices, shape.indices);
 }
 
 void Color3D::updateUniformes() {

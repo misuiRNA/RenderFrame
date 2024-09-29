@@ -14,6 +14,11 @@ static ShaderProgram& GetShaderProg() {
     return prog;
 }
 
+const std::vector<ShaderAttribDescriptor> ColorTex2DVertex::DESCRIPTOR = {
+    DESC("aPos",      0, ColorTex2DVertex, pos),
+    DESC("aTexCoord", 1, ColorTex2DVertex, texCoord),
+};
+
 
 ColorTex2D::ColorTex2D(float width, float height)
 : AbstractShader(GetShaderProg(), RenderDataMode::TRIANGLES)
@@ -35,28 +40,6 @@ void ColorTex2D::setImage(const AbstractImage& image) {
 
 void ColorTex2D::setColor(const Color& color) {
     _color = color;
-}
-
-void ColorTex2D::setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices = {}) {
-    static const std::vector<ShaderAttribDescriptor> descriptor = {
-        DESC("aPos",      0, Vertex, pos),
-        DESC("aTexCoord", 1, Vertex, texCoord),
-    };
-
-    _renderData.setVertices(vertices, descriptor);
-
-    if (!indices.empty()) {
-        _renderData.setIndices(indices);
-    }
-}
-
-void ColorTex2D::setVertexData(const RenderShape& shape) {
-    std::vector<Vertex> vertices;
-    vertices.reserve(shape.vertices.size());
-    for (const auto& vertex : shape.vertices) {
-        vertices.emplace_back(vertex.pos, vertex.texcoord);
-    }
-    setVertexData(vertices, shape.indices);
 }
 
 void ColorTex2D::updateUniformes() {

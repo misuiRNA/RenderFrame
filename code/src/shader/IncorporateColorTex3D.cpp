@@ -11,6 +11,12 @@ static ShaderProgram& GetShaderProg() {
     return prog;
 }
 
+const std::vector<ShaderAttribDescriptor> IncorporateColorTex3DVertex::DESCRIPTOR = {
+    DESC("aPos",      0, IncorporateColorTex3DVertex, pos),
+    DESC("aTexCoord", 1, IncorporateColorTex3DVertex, texcoord),
+};
+
+
 
 IncorporateColorTex3D::IncorporateColorTex3D(const Size3D& size)
 : AbstractShader(GetShaderProg(), RenderDataMode::TRIANGLES)
@@ -34,28 +40,6 @@ void IncorporateColorTex3D::setImage(const AbstractImage& image) {
 
 void IncorporateColorTex3D::setColor(const Color& color) {
     _color = color;
-}
-
-void IncorporateColorTex3D::setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
-    static const std::vector<ShaderAttribDescriptor> descriptor = {
-        DESC("aPos",      0, Vertex, pos),
-        DESC("aTexCoord", 1, Vertex, texcoord),
-    };
-
-    _renderData.setVertices(vertices, descriptor);
-
-    if (!indices.empty()) {
-        _renderData.setIndices(indices);
-    }
-}
-
-void IncorporateColorTex3D::setVertexData(const RenderShape& shape) {
-    std::vector<Vertex> vertices;
-    vertices.reserve(shape.vertices.size());
-    for (const auto& vertex : shape.vertices) {
-        vertices.emplace_back(vertex.pos, vertex.texcoord);
-    }
-    setVertexData(vertices, shape.indices);
 }
 
 void IncorporateColorTex3D::updateUniformes() {

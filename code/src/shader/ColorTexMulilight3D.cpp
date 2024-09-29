@@ -10,6 +10,12 @@ static ShaderProgram& GetShaderProg() {
     return prog;
 }
 
+const std::vector<ShaderAttribDescriptor> ColorTexMulilight3DVertex::DESCRIPTOR = {
+    DESC("aPos",      0, ColorTexMulilight3DVertex, pos),
+    DESC("aTexCoord", 1, ColorTexMulilight3DVertex, texCoord),
+    DESC("aNormal",   2, ColorTexMulilight3DVertex, normal)
+};
+
 
 ColorTexMulilight3D::ColorTexMulilight3D(const Size3D& size)
 : AbstractShader(GetShaderProg(), RenderDataMode::TRIANGLES)
@@ -54,29 +60,6 @@ Attitude3DController& ColorTexMulilight3D::getAttituedeCtrl() {
 
 void ColorTexMulilight3D::setMaterial(const ShaderMaterial& material) {
     _renderData.setUniform("material", material);
-}
-
-// TODO: 优化, 重新设置顶点数据后需要清除旧顶点VBO
-void ColorTexMulilight3D::setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices) {
-    static const std::vector<ShaderAttribDescriptor> descriptor = {
-        DESC("aPos",      0, Vertex, pos),
-        DESC("aTexCoord", 1, Vertex, texCoord),
-        DESC("aNormal",   2, Vertex, normal)
-    };
-    _renderData.setVertices(vertices, descriptor);
-
-    if (!indices.empty()) {
-        _renderData.setIndices(indices);
-    }
-}
-
-void ColorTexMulilight3D::setVertexData(const RenderShape& shape) {
-    std::vector<Vertex> vertices;
-    vertices.reserve(shape.vertices.size());
-    for (const auto& vertex : shape.vertices) {
-        vertices.emplace_back(vertex.pos, vertex.normal, vertex.texcoord);
-    }
-    setVertexData(vertices, shape.indices);
 }
 
 void ColorTexMulilight3D::updateUniformes() {

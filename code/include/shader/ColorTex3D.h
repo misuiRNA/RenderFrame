@@ -6,21 +6,21 @@
 #include "Image.h"
 #include "Attitude3DController.h"
 
-struct ColorTex3D : AbstractShader {
-    struct Vertex {
-        Vertex(Position pos, Vector2D texcoord) : pos(pos), texcoord(texcoord) { }
-        Position pos;
-        Vector2D texcoord;
-    };
+struct ColorTex3DVertex {
+    ColorTex3DVertex(const RenderShape::Vertex& data) : pos(data.pos), texcoord(data.texcoord) { }
+    Position pos;
+    Vector2D texcoord;
 
+    static const std::vector<ShaderAttribDescriptor> DESCRIPTOR;
+};
+
+struct ColorTex3D : AbstractShader<ColorTex3DVertex> {
     ColorTex3D(const Size3D& size);
 
     void setPosition(const Position& pos);
     void setSize(const Size3D& size);
     void setImage(const AbstractImage& image);
     void setColor(const Color& color);
-    void setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices = {});
-    void setVertexData(const RenderShape& shape);
     Attitude3DController& getAttituedeCtrl();
 
 private:

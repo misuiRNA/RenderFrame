@@ -4,19 +4,19 @@
 #include "shader/AbstractShader.h"
 #include "BaseDefine.h"
 
-struct Color3D : AbstractShader {
-    struct Vertex {
-        Vertex(const Position& pos) : pos(pos) { }
-        Position pos;
-    };
+struct Color3DVertex {
+    Color3DVertex(const RenderShape::Vertex& data) : pos(data.pos) { }
+    Position pos;
 
+    static const std::vector<ShaderAttribDescriptor> DESCRIPTOR;
+};
+
+struct Color3D : AbstractShader<Color3DVertex> {
     Color3D(bool isParallel);
 
     void setColor(const Color& color);
     void setPosition(const Position& pos);
     void setSize(const Size3D& size);
-    void setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices = {});
-    void setVertexData(const RenderShape& shape);
 
 private:
     void updateUniformes() override;

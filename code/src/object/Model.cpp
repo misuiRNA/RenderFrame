@@ -2,8 +2,8 @@
 #include "ModelMeshLoader.h"
 
 
-static std::vector<Model3D::Vertex> MeshVertex2Vertex(const std::vector<Mesh::Vertex>& meshVertices) {
-    std::vector<Model3D::Vertex> vertices;
+static std::vector<Model3DVertex> MeshVertex2Vertex(const std::vector<Mesh::Vertex>& meshVertices) {
+    std::vector<Model3DVertex> vertices;
     vertices.reserve(meshVertices.size());
     for (const Mesh::Vertex& meshVert : meshVertices) {
         vertices.push_back({meshVert.position, meshVert.normal, meshVert.texCoords});

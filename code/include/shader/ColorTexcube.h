@@ -5,19 +5,23 @@
 #include "BaseDefine.h"
 #include "Image.h"
 
-struct ColorTexcube : public AbstractShader {
-    struct Vertex {
-        Vertex(const Position& pos) : pos(pos) { }
-        Position pos;
-    };
+struct ColorTexcubeVertex {
+    ColorTexcubeVertex(const Position& pos) : pos(pos) { }
+    ColorTexcubeVertex(const RenderShape::Vertex& data) : pos(data.pos) { }
+    Position pos;
 
+    static const std::vector<ShaderAttribDescriptor> DESCRIPTOR;
+};
+
+struct ColorTexcube : public AbstractShader<ColorTexcubeVertex> {
     ColorTexcube();
+
     void setImage(const AbstractImage& image);
     void setPosition(const Position& pos);
-    void setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices = {});
-    void setVertexData(const RenderShape& shape);
+
 private:
     void updateUniformes() override;
+
 private:
     Attitude3DController _attitudeCtrl;
 };

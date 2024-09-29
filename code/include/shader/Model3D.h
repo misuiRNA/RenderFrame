@@ -7,18 +7,22 @@
 #include <map>
 #include <vector>
 
-struct Model3D : AbstractShader {
-    struct Vertex {
-        Vector3D pos;
-        Vector3D normal;
-        Vector2D texCoords;
-    };
+struct Model3DVertex {
+    Model3DVertex(Position pos, Vector3D normal, Vector2D texCoord) : pos(pos), texCoords(texCoord), normal(normal) { }
+    Model3DVertex(const RenderShape::Vertex& data) : pos(data.pos), normal(data.normal), texCoords(data.texcoord) { }
+    Vector3D pos;
+    Vector3D normal;
+    Vector2D texCoords;
+
+    static const std::vector<ShaderAttribDescriptor> DESCRIPTOR;
+};
+
+struct Model3D : AbstractShader<Model3DVertex> {
 
     Model3D();
     void setPosition(const Position& pos);
     void setSize(const Size3D& size);
     void setTexture(const std::string& name, unsigned int textureId);
-    void setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices);
     Attitude3DController& getAttituedeCtrl();
 
 private:
