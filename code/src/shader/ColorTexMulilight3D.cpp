@@ -20,7 +20,7 @@ const std::vector<ShaderAttribDescriptor> ColorTexMulilight3DVertex::DESCRIPTOR 
 ColorTexMulilight3D::ColorTexMulilight3D(const Size3D& size)
 : AbstractShader(GetShaderProg(), RenderDataMode::TRIANGLES)
 , _attitudeCtrl({0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, size)
-, _imageCount(0)
+, _imageEnable(false)
 , _color(1.0f, 1.0f, 1.0f) {
     _renderData.setUniform("material", ShaderMaterial(_color * 0.2f, _color * 0.8f, _color * 1.0f));
 }
@@ -28,7 +28,7 @@ ColorTexMulilight3D::ColorTexMulilight3D(const Size3D& size)
 ColorTexMulilight3D::ColorTexMulilight3D(const ColorTexMulilight3D& oth)
 : AbstractShader(GetShaderProg(), RenderDataMode::TRIANGLES)
 , _attitudeCtrl(oth._attitudeCtrl)
-, _imageCount(oth._imageCount)
+, _imageEnable(oth._imageEnable)
 , _color(oth._color) {
     _renderData.setUniform("material", ShaderMaterial(_color * 0.2f, _color * 0.8f, _color * 1.0f));
 }
@@ -45,13 +45,14 @@ void ColorTexMulilight3D::setColor(const Color& color) {
     _color = color;
 }
 
-void ColorTexMulilight3D::addImage(const AbstractImage& image) {
-    _imageCount += 1;
-    if (_imageCount == 1) {
-        _renderData.setTexture("texture1", image.getTexture(ImageWrapMode::Repeat));
-    } else if (_imageCount == 2) {
-        _renderData.setTexture("texture2", image.getTexture(ImageWrapMode::Repeat));
-    }
+void ColorTexMulilight3D::setPrimaryImage(const AbstractImage& image) {
+    _renderData.setTexture("texture1", image.getTexture(ImageWrapMode::Repeat));
+    _imageEnable = true;
+}
+
+void ColorTexMulilight3D::setSecondaryImage(const AbstractImage& image) {
+    _renderData.setTexture("texture2", image.getTexture(ImageWrapMode::Repeat));
+    _imageEnable = true;
 }
 
 Attitude3DController& ColorTexMulilight3D::getAttituedeCtrl() {
@@ -63,7 +64,7 @@ void ColorTexMulilight3D::setMaterial(const ShaderMaterial& material) {
 }
 
 void ColorTexMulilight3D::updateUniformes() {
-    _renderData.setUniform("imageEnable", _imageCount);
+    _renderData.setUniform("imageEnable", _imageEnable);
     _renderData.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
     _renderData.setUniform("modelMatrix", _attitudeCtrl.getMatrix());
 }

@@ -14,9 +14,9 @@ struct Color3DVertex {
 struct Color3D : AbstractShader<Color3DVertex> {
     Color3D(bool isParallel);
 
-    void setColor(const Color& color);
     void setPosition(const Position& pos);
     void setSize(const Size3D& size);
+    void setColor(const Color& color);
 
 private:
     void updateUniformes() override;

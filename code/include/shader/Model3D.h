@@ -3,6 +3,7 @@
 
 #include "shader/AbstractShader.h"
 #include "Attitude3DController.h"
+#include "Image.h"
 #include <string>
 #include <map>
 #include <vector>
@@ -22,7 +23,10 @@ struct Model3D : AbstractShader<Model3DVertex> {
     Model3D();
     void setPosition(const Position& pos);
     void setSize(const Size3D& size);
-    void setTexture(const std::string& name, unsigned int textureId);
+    void setDiffuseImage(int index, const AbstractImage& image);
+    void setSpecularImage(int index, const AbstractImage& image);
+    void setNormalImage(int index, const AbstractImage& image);
+    void setHeightImage(int index, const AbstractImage& image);
     Attitude3DController& getAttituedeCtrl();
 
 private:

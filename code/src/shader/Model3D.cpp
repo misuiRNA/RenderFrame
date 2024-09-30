@@ -30,8 +30,24 @@ void Model3D::setSize(const Size3D& size) {
     _attitudeCtrl.setSize(size);
 }
 
-void Model3D::setTexture(const std::string& name, unsigned int textureId) {
-    _renderData.setTexture(name, textureId);
+void Model3D::setDiffuseImage(int index, const AbstractImage& image) {
+    std::string name = "diffuseTexture" + ShaderProgram::UniformArraySuffix(index);
+    _renderData.setTexture(name, image.getTexture(ImageWrapMode::Repeat));
+}
+
+void Model3D::setSpecularImage(int index, const AbstractImage& image) {
+    std::string name = "specularTexture" + ShaderProgram::UniformArraySuffix(index);
+    _renderData.setTexture(name, image.getTexture(ImageWrapMode::Repeat));
+}
+
+void Model3D::setNormalImage(int index, const AbstractImage& image) {
+    std::string name = "normalTexture" + ShaderProgram::UniformArraySuffix(index);
+    _renderData.setTexture(name, image.getTexture(ImageWrapMode::Repeat));
+}
+
+void Model3D::setHeightImage(int index, const AbstractImage& image) {
+    std::string name = "heightTexture" + ShaderProgram::UniformArraySuffix(index);
+    _renderData.setTexture(name, image.getTexture(ImageWrapMode::Repeat));
 }
 
 Attitude3DController& Model3D::getAttituedeCtrl() {

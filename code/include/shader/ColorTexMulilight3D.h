@@ -22,7 +22,8 @@ struct ColorTexMulilight3D : AbstractShader<ColorTexMulilight3DVertex> {
     void setPosition(const Position& pos);
     void setSize(const Size3D& size);
     void setColor(const Color& color);
-    void addImage(const AbstractImage& image);
+    void setPrimaryImage(const AbstractImage& image);
+    void setSecondaryImage(const AbstractImage& image);
     void setMaterial(const ShaderMaterial& material);
     Attitude3DController& getAttituedeCtrl();
 
@@ -33,7 +34,7 @@ private:
     Attitude3DController _attitudeCtrl;
     Color _color;
 
-    int _imageCount;
+    bool _imageEnable;
 };
 
 #endif

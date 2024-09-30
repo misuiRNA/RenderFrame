@@ -70,11 +70,11 @@ LocalImage::LocalImage(const std::string& path)
 
     _width = width;
     _height = height;
-    _data = data;
+    _dataHolder.reset(data, stbi_image_free);
 }
 
 LocalImage::~LocalImage() {
-    stbi_image_free(_data);
+    _dataHolder.reset();
 }
 
 int LocalImage::width() const {
@@ -86,14 +86,14 @@ int LocalImage::height() const {
 }
 
 unsigned char* LocalImage::data() const {
-    return _data;
+    return _dataHolder.get();
 }
 
 TextureId LocalImage::getTexture(ImageWrapMode wrapMode) const {
     auto it = _textureMap.find(wrapMode);
     if (it == _textureMap.end()) {
         unsigned int glWrapMode = WrapMode2GL(wrapMode);
-        _textureMap[wrapMode] = GenTexture(_data, _width, _height, _format, glWrapMode);
+        _textureMap[wrapMode] = GenTexture(_dataHolder.get(), _width, _height, _format, glWrapMode);
     }
     return _textureMap[wrapMode];
 }

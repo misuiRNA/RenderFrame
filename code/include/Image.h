@@ -31,7 +31,7 @@ private:
     int _width;
     int _height;
     unsigned int _format;
-    unsigned char* _data;
+    std::shared_ptr<unsigned char> _dataHolder;
 
     mutable std::map<ImageWrapMode, TextureId> _textureMap;
 };

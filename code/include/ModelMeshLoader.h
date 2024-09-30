@@ -2,6 +2,7 @@
 #define MODEL_OBJ_LOADER_H
 
 #include "BaseDefine.h"
+#include "Image.h"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -32,9 +33,10 @@ struct Mesh {
             HEIGHT   = 3,
         };
 
+        Texture(const LocalImage& image) : image(image) { }
+
         Type type;
-        unsigned int id;
-        std::string key;
+        LocalImage image;
     };
 
     Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<Texture>& textures);

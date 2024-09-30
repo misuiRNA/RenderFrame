@@ -11,40 +11,6 @@ static std::vector<Model3DVertex> MeshVertex2Vertex(const std::vector<Mesh::Vert
     return vertices;
 }
 
-static std::map<std::string, unsigned int> MeshTextures2TextureMap(const std::vector<Mesh::Texture>& textures) {
-    std::map<std::string, unsigned int> textureMap;
-    unsigned int diffuseNr  = 0;
-    unsigned int specularNr = 0;
-    unsigned int normalNr   = 0;
-    unsigned int heightNr   = 0;
-    for(unsigned int index = 0; index < textures.size(); index++) {
-        std::string uniformName;
-        switch (textures[index].type) {
-            case Mesh::Texture::Type::DIFFUSE: {
-                uniformName = "diffuseTexture" + ShaderProgram::UniformArraySuffix(diffuseNr++);
-                break;
-            }
-            case Mesh::Texture::Type::SPECULAR: {
-                uniformName = "specularTexture" + ShaderProgram::UniformArraySuffix(specularNr++);
-                break;
-            }
-            case Mesh::Texture::Type::NORMAL: {
-                uniformName = "normalTexture" + ShaderProgram::UniformArraySuffix(normalNr++);
-                break;
-            }
-            case Mesh::Texture::Type::HEIGHT: {
-                uniformName = "heightTexture" + ShaderProgram::UniformArraySuffix(heightNr++);
-                break;
-            }
-            default:
-                // error log
-                break;
-        }
-        textureMap[uniformName] = textures[index].id;
-    }
-    return textureMap;
-}
-
 Model3DDrawObject::Model3DDrawObject(std::string const& path) {
     load(path);
 }
@@ -83,11 +49,36 @@ void Model3DDrawObject::load(const std::string& modelPath) {
         _meshDrawes.push_back(Model3D());
         Model3D& obj = _meshDrawes.back();
 
-        std::map<std::string, unsigned int> textureMap = MeshTextures2TextureMap(mesh.textures);
-        for (const auto& itr : textureMap) {
-            obj.setTexture(itr.first, itr.second);
-        }
         obj.setVertexData(MeshVertex2Vertex(mesh.vertices), mesh.indices);
+
+        unsigned int diffuseNr  = 0;
+        unsigned int specularNr = 0;
+        unsigned int normalNr   = 0;
+        unsigned int heightNr   = 0;
+        for(unsigned int index = 0; index < mesh.textures.size(); index++) {
+            const Mesh::Texture& texture = mesh.textures[index];
+            switch (texture.type) {
+                case Mesh::Texture::Type::DIFFUSE: {
+                    obj.setDiffuseImage(diffuseNr++, texture.image);
+                    break;
+                }
+                case Mesh::Texture::Type::SPECULAR: {
+                    obj.setSpecularImage(specularNr++, texture.image);
+                    break;
+                }
+                case Mesh::Texture::Type::NORMAL: {
+                    obj.setNormalImage(normalNr++, texture.image);
+                    break;
+                }
+                case Mesh::Texture::Type::HEIGHT: {
+                    obj.setHeightImage(heightNr++, texture.image);
+                    break;
+                }
+                default:
+                    // error log
+                    break;
+            }
+        }
     }
 }
 

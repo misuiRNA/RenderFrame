@@ -1,6 +1,5 @@
 #include "ModelMeshLoader.h"
 #include <iostream>
-#include "Image.h"
 
 
 Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<Texture>& textures)
@@ -101,13 +100,12 @@ std::vector<Mesh::Texture> ModelMeshLoader::loadMaterialTextures(aiMaterial* mat
         mat->GetTexture(aiType, index, &aiTextureName);
         std::string textureName = aiTextureName.C_Str();
         if (_texturesLoadedMap.find(textureName) == _texturesLoadedMap.end()) {
-            Mesh::Texture& texture = _texturesLoadedMap[textureName];
             LocalImage image(_directory + "/" + textureName);
-            texture.id = image.getTexture(ImageWrapMode::Repeat);
+            _texturesLoadedMap.emplace(textureName, image);
+            Mesh::Texture& texture = _texturesLoadedMap.at(textureName);
             texture.type = type;
-            texture.key = textureName;
         }
-        textures.push_back(_texturesLoadedMap[textureName]);
+        textures.push_back(_texturesLoadedMap.at(textureName));
     }
     return textures;
 }

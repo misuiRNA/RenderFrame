@@ -284,10 +284,10 @@ int main() {
         cuboids.emplace_back(Vector3D(1.0f, 1.0f, 1.0f));
         ColorTexMulilight3D& cuboid = cuboids.back();
         cuboid.setPosition(cuboidPositions[index]);
-        // cuboid.addImage(mirrorCanva);
-        cuboid.addImage(awesomefaceImage);
-        cuboid.addImage(containerImage);
-        // cuboid.addImage(matrixImage);
+        // cuboid.setPrimaryImage(mirrorCanva);
+        cuboid.setPrimaryImage(awesomefaceImage);
+        cuboid.setSecondaryImage(containerImage);
+        // cuboid.setSecondaryImage(matrixImage);
 
         cuboid.setVertexData(cubeShape);
     }
@@ -298,15 +298,15 @@ int main() {
     cuboid.setPosition({0.0f, 2.0f, 0.0f});
     // cuboid.setColor(Color(1.0f, 0.5f, 0.31f));
     cuboid.setColor(Color(1.0f, 1.0f, 1.0f));
-    // cuboid.addImage(containerImage);
-    // cuboid.addImage(awesomefaceImage);
+    // cuboid.setPrimaryImage(containerImage);
+    // cuboid.setSecondaryImage(awesomefaceImage);
     cuboid.setMaterial(material);
     cuboid.setVertexData(cubeShape);
 
     ColorTexMulilight3D cuboid1({1.0f, 1.0f, 1.0f});
     cuboid1.setPosition({1.0f, -3.5f, 0.0f});
     cuboid1.setSize({1.25f, 5.0f, 0.75f});
-    cuboid1.addImage(wallImage);
+    cuboid1.setPrimaryImage(wallImage);
     // cuboid1.setMaterial(material);
     // cuboid1.getAttituedeCtrl().setFront({0.0f, 1.0f, 0.0f});
     cuboid1.setVertexData(tetrahedronShape);
