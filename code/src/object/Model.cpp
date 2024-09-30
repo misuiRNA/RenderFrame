@@ -1,15 +1,7 @@
 #include "object/Model.h"
 #include "ModelMeshLoader.h"
+#include "Utils.h"
 
-
-static std::vector<Model3DVertex> MeshVertex2Vertex(const std::vector<Mesh::Vertex>& meshVertices) {
-    std::vector<Model3DVertex> vertices;
-    vertices.reserve(meshVertices.size());
-    for (const Mesh::Vertex& meshVert : meshVertices) {
-        vertices.push_back({meshVert.position, meshVert.normal, meshVert.texCoords});
-    }
-    return vertices;
-}
 
 Model3DDrawObject::Model3DDrawObject(std::string const& path) {
     load(path);
@@ -49,7 +41,9 @@ void Model3DDrawObject::load(const std::string& modelPath) {
         _meshDrawes.push_back(Model3D());
         Model3D& obj = _meshDrawes.back();
 
-        obj.setVertexData(MeshVertex2Vertex(mesh.vertices), mesh.indices);
+        std::function<Model3DVertex(const Mesh::Vertex&)> convert = [](const Mesh::Vertex& v) -> Model3DVertex { return {v.position, v.normal, v.texCoords}; };
+        std::vector<Model3DVertex> vertices = ConvertList(mesh.vertices, convert);
+        obj.setVertexData(vertices, mesh.indices);
 
         unsigned int diffuseNr  = 0;
         unsigned int specularNr = 0;

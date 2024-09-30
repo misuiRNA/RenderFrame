@@ -31,9 +31,10 @@ struct Mesh {
             SPECULAR = 1,
             NORMAL   = 2,
             HEIGHT   = 3,
+            UNKNOWN  = 4
         };
 
-        Texture(const LocalImage& image) : image(image) { }
+        Texture(const LocalImage& image, Type type) : type(type), image(image) { }
 
         Type type;
         LocalImage image;
@@ -54,7 +55,7 @@ struct ModelMeshLoader {
 private:
     void processNode(aiNode* node, const aiScene* scene);
     Mesh processMesh(aiMesh* mesh, const aiScene* scene);
-    std::vector<Mesh::Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType aiType, Mesh::Texture::Type type);
+    std::vector<Mesh::Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType aiType);
 
 private:
     bool _gammaCorrection;

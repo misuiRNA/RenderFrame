@@ -50,17 +50,6 @@ struct RenderShape {
 
     RenderShape(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices = {}) : vertices(vertices), indices(indices) { }
 
-    // TODO: 优化性能, 减少内存拷贝
-    template <typename T>
-    std::vector<T> getVertices() const {
-        std::vector<T> result;
-        result.reserve(vertices.size());
-        for (const auto& v : vertices) {
-            result.emplace_back(v);
-        }
-        return result;
-    }
-
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
 };
