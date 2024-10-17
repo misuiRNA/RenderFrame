@@ -87,20 +87,10 @@ struct RenderData {
 
     ShaderProgram& getShaderProgram() const;
     void draw();
-
-    template <typename T>
-    void setVertices(const std::vector<T>& vertices, const ShaderAttribDescriptor& desc) {
-        setVertices(vertices.size(), vertices.data(), desc);
-    }
-
-    template <typename T>
-    void setInstanceVertices(const std::vector<T>& vertices, const ShaderAttribDescriptor& desc) {
-        setInstanceVertices(vertices.size(), vertices.data(), desc);
-    }
-
-private:
     void setVertices(size_t vertexCount, const void* data, const ShaderAttribDescriptor& desc);
     void setInstanceVertices(size_t vertexCount, const void* data, const ShaderAttribDescriptor& desc);
+
+private:
     void useTextures();
     void resetTextures();
     void useUniforms();

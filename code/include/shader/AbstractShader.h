@@ -16,7 +16,7 @@ struct AbstractShader {
 
     // TODO: 优化, 重新设置顶点数据后需要清除旧顶点VBO
     void setVertexData(const std::vector<VertexType>& vertices, const std::vector<unsigned int>& indices) {
-        _renderData.setVertices(vertices, VertexType::DESCRIPTOR);
+        _renderData.setVertices(vertices.size(), vertices.data(), VertexType::DESCRIPTOR);
         if (!indices.empty()) {
             _renderData.setIndices(indices);
         }

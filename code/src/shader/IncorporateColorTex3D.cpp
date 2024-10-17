@@ -65,5 +65,5 @@ void IncorporateColorTex3D::mergeCopies(std::vector<IncorporateColorTex3D>& rect
         ITEM(Matrix4X4, 5, "aInstanceMat-2", _data2),
         ITEM(Matrix4X4, 6, "aInstanceMat-3", _data3),
     );
-    _renderData.setInstanceVertices(modelMatrices, desc);
+    _renderData.setInstanceVertices(modelMatrices.size(), modelMatrices.data(), desc);
 }
