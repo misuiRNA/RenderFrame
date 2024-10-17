@@ -78,8 +78,8 @@ RenderData::~RenderData() {
     _uniformFunctions.clear();
 }
 
-void RenderData::setVertices(size_t vertexCount, size_t verticeStride, const void* data, const std::vector<ShaderAttribDescriptor>& descs) {
-    unsigned int VBO = CreateVBO(vertexCount * verticeStride, data);
+void RenderData::setVertices(size_t vertexCount, const void* data, const ShaderAttribDescriptor& desc) {
+    unsigned int VBO = CreateVBO(vertexCount * desc.stride, data);
 
     if (VAOID() == 0) {
         glGenVertexArrays(1, _VAOHolder.get());
@@ -87,13 +87,10 @@ void RenderData::setVertices(size_t vertexCount, size_t verticeStride, const voi
     }
     glBindVertexArray(VAOID());
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    for (const ShaderAttribDescriptor& desc : descs)
+    for (const ShaderAttribDescriptor::AttribItem& item : desc.items)
     {
-        if (verticeStride != desc.stride) {
-            printf("Error: vertice buffer is not match with descriptor\n");
-        }
-        glVertexAttribPointer(desc.index, desc.size, GL_FLOAT, GL_FALSE, desc.stride, desc.pointer);
-        glEnableVertexAttribArray(desc.index);
+        glVertexAttribPointer(item.index, item.size, GL_FLOAT, GL_FALSE, desc.stride, item.data);
+        glEnableVertexAttribArray(item.index);
     }
     glBindVertexArray(0);
 
@@ -103,8 +100,8 @@ void RenderData::setVertices(size_t vertexCount, size_t verticeStride, const voi
     _vertexCount = vertexCount;
 }
 
-void RenderData::setInstanceVertices(size_t vertexCount, size_t verticeStride, const void* data, const std::vector<ShaderAttribDescriptor>& descs) {
-        unsigned int VBO = CreateVBO(vertexCount * verticeStride, data);
+void RenderData::setInstanceVertices(size_t vertexCount, const void* data, const ShaderAttribDescriptor& desc) {
+    unsigned int VBO = CreateVBO(vertexCount * desc.stride, data);
 
     if (VAOID() == 0) {
         glGenVertexArrays(1, _VAOHolder.get());
@@ -112,14 +109,11 @@ void RenderData::setInstanceVertices(size_t vertexCount, size_t verticeStride, c
     }
     glBindVertexArray(VAOID());
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    for (const ShaderAttribDescriptor& desc : descs)
+    for (const ShaderAttribDescriptor::AttribItem& item : desc.items)
     {
-        if (verticeStride != desc.stride) {
-            printf("Error: vertice buffer is not match with descriptor\n");
-        }
-        glVertexAttribPointer(desc.index, desc.size, GL_FLOAT, GL_FALSE, desc.stride, desc.pointer);
-        glEnableVertexAttribArray(desc.index);
-        glVertexAttribDivisor(desc.index, 1);
+        glVertexAttribPointer(item.index, item.size, GL_FLOAT, GL_FALSE, desc.stride, item.data);
+        glEnableVertexAttribArray(item.index);
+        glVertexAttribDivisor(item.index, 1);
     }
     glBindVertexArray(0);
 

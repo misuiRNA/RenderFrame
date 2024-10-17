@@ -26,11 +26,7 @@ struct AbstractShader {
         // TODO: 优化性能, 减少内存拷贝
         std::function<VertexType(const RenderShape::Vertex&)> convert = [](const RenderShape::Vertex& sv) -> VertexType { return {sv}; };
         std::vector<VertexType> vertices = ConvertList(shape.vertices, convert);
-
-        _renderData.setVertices(vertices, VertexType::DESCRIPTOR);
-        if (!shape.indices.empty()) {
-            _renderData.setIndices(shape.indices);
-        }
+        setVertexData(vertices, shape.indices);
     }
 
 private:

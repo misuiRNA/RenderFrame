@@ -3,18 +3,18 @@
 #include "Utils.h"
 
 
+const ShaderAttribDescriptor ColorTexMulilight3DVertex::DESCRIPTOR = DESC_NEW(ColorTexMulilight3DVertex,
+    ITEM(ColorTexMulilight3DVertex, 0, "aPos",      pos),
+    ITEM(ColorTexMulilight3DVertex, 1, "aTexCoord", texCoord),
+    ITEM(ColorTexMulilight3DVertex, 2, "aNormal",   normal)
+);
+
 static ShaderProgram& GetShaderProg() {
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/glsl/ColorTexMulilight3DShader.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/glsl/ColorTexMulilight3DShader.fs");
     static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR);
     return prog;
 }
-
-const std::vector<ShaderAttribDescriptor> ColorTexMulilight3DVertex::DESCRIPTOR = {
-    DESC("aPos",      0, ColorTexMulilight3DVertex, pos),
-    DESC("aTexCoord", 1, ColorTexMulilight3DVertex, texCoord),
-    DESC("aNormal",   2, ColorTexMulilight3DVertex, normal)
-};
 
 
 ColorTexMulilight3D::ColorTexMulilight3D(const Size3D& size)

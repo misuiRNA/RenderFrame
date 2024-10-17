@@ -2,17 +2,16 @@
 #include "Utils.h"
 
 
+const ShaderAttribDescriptor ColorTexcubeVertex::DESCRIPTOR = DESC_NEW(ColorTexcubeVertex,
+    ITEM(ColorTexcubeVertex, 0, "aPos", pos),
+);
+
 static ShaderProgram& GetShaderProg() {
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/glsl/ColorTexcubeShader.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/glsl/ColorTexcubeShader.fs");
     static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR);
     return prog;
 }
-
-const std::vector<ShaderAttribDescriptor> ColorTexcubeVertex::DESCRIPTOR = {
-    DESC("aPos", 0, ColorTexcubeVertex, pos),
-};
-
 
 
 ColorTexcube::ColorTexcube()

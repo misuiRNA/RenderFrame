@@ -11,7 +11,7 @@ struct ColorTex3DVertex {
     Position pos;
     Vector2D texcoord;
 
-    static const std::vector<ShaderAttribDescriptor> DESCRIPTOR;
+    static const ShaderAttribDescriptor DESCRIPTOR;
 };
 
 struct ColorTex3D : AbstractShader<ColorTex3DVertex> {

@@ -10,7 +10,7 @@ struct ColorTex2DVertex {
     Vector3D pos;
     Vector2D texCoord;
 
-    static const std::vector<ShaderAttribDescriptor> DESCRIPTOR;
+    static const ShaderAttribDescriptor DESCRIPTOR;
 };
 
 struct ColorTex2D : AbstractShader<ColorTex2DVertex> {

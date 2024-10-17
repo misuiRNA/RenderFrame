@@ -8,7 +8,7 @@ struct Color3DVertex {
     Color3DVertex(const RenderShape::Vertex& data) : pos(data.pos) { }
     Position pos;
 
-    static const std::vector<ShaderAttribDescriptor> DESCRIPTOR;
+    static const ShaderAttribDescriptor DESCRIPTOR;
 };
 
 struct Color3D : AbstractShader<Color3DVertex> {

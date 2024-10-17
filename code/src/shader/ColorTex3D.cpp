@@ -3,6 +3,11 @@
 #include "Utils.h"
 
 
+const ShaderAttribDescriptor ColorTex3DVertex::DESCRIPTOR = DESC_NEW(ColorTex3DVertex,
+    ITEM(ColorTex3DVertex, 0, "aPos",      pos),
+    ITEM(ColorTex3DVertex, 1, "aTexCoord", texcoord),
+);
+
 // TODO: 优化, 1.shader字符串编译时确定，不读取文件；2.返回的路径位置应为可执行文件位置，而不是执行命令的位置 考虑使用 std::filesystem
 static ShaderProgram& GetShaderProg() {
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/glsl/ColorTex3DShader.vs");
@@ -10,11 +15,6 @@ static ShaderProgram& GetShaderProg() {
     static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR);
     return prog;
 }
-
-const std::vector<ShaderAttribDescriptor> ColorTex3DVertex::DESCRIPTOR = {
-    DESC("aPos",      0, ColorTex3DVertex, pos),
-    DESC("aTexCoord", 1, ColorTex3DVertex, texcoord),
-};
 
 
 ColorTex3D::ColorTex3D(const Size3D& size)

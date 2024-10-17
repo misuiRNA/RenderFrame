@@ -2,6 +2,11 @@
 #include "Utils.h"
 
 
+const ShaderAttribDescriptor ColorGeometryPointVertex::DESCRIPTOR = DESC_NEW(ColorGeometryPointVertex,
+    ITEM(ColorGeometryPointVertex, 0, "aPos",   pos),
+    ITEM(ColorGeometryPointVertex, 1, "aColor", color)
+);
+
 static ShaderProgram& GetShaderProg() {
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/glsl/ColorGeometryPointShader.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/glsl/ColorGeometryPointShader.fs");
@@ -9,11 +14,6 @@ static ShaderProgram& GetShaderProg() {
     static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, GS_SHADER_STR);
     return prog;
 }
-
-const std::vector<ShaderAttribDescriptor> ColorGeometryPointVertex::DESCRIPTOR = {
-    DESC("aPos",   0, ColorGeometryPointVertex, pos),
-    DESC("aColor", 1, ColorGeometryPointVertex, color)
-};
 
 
 ColorGeometryPoint::ColorGeometryPoint()

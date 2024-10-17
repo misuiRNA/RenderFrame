@@ -3,6 +3,11 @@
 #include "Utils.h"
 
 
+const ShaderAttribDescriptor IncorporateColorTex3DVertex::DESCRIPTOR = DESC_NEW(IncorporateColorTex3DVertex,
+    ITEM(IncorporateColorTex3DVertex, 0, "aPos",      pos),
+    ITEM(IncorporateColorTex3DVertex, 1, "aTexCoord", texcoord),
+);
+
 // TODO: 优化, 1.shader字符串编译时确定，不读取文件；2.返回的路径位置应为可执行文件位置，而不是执行命令的位置 考虑使用 std::filesystem
 static ShaderProgram& GetShaderProg() {
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/glsl/Instanced3DShader.vs");
@@ -10,12 +15,6 @@ static ShaderProgram& GetShaderProg() {
     static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR);
     return prog;
 }
-
-const std::vector<ShaderAttribDescriptor> IncorporateColorTex3DVertex::DESCRIPTOR = {
-    DESC("aPos",      0, IncorporateColorTex3DVertex, pos),
-    DESC("aTexCoord", 1, IncorporateColorTex3DVertex, texcoord),
-};
-
 
 
 IncorporateColorTex3D::IncorporateColorTex3D(const Size3D& size)
@@ -60,11 +59,11 @@ void IncorporateColorTex3D::mergeCopies(std::vector<IncorporateColorTex3D>& rect
     }
 
     // OpenGL 不直接支持矩阵类型 mat4, 需要把它分成4个独立的 vec4 处理, 每个 vec4 必须单独绑定到一个顶点属性位置
-    std::vector<ShaderAttribDescriptor> descs = {
-        DESC("aInstanceMat-0", 3, Matrix4X4, _data0),
-        DESC("aInstanceMat-1", 4, Matrix4X4, _data1),
-        DESC("aInstanceMat-2", 5, Matrix4X4, _data2),
-        DESC("aInstanceMat-3", 6, Matrix4X4, _data3),
-    };
-    _renderData.setInstanceVertices(modelMatrices, descs);
+    static const ShaderAttribDescriptor desc = DESC_NEW(Matrix4X4,
+        ITEM(Matrix4X4, 3, "aInstanceMat-0", _data0),
+        ITEM(Matrix4X4, 4, "aInstanceMat-1", _data1),
+        ITEM(Matrix4X4, 5, "aInstanceMat-2", _data2),
+        ITEM(Matrix4X4, 6, "aInstanceMat-3", _data3),
+    );
+    _renderData.setInstanceVertices(modelMatrices, desc);
 }

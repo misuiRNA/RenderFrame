@@ -7,17 +7,17 @@
 #include "Utils.h"
 
 
+const ShaderAttribDescriptor ColorTex2DVertex::DESCRIPTOR = DESC_NEW(ColorTex2DVertex,
+    ITEM(ColorTex2DVertex, 0, "aPos",      pos),
+    ITEM(ColorTex2DVertex, 1, "aTexCoord", texCoord),
+);
+
 static ShaderProgram& GetShaderProg() {
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/glsl/ColorTex2DShader.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/glsl/ColorTex2DShader.fs");
     static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR);
     return prog;
 }
-
-const std::vector<ShaderAttribDescriptor> ColorTex2DVertex::DESCRIPTOR = {
-    DESC("aPos",      0, ColorTex2DVertex, pos),
-    DESC("aTexCoord", 1, ColorTex2DVertex, texCoord),
-};
 
 
 ColorTex2D::ColorTex2D(float width, float height)

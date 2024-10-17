@@ -15,7 +15,7 @@ struct Model3DVertex {
     Vector3D normal;
     Vector2D texCoords;
 
-    static const std::vector<ShaderAttribDescriptor> DESCRIPTOR;
+    static const ShaderAttribDescriptor DESCRIPTOR;
 };
 
 struct Model3D : AbstractShader<Model3DVertex> {

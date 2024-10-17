@@ -10,7 +10,7 @@ struct ColorTexcubeVertex {
     ColorTexcubeVertex(const RenderShape::Vertex& data) : pos(data.pos) { }
     Position pos;
 
-    static const std::vector<ShaderAttribDescriptor> DESCRIPTOR;
+    static const ShaderAttribDescriptor DESCRIPTOR;
 };
 
 struct ColorTexcube : public AbstractShader<ColorTexcubeVertex> {

@@ -13,22 +13,33 @@
 
 
 struct ShaderAttribDescriptor {
-    ShaderAttribDescriptor(std::string name, unsigned int index, unsigned int size, unsigned int stride, const void* pointer)
-    : name(name)
-    , index(index)
-    , size(size)
-    , stride(stride)
-    , pointer(pointer) { }
+    struct AttribItem {
+        AttribItem(std::string name, unsigned int index, unsigned int size, const void* data)
+        : name(name)
+        , index(index)
+        , size(size)
+        , data(data) { }
 
-    std::string name;
-    unsigned int index;
-    unsigned int size;
+        std::string name;
+        unsigned int index;
+        unsigned int size;
+        const void* data;
+    };
+
+    ShaderAttribDescriptor(unsigned int stride, const std::vector<AttribItem>& items)
+    : stride(stride)
+    , items(items) { }
+
     unsigned int stride;
-    const void* pointer;
+    std::vector<AttribItem> items;
 };
 
+
+#define DESC_NEW(TYPE, ...) {sizeof(TYPE), {__VA_ARGS__}}
+
 // remind: 要求MEMBER是float紧密填充的, 否则计算出的size不准
-#define DESC(NAME, INDEX, TYPE, MEMBER) ShaderAttribDescriptor(NAME, INDEX, sizeof(TYPE::MEMBER) / sizeof(float), sizeof(TYPE), (void*)offsetof(TYPE, MEMBER))
+#define ITEM(TYPE, INDEX, NAME, MEMBER) {NAME, INDEX, sizeof(TYPE::MEMBER) / sizeof(float), (void*)offsetof(TYPE, MEMBER)}
+
 
 enum class RenderDataMode {
     POINTS          = 0,
@@ -78,18 +89,18 @@ struct RenderData {
     void draw();
 
     template <typename T>
-    void setVertices(const std::vector<T>& vertices, const std::vector<ShaderAttribDescriptor>& descs) {
-        setVertices(vertices.size(), sizeof(T), vertices.data(), descs);
+    void setVertices(const std::vector<T>& vertices, const ShaderAttribDescriptor& desc) {
+        setVertices(vertices.size(), vertices.data(), desc);
     }
 
     template <typename T>
-    void setInstanceVertices(const std::vector<T>& vertices, const std::vector<ShaderAttribDescriptor>& descs) {
-        setInstanceVertices(vertices.size(), sizeof(T), vertices.data(), descs);
+    void setInstanceVertices(const std::vector<T>& vertices, const ShaderAttribDescriptor& desc) {
+        setInstanceVertices(vertices.size(), vertices.data(), desc);
     }
 
 private:
-    void setVertices(size_t vertexCount, size_t verticeStride, const void* data, const std::vector<ShaderAttribDescriptor>& descs);
-    void setInstanceVertices(size_t vertexCount, size_t verticeStride, const void* data, const std::vector<ShaderAttribDescriptor>& descs);
+    void setVertices(size_t vertexCount, const void* data, const ShaderAttribDescriptor& desc);
+    void setInstanceVertices(size_t vertexCount, const void* data, const ShaderAttribDescriptor& desc);
     void useTextures();
     void resetTextures();
     void useUniforms();

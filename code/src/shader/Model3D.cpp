@@ -2,18 +2,18 @@
 #include "Utils.h"
 
 
+const ShaderAttribDescriptor Model3DVertex::DESCRIPTOR = DESC_NEW(Model3DVertex,
+    ITEM(Model3DVertex, 0, "aPos",       pos),
+    ITEM(Model3DVertex, 1, "aNormal",    normal),
+    ITEM(Model3DVertex, 2, "aTexCoords", texCoords)
+);
+
 static ShaderProgram& GetShaderProg() {
     static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/glsl/Model3DlShader.vs");
     static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/glsl/Model3DlShader.fs");
     static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR);
     return prog;
 }
-
-const std::vector<ShaderAttribDescriptor> Model3DVertex::DESCRIPTOR = {
-    DESC("aPos",       0, Model3DVertex, pos),
-    DESC("aNormal",    1, Model3DVertex, normal),
-    DESC("aTexCoords", 2, Model3DVertex, texCoords),
-};
 
 
 Model3D::Model3D()

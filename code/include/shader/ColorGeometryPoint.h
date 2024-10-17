@@ -8,7 +8,7 @@ struct ColorGeometryPointVertex {
     Position pos;
     Color color;
 
-    static const std::vector<ShaderAttribDescriptor> DESCRIPTOR;
+    static const ShaderAttribDescriptor DESCRIPTOR;
 };
 
 

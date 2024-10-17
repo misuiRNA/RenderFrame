@@ -12,7 +12,7 @@ struct ColorTexMulilight3DVertex {
     Vector2D texCoord;
     Vector3D normal;
 
-    static const std::vector<ShaderAttribDescriptor> DESCRIPTOR;
+    static const ShaderAttribDescriptor DESCRIPTOR;
 };
 
 struct ColorTexMulilight3D : AbstractShader<ColorTexMulilight3DVertex> {
