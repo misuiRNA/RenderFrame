@@ -18,18 +18,20 @@ static ShaderProgram& GetShaderProg() {
 
 
 ColorTexMulilight3D::ColorTexMulilight3D(const Size3D& size)
-: AbstractShader(GetShaderProg(), RenderDataMode::TRIANGLES)
+: AbstractShader(GetShaderProg())
 , _attitudeCtrl({0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, size)
 , _imageEnable(false)
 , _color(1.0f, 1.0f, 1.0f) {
+
     _renderData.setUniform("material", ShaderMaterial(_color * 0.2f, _color * 0.8f, _color * 1.0f));
 }
 
 ColorTexMulilight3D::ColorTexMulilight3D(const ColorTexMulilight3D& oth)
-: AbstractShader(GetShaderProg(), RenderDataMode::TRIANGLES)
+: AbstractShader(GetShaderProg())
 , _attitudeCtrl(oth._attitudeCtrl)
 , _imageEnable(oth._imageEnable)
 , _color(oth._color) {
+
     _renderData.setUniform("material", ShaderMaterial(_color * 0.2f, _color * 0.8f, _color * 1.0f));
 }
 

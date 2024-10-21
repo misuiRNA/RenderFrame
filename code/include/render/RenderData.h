@@ -67,7 +67,7 @@ struct RenderShape {
 
 
 struct RenderData {
-    RenderData(ShaderProgram& prog, RenderDataMode mode);
+    RenderData(ShaderProgram& prog);
     RenderData(const RenderData& oth);
     RenderData(RenderData&& oth) noexcept;    // remind: 声明为 noexcept 系统才会优先使用移动构造函数
     ~RenderData();
@@ -84,6 +84,7 @@ struct RenderData {
     void setUniform(const std::string& name, const Matrix4X4& material);
     void setIndices(const std::vector<unsigned int>& indices);
     void setTexture(const std::string& name, unsigned int textureId);
+    void setDrawMode(RenderDataMode mode);
 
     ShaderProgram& getShaderProgram() const;
     void draw();
@@ -106,7 +107,7 @@ private:
 
 private:
     ShaderProgram& _prog;
-    const unsigned int _mode;
+    unsigned int _mode;
     std::shared_ptr<unsigned int> _VAOHolder;
 
     int _vertexCount;

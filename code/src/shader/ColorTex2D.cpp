@@ -21,7 +21,7 @@ static ShaderProgram& GetShaderProg() {
 
 
 ColorTex2D::ColorTex2D(float width, float height)
-: AbstractShader(GetShaderProg(), RenderDataMode::TRIANGLES)
+: AbstractShader(GetShaderProg())
 , _pos(0.0f, 0.0f, 0.0f)
 , _width(width)
 , _height(height)

@@ -17,7 +17,7 @@ static ShaderProgram& GetShaderProg() {
 
 
 Model3D::Model3D()
-: AbstractShader(GetShaderProg(), RenderDataMode::TRIANGLES)
+: AbstractShader(GetShaderProg())
 , _attitudeCtrl({0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}) {
 
 }

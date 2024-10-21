@@ -16,27 +16,9 @@ static void VAODeleter(unsigned int* VAOPtr) {
     delete VAOPtr;
 }
 
-unsigned int RenderDataMode2GLMode(RenderDataMode mode) {
-    static std::map<RenderDataMode, unsigned int> MODE_MAP = {
-        { RenderDataMode::POINTS,         GL_POINTS },
-        { RenderDataMode::LINES,          GL_LINES },
-        { RenderDataMode::LINE_LOOP,      GL_LINE_LOOP },
-        { RenderDataMode::LINE_STRIP,     GL_LINE_STRIP },
-        { RenderDataMode::TRIANGLES,      GL_TRIANGLES },
-        { RenderDataMode::TRIANGLE_FAN,   GL_TRIANGLE_FAN },
-        { RenderDataMode::TRIANGLE_STRIP, GL_TRIANGLE_STRIP }
-    };
-
-    unsigned int glMode = GL_POINTS;
-    if (MODE_MAP.find(mode) != MODE_MAP.end()) {
-        glMode = MODE_MAP[mode];
-    }
-    return glMode;
-}
-
-RenderData::RenderData(ShaderProgram& prog, RenderDataMode mode)
+RenderData::RenderData(ShaderProgram& prog)
 : _prog(prog)
-, _mode(RenderDataMode2GLMode(mode))
+, _mode(GL_TRIANGLES)
 , _VAOHolder(new unsigned int (0), VAODeleter)
 , _vertexCount(0)
 , _indexCount(0)
@@ -247,6 +229,28 @@ void RenderData::resetTextures() {
         glActiveTexture(GL_TEXTURE0 + textureSlotIdx);
         glBindTexture(GL_TEXTURE_2D, 0);
         textureSlotIdx++;
+    }
+}
+
+void RenderData::setDrawMode(RenderDataMode mode) {
+    static std::map<RenderDataMode, unsigned int> MODE_MAP = {
+        { RenderDataMode::POINTS,         GL_POINTS },
+        { RenderDataMode::LINES,          GL_LINES },
+        { RenderDataMode::LINE_LOOP,      GL_LINE_LOOP },
+        { RenderDataMode::LINE_STRIP,     GL_LINE_STRIP },
+        { RenderDataMode::TRIANGLES,      GL_TRIANGLES },
+        { RenderDataMode::TRIANGLE_FAN,   GL_TRIANGLE_FAN },
+        { RenderDataMode::TRIANGLE_STRIP, GL_TRIANGLE_STRIP }
+    };
+
+    unsigned int glMode = GL_TRIANGLES;
+    if (MODE_MAP.find(mode) != MODE_MAP.end()) {
+        glMode = MODE_MAP[mode];
+    }
+    _mode = glMode;
+
+    if (mode == RenderDataMode::POINTS) {
+        glEnable(GL_PROGRAM_POINT_SIZE);
     }
 }
 

@@ -18,7 +18,7 @@ static ShaderProgram& GetShaderProg() {
 
 
 IncorporateColorTex3D::IncorporateColorTex3D(const Size3D& size)
-: AbstractShader(GetShaderProg(), RenderDataMode::TRIANGLES)
+: AbstractShader(GetShaderProg())
 , _attitudeCtrl({0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {size.x, size.y, 1.0f})
 , _textureEnable(false) {
 

@@ -17,13 +17,14 @@ static ShaderProgram& GetShaderProg() {
 
 
 ColorGeometryPoint::ColorGeometryPoint()
-: AbstractShader(GetShaderProg(), RenderDataMode::POINTS) {
-
+: AbstractShader(GetShaderProg()) {
+    setDrawMode(RenderDataMode::POINTS);
 }
 
 ColorGeometryPoint::ColorGeometryPoint(const std::vector<ColorGeometryPointVertex>& points)
-: AbstractShader(GetShaderProg(), RenderDataMode::POINTS)
+: AbstractShader(GetShaderProg())
 , _points(points) {
+    setDrawMode(RenderDataMode::POINTS);
     setVertexData(points, {});
 }
 

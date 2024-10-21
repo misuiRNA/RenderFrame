@@ -19,7 +19,7 @@ static ShaderProgram& GetShaderProg() {
 
 
 Color3D::Color3D(bool isParallel)
-: AbstractShader(GetShaderProg(), RenderDataMode::TRIANGLES)
+: AbstractShader(GetShaderProg())
 , _pos(0.0f, 0.0f, 0.0f)
 , _size(1.0f, 1.0f, 1.0f)
 , _color(1.0f, 1.0f, 1.0f) {

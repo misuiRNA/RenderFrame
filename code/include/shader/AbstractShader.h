@@ -6,12 +6,16 @@
 
 template <typename VertexType>
 struct AbstractShader {
-    AbstractShader(ShaderProgram& prog, RenderDataMode mode) : _renderData(prog, mode) { }
+    AbstractShader(ShaderProgram& prog) : _renderData(prog) { }
     virtual ~AbstractShader() { }
 
     void show() {
         updateUniformes();
         _renderData.draw();
+    }
+
+    void setDrawMode(RenderDataMode mode) {
+        _renderData.setDrawMode(mode);
     }
 
     // TODO: 优化, 重新设置顶点数据后需要清除旧顶点VBO

@@ -112,6 +112,7 @@ static void SortWitDistance(std::vector<Position>& positions, Position centerPos
 extern RenderShape cubeShape;
 extern RenderShape tetrahedronShape;
 extern RenderShape rectShape;
+extern RenderShape circleShape;
 
 int main() {
     GLFWwindow* window = InitWindows();
@@ -311,6 +312,13 @@ int main() {
     // cuboid1.getAttituedeCtrl().setFront({0.0f, 1.0f, 0.0f});
     cuboid1.setVertexData(tetrahedronShape);
 
+    ColorTexMulilight3D circle1({1.0f, 1.0f, 1.0f});
+    circle1.setDrawMode(RenderDataMode::LINE_STRIP);
+    circle1.setPosition({-1.0f, 3.0f, 2.0f});
+    circle1.setVertexData(circleShape);
+    circle1.setColor(Color(1.0f, 0.0f, 0.0f));
+    circle1.getAttituedeCtrl().setFront({1.0f, 0.0f, 0.0f}).setUp({0.0f, 0.0f, 1.0f});
+
     Model3DDrawObject nanosuit(GetCurPath() + "/resource/models/nanosuit/nanosuit.obj");
     nanosuit.setSize({0.1, 0.1, 0.1});
     nanosuit.setPosition({0.0f, 1.5f, 1.5f});
@@ -374,6 +382,7 @@ int main() {
         light1.show();
         cuboid.show();
         cuboid1.show();
+        circle1.show();
 
         nanosuit.show();
         airplan.show();
