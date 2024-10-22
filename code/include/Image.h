@@ -66,4 +66,6 @@ private:
 };
 
 
+void Screenshot(const std::string& filename, int width, int height);
+
 #endif // _HEAD_FLAG_IMAGE_H

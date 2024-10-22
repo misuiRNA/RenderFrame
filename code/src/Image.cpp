@@ -203,5 +203,32 @@ TextureId CubeImage::getTexture(ImageWrapMode wrapMode) const {
     return _textureId;
 }
 
+
+#include "stb_image_write.h"  // 用于保存图像
+#include <vector>
+
+void Screenshot(const std::string& filename, int width, int height) {
+    const int formatSize = 3;
+    std::vector<unsigned char> pixels(width * height * formatSize);
+    glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
+
+    // OpenGL 读取的数据是从左下角开始的，而大多数图像格式要求从左上角开始，因此需要翻转图像
+    for (int y = 0; y < height / 2; ++y) {
+        for (int x = 0; x < width * formatSize; ++x) {
+            std::swap(pixels[y * width * formatSize + x], pixels[(height - 1 - y) * width * formatSize + x]);
+        }
+    }
+
+    if (stbi_write_png(filename.c_str(), width, height, formatSize, pixels.data(), width * formatSize)) {
+        std::cout << "Screenshot done:  " << filename << std::endl;
+    } else {
+        std::cerr << "Screenshot failed!" << std::endl;
+    }
+}
+
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"

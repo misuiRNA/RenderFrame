@@ -127,9 +127,11 @@ int main() {
     glStencilOp(GL_ZERO, GL_KEEP, GL_REPLACE);
     glDepthFunc(GL_LEQUAL);
     // glEnable(GL_PROGRAM_POINT_SIZE);
+    std::string screenshotPath = GetCurPath() + "/resource/screenshot.png";
 
     KeyboardEventHandler keyboardEventHandler([window](int keyCode, int eventCode){ return glfwGetKey(window, keyCode) == eventCode; });
     keyboardEventHandler.registerObserver(GLFW_KEY_ESCAPE, GLFW_PRESS, [window]() { glfwSetWindowShouldClose(window, true); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_K,      GLFW_PRESS, [screenshotPath]() { Screenshot(screenshotPath, WINDOW_WIDTH, WINDOW_HEIGHT); });
 
     constexpr float MOVE_SPEED = 2.5f;
     constexpr float TURN_SPEED = 10.0f;
