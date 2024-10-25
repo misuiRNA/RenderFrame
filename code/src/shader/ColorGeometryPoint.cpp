@@ -8,9 +8,9 @@ const ShaderAttribDescriptor ColorGeometryPointVertex::DESCRIPTOR = DESC_NEW(Col
 );
 
 static ShaderProgram& GetShaderProg() {
-    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/glsl/ColorGeometryPointShader.vs");
-    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/glsl/ColorGeometryPointShader.fs");
-    static const std::string GS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/render/glsl/ColorGeometryPointShader.gs");
+    static const std::string VS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/shader/glsl/ColorGeometryPointShader.vs");
+    static const std::string FS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/shader/glsl/ColorGeometryPointShader.fs");
+    static const std::string GS_SHADER_STR = ReadFile(GetCurPath() + "/code/src/shader/glsl/ColorGeometryPointShader.gs");
     static ShaderProgram prog(VS_SHADER_STR, FS_SHADER_STR, GS_SHADER_STR);
     return prog;
 }
