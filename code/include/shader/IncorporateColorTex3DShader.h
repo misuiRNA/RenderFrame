@@ -14,12 +14,12 @@ struct IncorporateColorTex3DVertex {
     static const ShaderAttribDescriptor DESCRIPTOR;
 };
 
-struct IncorporateColorTex3D : AbstractShader<IncorporateColorTex3DVertex> {
+struct IncorporateColorTex3DShader : AbstractShader<IncorporateColorTex3DVertex> {
 
-    IncorporateColorTex3D(const Size3D& size);
+    IncorporateColorTex3DShader(const Size3D& size);
 
     // TODO: 优化, 考虑优化设计提升opengl实例化属性的可复用性
-    void mergeCopies(std::vector<IncorporateColorTex3D>& rectangles);
+    void mergeCopies(std::vector<IncorporateColorTex3DShader>& rectangles);
     void setPosition(const Position& pos);
     void setSize(const Size3D& size);
     void setImage(const AbstractImage& image);

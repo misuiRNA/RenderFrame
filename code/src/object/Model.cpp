@@ -38,8 +38,8 @@ void Model3DDrawObject::load(const std::string& modelPath) {
     const std::vector<Mesh>& meshes = loader.loadModelAsMeshes(modelPath);
 
     for (const Mesh& mesh : meshes) {
-        _meshDrawes.push_back(Model3D());
-        Model3D& obj = _meshDrawes.back();
+        _meshDrawes.push_back(Model3DShader());
+        Model3DShader& obj = _meshDrawes.back();
 
         std::function<Model3DVertex(const Mesh::Vertex&)> convert = [](const Mesh::Vertex& v) -> Model3DVertex { return {v.position, v.normal, v.texCoords}; };
         std::vector<Model3DVertex> vertices = ConvertList(mesh.vertices, convert);

@@ -12,9 +12,9 @@ struct ColorGeometryPointVertex {
 };
 
 
-struct ColorGeometryPoint : AbstractShader<ColorGeometryPointVertex> {
-    ColorGeometryPoint();
-    ColorGeometryPoint(const std::vector<ColorGeometryPointVertex>& points);
+struct ColorGeometryPointShader : AbstractShader<ColorGeometryPointVertex> {
+    ColorGeometryPointShader();
+    ColorGeometryPointShader(const std::vector<ColorGeometryPointVertex>& points);
 
     void setPoints(const std::vector<ColorGeometryPointVertex>& points);
 

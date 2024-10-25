@@ -1,7 +1,7 @@
 #ifndef _HEAD_FLAG_MODEL_LIGHTSOURCE_H
 #define _HEAD_FLAG_MODEL_LIGHTSOURCE_H
 
-#include "shader/Color3D.h"
+#include "shader/Color3DShader.h"
 
 
 struct LightSource {
@@ -20,7 +20,7 @@ struct LightSource {
     void show();
 
 private:
-    Color3D _shader;
+    Color3DShader _shader;
     ShaderLight _shaderLight;
 };
 

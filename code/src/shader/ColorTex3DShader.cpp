@@ -1,4 +1,4 @@
-#include "shader/ColorTex3D.h"
+#include "shader/ColorTex3DShader.h"
 #include "ShaderProgram.h"
 #include "Utils.h"
 
@@ -17,36 +17,36 @@ static ShaderProgram& GetShaderProg() {
 }
 
 
-ColorTex3D::ColorTex3D(const Size3D& size)
+ColorTex3DShader::ColorTex3DShader(const Size3D& size)
 : AbstractShader(GetShaderProg())
 , _attitudeCtrl({0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, size)
 , _textureEnable(false) {
 
 }
 
-void ColorTex3D::setPosition(const Position& pos) {
+void ColorTex3DShader::setPosition(const Position& pos) {
     _attitudeCtrl.setPosition(pos);
 }
 
-void ColorTex3D::setSize(const Size3D& size) {
+void ColorTex3DShader::setSize(const Size3D& size) {
     _attitudeCtrl.setSize(size);
 }
 
-void ColorTex3D::setImage(const AbstractImage& image) {
+void ColorTex3DShader::setImage(const AbstractImage& image) {
     _renderData.setTexture("texture1", image.getTexture(ImageWrapMode::ClampToEdge));
     _textureEnable = true;
 }
 
-void ColorTex3D::setColor(const Color& color) {
+void ColorTex3DShader::setColor(const Color& color) {
     _color = color;
 }
 
-void ColorTex3D::updateUniformes() {
+void ColorTex3DShader::updateUniformes() {
     _renderData.setUniform("imageEnable", _textureEnable);
     _renderData.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
     _renderData.setUniform("modelMatrix", _attitudeCtrl.getMatrix());
 }
 
-Attitude3DController& ColorTex3D::getAttituedeCtrl() {
+Attitude3DController& ColorTex3DShader::getAttituedeCtrl() {
     return _attitudeCtrl;
 }

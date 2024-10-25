@@ -1,4 +1,4 @@
-#include "shader/Model3D.h"
+#include "shader/Model3DShader.h"
 #include "Utils.h"
 
 
@@ -16,44 +16,44 @@ static ShaderProgram& GetShaderProg() {
 }
 
 
-Model3D::Model3D()
+Model3DShader::Model3DShader()
 : AbstractShader(GetShaderProg())
 , _attitudeCtrl({0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}) {
 
 }
 
-void Model3D::setPosition(const Position& pos) {
+void Model3DShader::setPosition(const Position& pos) {
     _attitudeCtrl.setPosition(pos);
 }
 
-void Model3D::setSize(const Size3D& size) {
+void Model3DShader::setSize(const Size3D& size) {
     _attitudeCtrl.setSize(size);
 }
 
-void Model3D::setDiffuseImage(int index, const AbstractImage& image) {
+void Model3DShader::setDiffuseImage(int index, const AbstractImage& image) {
     std::string name = "diffuseTexture" + ShaderProgram::UniformArraySuffix(index);
     _renderData.setTexture(name, image.getTexture(ImageWrapMode::Repeat));
 }
 
-void Model3D::setSpecularImage(int index, const AbstractImage& image) {
+void Model3DShader::setSpecularImage(int index, const AbstractImage& image) {
     std::string name = "specularTexture" + ShaderProgram::UniformArraySuffix(index);
     _renderData.setTexture(name, image.getTexture(ImageWrapMode::Repeat));
 }
 
-void Model3D::setNormalImage(int index, const AbstractImage& image) {
+void Model3DShader::setNormalImage(int index, const AbstractImage& image) {
     std::string name = "normalTexture" + ShaderProgram::UniformArraySuffix(index);
     _renderData.setTexture(name, image.getTexture(ImageWrapMode::Repeat));
 }
 
-void Model3D::setHeightImage(int index, const AbstractImage& image) {
+void Model3DShader::setHeightImage(int index, const AbstractImage& image) {
     std::string name = "heightTexture" + ShaderProgram::UniformArraySuffix(index);
     _renderData.setTexture(name, image.getTexture(ImageWrapMode::Repeat));
 }
 
-Attitude3DController& Model3D::getAttituedeCtrl() {
+Attitude3DController& Model3DShader::getAttituedeCtrl() {
     return _attitudeCtrl;
 }
 
-void Model3D::updateUniformes() {
+void Model3DShader::updateUniformes() {
     _renderData.setUniform("model", _attitudeCtrl.getMatrix());
 }

@@ -1,4 +1,4 @@
-#include "shader/ColorGeometryPoint.h"
+#include "shader/ColorGeometryPointShader.h"
 #include "Utils.h"
 
 
@@ -16,23 +16,23 @@ static ShaderProgram& GetShaderProg() {
 }
 
 
-ColorGeometryPoint::ColorGeometryPoint()
+ColorGeometryPointShader::ColorGeometryPointShader()
 : AbstractShader(GetShaderProg()) {
     setDrawMode(RenderDataMode::POINTS);
 }
 
-ColorGeometryPoint::ColorGeometryPoint(const std::vector<ColorGeometryPointVertex>& points)
+ColorGeometryPointShader::ColorGeometryPointShader(const std::vector<ColorGeometryPointVertex>& points)
 : AbstractShader(GetShaderProg())
 , _points(points) {
     setDrawMode(RenderDataMode::POINTS);
     setVertexData(points, {});
 }
 
-void ColorGeometryPoint::setPoints(const std::vector<ColorGeometryPointVertex>& points) {
+void ColorGeometryPointShader::setPoints(const std::vector<ColorGeometryPointVertex>& points) {
     _points = points;
     setVertexData(points, {});
 }
 
-void ColorGeometryPoint::updateUniformes() {
+void ColorGeometryPointShader::updateUniformes() {
 
 }

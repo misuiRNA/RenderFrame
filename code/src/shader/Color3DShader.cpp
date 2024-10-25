@@ -1,4 +1,4 @@
-#include "shader/Color3D.h"
+#include "shader/Color3DShader.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -18,7 +18,7 @@ static ShaderProgram& GetShaderProg() {
 }
 
 
-Color3D::Color3D(bool isParallel)
+Color3DShader::Color3DShader(bool isParallel)
 : AbstractShader(GetShaderProg())
 , _pos(0.0f, 0.0f, 0.0f)
 , _size(1.0f, 1.0f, 1.0f)
@@ -26,19 +26,19 @@ Color3D::Color3D(bool isParallel)
 
 }
 
-void Color3D::setColor(const Color& color) {
+void Color3DShader::setColor(const Color& color) {
     _color = color;
 }
 
-void Color3D::setSize(const Size3D& size) {
+void Color3DShader::setSize(const Size3D& size) {
     _size = size;
 }
 
-void Color3D::setPosition(const Position& pos) {
+void Color3DShader::setPosition(const Position& pos) {
     _pos = pos;
 }
 
-void Color3D::updateUniformes() {
+void Color3DShader::updateUniformes() {
     const Color& orgColor = _color;
     _renderData.setUniform("color", orgColor.r, orgColor.g, orgColor.b, 1.0f);
 

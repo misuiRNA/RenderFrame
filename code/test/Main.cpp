@@ -5,11 +5,11 @@
 #include <GLFW/glfw3.h>
 
 #include "ShaderProgram.h"
-#include "shader/ColorTex3D.h"
-#include "shader/ColorTex2D.h"
-#include "shader/ColorTexMulilight3D.h"
-#include "shader/ColorGeometryPoint.h"
-#include "shader/IncorporateColorTex3D.h"
+#include "shader/ColorTex3DShader.h"
+#include "shader/ColorTex2DShader.h"
+#include "shader/ColorTexMulilight3DShader.h"
+#include "shader/ColorGeometryPointShader.h"
+#include "shader/IncorporateColorTex3DShader.h"
 #include "Camera.h"
 #include "Image.h"
 #include "Utils.h"
@@ -82,7 +82,7 @@ static void SetGlobalCamera(const CameraFPS& camera) {
 
 
 // TODO: 优化, 设计模板测试类, 支持任意形状
-static void EnableViewMask(ColorTex3D& outlineMask, ColorTex3D& throughMask) {
+static void EnableViewMask(ColorTex3DShader& outlineMask, ColorTex3DShader& throughMask) {
         glDepthMask(GL_FALSE);
         glStencilFunc(GL_ALWAYS, 1, 0xFF);
         glStencilMask(0x00);
@@ -209,7 +209,7 @@ int main() {
     Skybox skybox;
     skybox.setImage(cubeImage);
 
-    ColorTex3D rectangle({0.6f, 0.6f});
+    ColorTex3DShader rectangle({0.6f, 0.6f});
     rectangle.setVertexData(rectShape);
     rectangle.setPosition({0.0f, 0.0f});
     // rectangle.setColor(Color(0.8f, 0.3f, 0.2f));
@@ -218,21 +218,21 @@ int main() {
     rectangle.getAttituedeCtrl()
              .setFront({1.0f, 0.0f, 0.0f});
 
-    ColorTex3D rectangle1({1.0f, 1.0f});
+    ColorTex3DShader rectangle1({1.0f, 1.0f});
     rectangle1.setVertexData(rectShape);
     rectangle1.setPosition({-1.0, 0.0f});
     rectangle1.setColor(Color(0.8f, 0.3f, 0.2f));
     // rectangle1.setImage(containerImage);
     // rectangle1.setPosition({0.0f, 0.0f});
 
-    IncorporateColorTex3D grass({1.0f, 1.0f});
+    IncorporateColorTex3DShader grass({1.0f, 1.0f});
     grass.setVertexData(rectShape);
     grass.setPosition({-1.0f, 3.0f, 2.0f});
     grass.setImage(grassImage);
     grass.getAttituedeCtrl()
          .setFront({1.0f, 0.0f, 0.0f});
 
-    std::vector<IncorporateColorTex3D> grasses;
+    std::vector<IncorporateColorTex3DShader> grasses;
     grasses.reserve(100 * 100);
     for (int x = -100; x <= 100; ++x) {
         for (int y = -100; y <= 100; ++y) {
@@ -242,7 +242,7 @@ int main() {
     }
     grass.mergeCopies(grasses);
 
-    ColorTex3D transparentWindow({2.0f, 2.0f});
+    ColorTex3DShader transparentWindow({2.0f, 2.0f});
     transparentWindow.setVertexData(rectShape);
     transparentWindow.setPosition({0.0f, 0.0f});
     transparentWindow.setImage(windowImage);
@@ -255,14 +255,14 @@ int main() {
         {5.0f, 4.0f, 0.0f},
     };
 
-    ColorTex2D winMask(2.0f, 2.0f);
+    ColorTex2DShader winMask(2.0f, 2.0f);
     winMask.setVertexData(rectShape);
     winMask.setImage(awesomefaceImage);
 
     PaintImage mirrorCanva(800, 600, 4);
     mirrorCanva.setBackgroundColor({0.3f, 0.2f, 0.3f});
 
-    ColorTex2D mirror(0.8f, 0.6f);
+    ColorTex2DShader mirror(0.8f, 0.6f);
     mirror.setVertexData(rectShape);
     mirror.setPosition({-0.6f, 0.7f});
     mirror.setColor(Color(0.8f, 0.3f, 0.2f));
@@ -281,11 +281,11 @@ int main() {
         {0.0f, 0.0f, 9.0f}
     };
 
-    std::vector<ColorTexMulilight3D> cuboids;
+    std::vector<ColorTexMulilight3DShader> cuboids;
     cuboids.reserve(10);
     for (int index = 0; index < 10; ++index) {
         cuboids.emplace_back(Vector3D(1.0f, 1.0f, 1.0f));
-        ColorTexMulilight3D& cuboid = cuboids.back();
+        ColorTexMulilight3DShader& cuboid = cuboids.back();
         cuboid.setPosition(cuboidPositions[index]);
         // cuboid.setPrimaryImage(mirrorCanva);
         cuboid.setPrimaryImage(awesomefaceImage);
@@ -297,7 +297,7 @@ int main() {
 
     ShaderMaterial material(containerImage2.getTexture(ImageWrapMode::Repeat), containerImage2_specular.getTexture(ImageWrapMode::Repeat));
 
-    ColorTexMulilight3D cuboid({2.0f, 2.0f, 2.0f});
+    ColorTexMulilight3DShader cuboid({2.0f, 2.0f, 2.0f});
     cuboid.setPosition({0.0f, 2.0f, 0.0f});
     // cuboid.setColor(Color(1.0f, 0.5f, 0.31f));
     cuboid.setColor(Color(1.0f, 1.0f, 1.0f));
@@ -306,7 +306,7 @@ int main() {
     cuboid.setMaterial(material);
     cuboid.setVertexData(cubeShape);
 
-    ColorTexMulilight3D cuboid1({1.0f, 1.0f, 1.0f});
+    ColorTexMulilight3DShader cuboid1({1.0f, 1.0f, 1.0f});
     cuboid1.setPosition({1.0f, -3.5f, 0.0f});
     cuboid1.setSize({1.25f, 5.0f, 0.75f});
     cuboid1.setPrimaryImage(wallImage);
@@ -314,7 +314,7 @@ int main() {
     // cuboid1.getAttituedeCtrl().setFront({0.0f, 1.0f, 0.0f});
     cuboid1.setVertexData(tetrahedronShape);
 
-    ColorTexMulilight3D circle1({1.0f, 1.0f, 1.0f});
+    ColorTexMulilight3DShader circle1({1.0f, 1.0f, 1.0f});
     circle1.setDrawMode(RenderDataMode::LINE_STRIP);
     circle1.setPosition({-1.0f, 3.0f, 2.0f});
     circle1.setVertexData(circleShape);
@@ -331,7 +331,7 @@ int main() {
     airplan.setPosition({0.0f, 5.0f, 1.5f});
     airplan.setAttituedeCtrl({0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f});
 
-    ColorGeometryPoint richPoints;
+    ColorGeometryPointShader richPoints;
     richPoints.setVertexData(rectShape);
 
 

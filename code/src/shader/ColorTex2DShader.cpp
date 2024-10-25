@@ -1,4 +1,4 @@
-#include "shader/ColorTex2D.h"
+#include "shader/ColorTex2DShader.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -20,7 +20,7 @@ static ShaderProgram& GetShaderProg() {
 }
 
 
-ColorTex2D::ColorTex2D(float width, float height)
+ColorTex2DShader::ColorTex2DShader(float width, float height)
 : AbstractShader(GetShaderProg())
 , _pos(0.0f, 0.0f, 0.0f)
 , _width(width)
@@ -29,20 +29,20 @@ ColorTex2D::ColorTex2D(float width, float height)
 
 }
 
-void ColorTex2D::setPosition(const Position& pos) {
+void ColorTex2DShader::setPosition(const Position& pos) {
     _pos = pos;
 }
 
-void ColorTex2D::setImage(const AbstractImage& image) {
+void ColorTex2DShader::setImage(const AbstractImage& image) {
     _renderData.setTexture("texture1", image.getTexture(ImageWrapMode::ClampToEdge));
     _textureEnable = true;
 }
 
-void ColorTex2D::setColor(const Color& color) {
+void ColorTex2DShader::setColor(const Color& color) {
     _color = color;
 }
 
-void ColorTex2D::updateUniformes() {
+void ColorTex2DShader::updateUniformes() {
     _renderData.setUniform("imageEnable", _textureEnable);
     _renderData.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
 

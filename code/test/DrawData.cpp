@@ -1,10 +1,10 @@
-#include "shader/ColorTexMulilight3D.h"
-#include "shader/IncorporateColorTex3D.h"
-#include "shader/Color3D.h"
-#include "shader/ColorTex2D.h"
-#include "shader/ColorTex3D.h"
-#include "shader/ColorGeometryPoint.h"
-#include "shader/ColorTexcube.h"
+#include "shader/ColorTexMulilight3DShader.h"
+#include "shader/IncorporateColorTex3DShader.h"
+#include "shader/Color3DShader.h"
+#include "shader/ColorTex2DShader.h"
+#include "shader/ColorTex3DShader.h"
+#include "shader/ColorGeometryPointShader.h"
+#include "shader/ColorTexcubeShader.h"
 #include "math.h"
 
 RenderShape cubeShape = {{

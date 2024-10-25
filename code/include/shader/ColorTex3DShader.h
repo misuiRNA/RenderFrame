@@ -14,8 +14,8 @@ struct ColorTex3DVertex {
     static const ShaderAttribDescriptor DESCRIPTOR;
 };
 
-struct ColorTex3D : AbstractShader<ColorTex3DVertex> {
-    ColorTex3D(const Size3D& size);
+struct ColorTex3DShader : AbstractShader<ColorTex3DVertex> {
+    ColorTex3DShader(const Size3D& size);
 
     void setPosition(const Position& pos);
     void setSize(const Size3D& size);

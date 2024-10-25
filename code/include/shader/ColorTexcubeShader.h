@@ -13,8 +13,8 @@ struct ColorTexcubeVertex {
     static const ShaderAttribDescriptor DESCRIPTOR;
 };
 
-struct ColorTexcube : public AbstractShader<ColorTexcubeVertex> {
-    ColorTexcube();
+struct ColorTexcubeShader : public AbstractShader<ColorTexcubeVertex> {
+    ColorTexcubeShader();
 
     void setImage(const AbstractImage& image);
     void setPosition(const Position& pos);

@@ -11,8 +11,8 @@ struct Color3DVertex {
     static const ShaderAttribDescriptor DESCRIPTOR;
 };
 
-struct Color3D : AbstractShader<Color3DVertex> {
-    Color3D(bool isParallel);
+struct Color3DShader : AbstractShader<Color3DVertex> {
+    Color3DShader(bool isParallel);
 
     void setPosition(const Position& pos);
     void setSize(const Size3D& size);

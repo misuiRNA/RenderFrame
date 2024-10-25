@@ -1,4 +1,4 @@
-#include "shader/IncorporateColorTex3D.h"
+#include "shader/IncorporateColorTex3DShader.h"
 #include "ShaderProgram.h"
 #include "Utils.h"
 
@@ -17,41 +17,41 @@ static ShaderProgram& GetShaderProg() {
 }
 
 
-IncorporateColorTex3D::IncorporateColorTex3D(const Size3D& size)
+IncorporateColorTex3DShader::IncorporateColorTex3DShader(const Size3D& size)
 : AbstractShader(GetShaderProg())
 , _attitudeCtrl({0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {size.x, size.y, 1.0f})
 , _textureEnable(false) {
 
 }
 
-void IncorporateColorTex3D::setPosition(const Position& pos) {
+void IncorporateColorTex3DShader::setPosition(const Position& pos) {
     _attitudeCtrl.setPosition(pos);
 }
 
-void IncorporateColorTex3D::setSize(const Size3D& size) {
+void IncorporateColorTex3DShader::setSize(const Size3D& size) {
     _attitudeCtrl.setSize({size.x, size.y, 1.0f});
 }
 
-void IncorporateColorTex3D::setImage(const AbstractImage& image) {
+void IncorporateColorTex3DShader::setImage(const AbstractImage& image) {
     _renderData.setTexture("texture1", image.getTexture(ImageWrapMode::ClampToEdge));
     _textureEnable = true;
 }
 
-void IncorporateColorTex3D::setColor(const Color& color) {
+void IncorporateColorTex3DShader::setColor(const Color& color) {
     _color = color;
 }
 
-void IncorporateColorTex3D::updateUniformes() {
+void IncorporateColorTex3DShader::updateUniformes() {
     _renderData.setUniform("imageEnable", _textureEnable);
     _renderData.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
     _renderData.setUniform("modelMatrix", _attitudeCtrl.getMatrix());
 }
 
-Attitude3DController& IncorporateColorTex3D::getAttituedeCtrl() {
+Attitude3DController& IncorporateColorTex3DShader::getAttituedeCtrl() {
     return _attitudeCtrl;
 }
 
-void IncorporateColorTex3D::mergeCopies(std::vector<IncorporateColorTex3D>& rectangles) {
+void IncorporateColorTex3DShader::mergeCopies(std::vector<IncorporateColorTex3DShader>& rectangles) {
     size_t instCount = rectangles.size();
     std::vector<Matrix4X4> modelMatrices(instCount);
     for (int i = 0; i < instCount; ++i) {

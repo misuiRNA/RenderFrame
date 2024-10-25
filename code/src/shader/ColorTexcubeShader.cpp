@@ -1,4 +1,4 @@
-#include "shader/ColorTexcube.h"
+#include "shader/ColorTexcubeShader.h"
 #include "Utils.h"
 
 
@@ -14,20 +14,20 @@ static ShaderProgram& GetShaderProg() {
 }
 
 
-ColorTexcube::ColorTexcube()
+ColorTexcubeShader::ColorTexcubeShader()
 : AbstractShader(GetShaderProg())
 , _attitudeCtrl({0.0f, 0.0f, -1.0f}, {-1.0f, 0.0f, 0.0f}) {
 
 }
 
-void ColorTexcube::setImage(const AbstractImage& image) {
+void ColorTexcubeShader::setImage(const AbstractImage& image) {
     _renderData.setTexture("skybox", image.getTexture(ImageWrapMode::ClampToEdge));
 }
 
-void ColorTexcube::setPosition(const Position& pos) {
+void ColorTexcubeShader::setPosition(const Position& pos) {
     _attitudeCtrl.setPosition(pos);
 }
 
-void ColorTexcube::updateUniformes() {
+void ColorTexcubeShader::updateUniformes() {
     _renderData.setUniform("modelMatrix", _attitudeCtrl.getMatrix());
 }

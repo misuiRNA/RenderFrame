@@ -1,7 +1,7 @@
 #ifndef MODELD_H
 #define MODELD_H
 
-#include "shader/Model3D.h"
+#include "shader/Model3DShader.h"
 
 
 struct Model3DDrawObject {
@@ -14,7 +14,7 @@ struct Model3DDrawObject {
 private:
     void load(const std::string& modelPath);
 private:
-    std::vector<Model3D> _meshDrawes;
+    std::vector<Model3DShader> _meshDrawes;
 };
 
 #endif
