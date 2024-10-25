@@ -6,6 +6,7 @@
 const ShaderAttribDescriptor ColorTex3DVertex::DESCRIPTOR = DESC_NEW(ColorTex3DVertex,
     ITEM(ColorTex3DVertex, 0, "aPos",      pos),
     ITEM(ColorTex3DVertex, 1, "aTexCoord", texcoord),
+    ITEM(ColorTex3DVertex, 2, "aColor", color),
 );
 
 // TODO: 优化, 1.shader字符串编译时确定，不读取文件；2.返回的路径位置应为可执行文件位置，而不是执行命令的位置 考虑使用 std::filesystem

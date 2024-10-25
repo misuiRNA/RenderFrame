@@ -87,7 +87,7 @@ std::vector<RenderShape::Vertex> CalcCircleShape(const Position &center, float r
     std::vector<RenderShape::Vertex> vertices(numSegments);
     for (int i = 0; i < numSegments; ++i) {
         float angle = i * step;
-        vertices[i] = {{cos(angle) * radius, sin(angle) * radius, 0}, {0, 0, -1}};
+        vertices[i] = {{cos(angle) * radius, sin(angle) * radius, 0}, {0, 0, -1}, {0, 0}, {cos(angle), cos(angle), sin(angle)}};
     }
     return vertices;
 }

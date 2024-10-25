@@ -314,11 +314,11 @@ int main() {
     // cuboid1.getAttituedeCtrl().setFront({0.0f, 1.0f, 0.0f});
     cuboid1.setVertexData(tetrahedronShape);
 
-    ColorTexMulilight3DShader circle1({1.0f, 1.0f, 1.0f});
+    ColorTex3DShader circle1({1.0f, 1.0f, 1.0f});
     circle1.setDrawMode(RenderDataMode::LINE_STRIP);
     circle1.setPosition({-1.0f, 3.0f, 2.0f});
     circle1.setVertexData(circleShape);
-    circle1.setColor(Color(1.0f, 0.0f, 0.0f));
+    circle1.setColor(Color(0.0f, 1.0f, 0.0f));
     circle1.getAttituedeCtrl().setFront({1.0f, 0.0f, 0.0f}).setUp({0.0f, 0.0f, 1.0f});
 
     Model3DDrawObject nanosuit(GetCurPath() + "/resource/models/nanosuit/nanosuit.obj");

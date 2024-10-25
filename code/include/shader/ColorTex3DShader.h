@@ -7,9 +7,10 @@
 #include "Attitude3DController.h"
 
 struct ColorTex3DVertex {
-    ColorTex3DVertex(const RenderShape::Vertex& data) : pos(data.pos), texcoord(data.texcoord) { }
+    ColorTex3DVertex(const RenderShape::Vertex& data) : pos(data.pos), texcoord(data.texcoord), color(data.color) { }
     Position pos;
     Vector2D texcoord;
+    Color color;
 
     static const ShaderAttribDescriptor DESCRIPTOR;
 };
