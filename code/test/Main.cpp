@@ -335,9 +335,53 @@ int main() {
     richPoints.setVertexData(rectShape);
 
 
+    auto painter = [&]() {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        SetGlobalCamera(mirrorCameraFPS);
+
+        rectangle1.show();
+        rectangle.show();
+
+        light.show();
+        light1.show();
+        cuboid.show();
+        cuboid1.show();
+
+        nanosuit.show();
+        airplan.show();
+
+        for (int index = 0; index < cuboids.size(); ++index) {
+            cuboids[index].show();
+            nanosuit.setPosition({-index + 0.1f, 1.5f, 1.5f});
+            nanosuit.show();
+        }
+
+        // TODO: 优化, 抽取透明元素的绘制流程pip
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        grass.show();
+
+        // TODO: 优化, 受混合+深度测试影响 透明物体需要按顺序绘制, 需要提供一个排序工具
+        SortWitDistance(windowPositions, ((const ShaderCamera&)mirrorCameraFPS).getPosition());
+        for (int index = 0; index < windowPositions.size(); ++index) {
+            transparentWindow.setPosition(windowPositions[index]);
+            transparentWindow.show();
+        }
+        glDisable(GL_BLEND);
+
+        // render skybox
+        skybox.show(mirrorCameraFPS.getPosition());
+
+        SetGlobalCamera(cameraFPS);
+    };
+
+
     float lastX = 0.0f;
     while(!glfwWindowShouldClose(window))
     {
+        mirrorCanva.paint(painter);
+
+
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
@@ -407,55 +451,13 @@ int main() {
             transparentWindow.show();
         }
         glDisable(GL_BLEND);
-
-
-        auto painter = [&]() {
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-            SetGlobalCamera(mirrorCameraFPS);
-
-            rectangle1.show();
-            rectangle.show();
-
-            light.show();
-            light1.show();
-            cuboid.show();
-            cuboid1.show();
-
-            nanosuit.show();
-            airplan.show();
-
-            for (int index = 0; index < cuboids.size(); ++index) {
-                cuboids[index].show();
-                nanosuit.setPosition({-index + 0.1f, 1.5f, 1.5f});
-                nanosuit.show();
-            }
-
-            // TODO: 优化, 抽取透明元素的绘制流程pip
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            grass.show();
-
-            // TODO: 优化, 受混合+深度测试影响 透明物体需要按顺序绘制, 需要提供一个排序工具
-            SortWitDistance(windowPositions, ((const ShaderCamera&)mirrorCameraFPS).getPosition());
-            for (int index = 0; index < windowPositions.size(); ++index) {
-                transparentWindow.setPosition(windowPositions[index]);
-                transparentWindow.show();
-            }
-            glDisable(GL_BLEND);
-
-            SetGlobalCamera(cameraFPS);
-        };
-        mirrorCanva.paint(painter);
+        mirror.show();
 
         // render skybox
         skybox.show(cameraFPS.getPosition());
 
-        glPointSize(100.0f);
-        richPoints.show();
-
-        glEnable(GL_BLEND);
-        mirror.show();
-        glDisable(GL_BLEND);
+        // glPointSize(100.0f);
+        // richPoints.show();
 
         // TODO: 优化, 1. 抽取抠图流程pip  2. 打开窗口透明后草地透明也会透明, 需要设置细粒度开关
         glDisable(GL_DEPTH_TEST);
