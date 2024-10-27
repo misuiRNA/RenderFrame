@@ -2,14 +2,15 @@
 #define _HEAD_FLAG_SHADERMATERIAL_H
 
 #include "BaseDefine.h"
+#include "Texture.h"
 
 struct ShaderMaterial {
     ShaderMaterial();
     ShaderMaterial(const Color& ambient, const Color& diffuse, const Color& specular);
-    ShaderMaterial(int diffuseTexture, int specularTextrue);
+    ShaderMaterial(TextureId diffuseTexture, TextureId specularTextrue);
 
-    const unsigned int diffuseTexture;
-    const unsigned int specularTexture;
+    const TextureId diffuseTexture;
+    const TextureId specularTexture;
     const Color ambient;
     const Color diffuse;
     const Color specular;

@@ -5,13 +5,12 @@
 #include <iostream> 
 #include <map>
 #include "BaseDefine.h"
+#include "Texture.h"
 
 enum class ImageWrapMode {
     Repeat      = 0,
     ClampToEdge = 1
 };
-
-using TextureId = unsigned int;
 
 struct AbstractImage {
     virtual ~AbstractImage() { }

@@ -123,7 +123,7 @@ void RenderData::setIndices(const std::vector<unsigned int>& indices) {
     _indexCount = indices.size();
 }
 
-void RenderData::setTexture(const std::string& name, unsigned int textureId) {
+void RenderData::setTexture(const std::string& name, TextureId textureId) {
     // if (textureId == 0) {
     //     std::cout << "Failed to set texture! textureId is invalid: " << name  << " value=" << textureId << std::endl;
     //     return;
@@ -210,7 +210,7 @@ void RenderData::useTextures() {
     int textureSlotIdx = 0;
     for (auto& itr : _textureMap) {
         const std::string& name = itr.first;
-        unsigned int textureId = itr.second;
+        TextureId textureId = itr.second;
 
         _prog.setUniform(name, textureSlotIdx);
         glActiveTexture(GL_TEXTURE0 + textureSlotIdx);
@@ -223,7 +223,7 @@ void RenderData::resetTextures() {
     int textureSlotIdx = 0;
     for (auto& itr : _textureMap) {
         const std::string& name = itr.first;
-        unsigned int textureId = itr.second;
+        TextureId textureId = itr.second;
 
         _prog.setUniform(name, 0);
         glActiveTexture(GL_TEXTURE0 + textureSlotIdx);

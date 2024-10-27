@@ -8,6 +8,7 @@
 #include "BaseDefine.h"
 #include "ShaderProgram.h"
 #include "ShaderMaterial.h"
+#include "Texture.h"
 #include <shared_mutex>
 #include <iostream>
 
@@ -83,7 +84,7 @@ struct RenderData {
     void setUniform(const std::string& name, const ShaderMaterial& material);
     void setUniform(const std::string& name, const Matrix4X4& material);
     void setIndices(const std::vector<unsigned int>& indices);
-    void setTexture(const std::string& name, unsigned int textureId);
+    void setTexture(const std::string& name, TextureId textureId);
     void setDrawMode(RenderDataMode mode);
 
     ShaderProgram& getShaderProgram() const;
@@ -115,7 +116,7 @@ private:
 
     int _instanceCount;
 
-    std::map<std::string, int> _textureMap;
+    std::map<std::string, TextureId> _textureMap;
     std::map<std::string, std::function<void(ShaderProgram& prog)>> _uniformFunctions;
 };
 
