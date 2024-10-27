@@ -23,7 +23,7 @@ ColorTexMulilight3DShader::ColorTexMulilight3DShader(const Size3D& size)
 , _imageEnable(false)
 , _color(1.0f, 1.0f, 1.0f) {
 
-    _renderData.setUniform("material", ShaderMaterial(_color * 0.2f, _color * 0.8f, _color * 1.0f));
+    _engine.setUniform("material", ShaderMaterial(_color * 0.2f, _color * 0.8f, _color * 1.0f));
 }
 
 ColorTexMulilight3DShader::ColorTexMulilight3DShader(const ColorTexMulilight3DShader& oth)
@@ -32,7 +32,7 @@ ColorTexMulilight3DShader::ColorTexMulilight3DShader(const ColorTexMulilight3DSh
 , _imageEnable(oth._imageEnable)
 , _color(oth._color) {
 
-    _renderData.setUniform("material", ShaderMaterial(_color * 0.2f, _color * 0.8f, _color * 1.0f));
+    _engine.setUniform("material", ShaderMaterial(_color * 0.2f, _color * 0.8f, _color * 1.0f));
 }
 
 void ColorTexMulilight3DShader::setPosition(const Position& pos) {
@@ -48,12 +48,12 @@ void ColorTexMulilight3DShader::setColor(const Color& color) {
 }
 
 void ColorTexMulilight3DShader::setPrimaryImage(const AbstractImage& image) {
-    _renderData.setTexture("texture1", image.getTexture(ImageWrapMode::Repeat));
+    _engine.setTexture("texture1", image.getTexture(ImageWrapMode::Repeat));
     _imageEnable = true;
 }
 
 void ColorTexMulilight3DShader::setSecondaryImage(const AbstractImage& image) {
-    _renderData.setTexture("texture2", image.getTexture(ImageWrapMode::Repeat));
+    _engine.setTexture("texture2", image.getTexture(ImageWrapMode::Repeat));
     _imageEnable = true;
 }
 
@@ -62,11 +62,11 @@ Attitude3DController& ColorTexMulilight3DShader::getAttituedeCtrl() {
 }
 
 void ColorTexMulilight3DShader::setMaterial(const ShaderMaterial& material) {
-    _renderData.setUniform("material", material);
+    _engine.setUniform("material", material);
 }
 
 void ColorTexMulilight3DShader::updateUniformes() {
-    _renderData.setUniform("imageEnable", _imageEnable);
-    _renderData.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
-    _renderData.setUniform("modelMatrix", _attitudeCtrl.getMatrix());
+    _engine.setUniform("imageEnable", _imageEnable);
+    _engine.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
+    _engine.setUniform("modelMatrix", _attitudeCtrl.getMatrix());
 }

@@ -1,7 +1,7 @@
 #ifndef _HEAD_FLAG_MODEL_CUBOID_H
 #define _HEAD_FLAG_MODEL_CUBOID_H
 
-#include "shader/AbstractShader.h"
+#include "render/AbstractShader.h"
 #include "BaseDefine.h"
 #include "Image.h"
 #include "Attitude3DController.h"

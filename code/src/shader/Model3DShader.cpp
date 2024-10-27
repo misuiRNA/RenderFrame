@@ -32,22 +32,22 @@ void Model3DShader::setSize(const Size3D& size) {
 
 void Model3DShader::setDiffuseImage(int index, const AbstractImage& image) {
     std::string name = "diffuseTexture" + ShaderProgram::UniformArraySuffix(index);
-    _renderData.setTexture(name, image.getTexture(ImageWrapMode::Repeat));
+    _engine.setTexture(name, image.getTexture(ImageWrapMode::Repeat));
 }
 
 void Model3DShader::setSpecularImage(int index, const AbstractImage& image) {
     std::string name = "specularTexture" + ShaderProgram::UniformArraySuffix(index);
-    _renderData.setTexture(name, image.getTexture(ImageWrapMode::Repeat));
+    _engine.setTexture(name, image.getTexture(ImageWrapMode::Repeat));
 }
 
 void Model3DShader::setNormalImage(int index, const AbstractImage& image) {
     std::string name = "normalTexture" + ShaderProgram::UniformArraySuffix(index);
-    _renderData.setTexture(name, image.getTexture(ImageWrapMode::Repeat));
+    _engine.setTexture(name, image.getTexture(ImageWrapMode::Repeat));
 }
 
 void Model3DShader::setHeightImage(int index, const AbstractImage& image) {
     std::string name = "heightTexture" + ShaderProgram::UniformArraySuffix(index);
-    _renderData.setTexture(name, image.getTexture(ImageWrapMode::Repeat));
+    _engine.setTexture(name, image.getTexture(ImageWrapMode::Repeat));
 }
 
 Attitude3DController& Model3DShader::getAttituedeCtrl() {
@@ -55,5 +55,5 @@ Attitude3DController& Model3DShader::getAttituedeCtrl() {
 }
 
 void Model3DShader::updateUniformes() {
-    _renderData.setUniform("model", _attitudeCtrl.getMatrix());
+    _engine.setUniform("model", _attitudeCtrl.getMatrix());
 }

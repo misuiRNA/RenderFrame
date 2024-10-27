@@ -1,7 +1,7 @@
 #ifndef _HEAD_FLAG_MODEL_RICHPOINTS_H
 #define _HEAD_FLAG_MODEL_RICHPOINTS_H
 
-#include "shader/AbstractShader.h"
+#include "render/AbstractShader.h"
 
 struct ColorGeometryPointVertex {
     ColorGeometryPointVertex(const RenderShape::Vertex& data) : pos(data.pos), color(data.color) { }

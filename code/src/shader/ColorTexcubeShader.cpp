@@ -21,7 +21,7 @@ ColorTexcubeShader::ColorTexcubeShader()
 }
 
 void ColorTexcubeShader::setImage(const AbstractImage& image) {
-    _renderData.setTexture("skybox", image.getTexture(ImageWrapMode::ClampToEdge));
+    _engine.setTexture("skybox", image.getTexture(ImageWrapMode::ClampToEdge));
 }
 
 void ColorTexcubeShader::setPosition(const Position& pos) {
@@ -29,5 +29,5 @@ void ColorTexcubeShader::setPosition(const Position& pos) {
 }
 
 void ColorTexcubeShader::updateUniformes() {
-    _renderData.setUniform("modelMatrix", _attitudeCtrl.getMatrix());
+    _engine.setUniform("modelMatrix", _attitudeCtrl.getMatrix());
 }

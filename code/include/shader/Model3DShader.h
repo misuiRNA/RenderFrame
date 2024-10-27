@@ -1,7 +1,7 @@
 #ifndef MODEL3D_H
 #define MODEL3D_H
 
-#include "shader/AbstractShader.h"
+#include "render/AbstractShader.h"
 #include "Attitude3DController.h"
 #include "Image.h"
 #include <string>

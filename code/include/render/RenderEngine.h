@@ -67,12 +67,12 @@ struct RenderShape {
 };
 
 
-struct RenderData {
-    RenderData(ShaderProgram& prog);
-    RenderData(const RenderData& oth);
-    RenderData(RenderData&& oth) noexcept;    // remind: 声明为 noexcept 系统才会优先使用移动构造函数
-    ~RenderData();
-    RenderData& operator=(RenderData&& oth) = delete;
+struct RenderEngine {
+    RenderEngine(ShaderProgram& prog);
+    RenderEngine(const RenderEngine& oth);
+    RenderEngine(RenderEngine&& oth) noexcept;    // remind: 声明为 noexcept 系统才会优先使用移动构造函数
+    ~RenderEngine();
+    RenderEngine& operator=(RenderEngine&& oth) = delete;
 
     // TODO 根据需要重载setUniform函数
     void setUniform(const std::string& name, int value);

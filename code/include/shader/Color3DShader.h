@@ -1,7 +1,7 @@
 #ifndef _HEAD_FLAG_SHADER_COLOR3D_H
 #define _HEAD_FLAG_SHADER_COLOR3D_H
 
-#include "shader/AbstractShader.h"
+#include "render/AbstractShader.h"
 #include "BaseDefine.h"
 
 struct Color3DVertex {

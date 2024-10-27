@@ -1,28 +1,28 @@
 #ifndef _HEAD_FLAG_MODEL_ABSTRACTMODEL_H
 #define _HEAD_FLAG_MODEL_ABSTRACTMODEL_H
 
-#include "RenderData.h"
+#include "RenderEngine.h"
 #include "Utils.h"
 
 template <typename VertexType>
 struct AbstractShader {
-    AbstractShader(ShaderProgram& prog) : _renderData(prog) { }
+    AbstractShader(ShaderProgram& prog) : _engine(prog) { }
     virtual ~AbstractShader() { }
 
     void show() {
         updateUniformes();
-        _renderData.draw();
+        _engine.draw();
     }
 
     void setDrawMode(RenderDataMode mode) {
-        _renderData.setDrawMode(mode);
+        _engine.setDrawMode(mode);
     }
 
     // TODO: 优化, 重新设置顶点数据后需要清除旧顶点VBO
     void setVertexData(const std::vector<VertexType>& vertices, const std::vector<unsigned int>& indices) {
-        _renderData.setVertices(vertices.size(), vertices.data(), VertexType::DESCRIPTOR);
+        _engine.setVertices(vertices.size(), vertices.data(), VertexType::DESCRIPTOR);
         if (!indices.empty()) {
-            _renderData.setIndices(indices);
+            _engine.setIndices(indices);
         }
     }
 
@@ -37,7 +37,7 @@ private:
     virtual void updateUniformes() = 0;
 
 protected:
-    RenderData _renderData;
+    RenderEngine _engine;
 };
 
 #endif
