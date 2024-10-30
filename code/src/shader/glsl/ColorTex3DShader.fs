@@ -16,12 +16,13 @@ uniform lightColor light;
 out vec4 FragColor;
 
 in vec2 TexCoord;
+in vec3 pColor;
 
 void main()
 {
     if (imageEnable == 0) {
         // FragColor = color * vec4(light.diffuse, 1.0);
-        FragColor = color;
+        FragColor = color + vec4(pColor, 1.0);
     } else {
         // FragColor = texture(texture1, TexCoord) * vec4(light.diffuse, 1.0);
         vec4 texCoord = texture(texture1, TexCoord);

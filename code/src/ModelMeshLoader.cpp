@@ -1,6 +1,5 @@
 #include "ModelMeshLoader.h"
 #include <iostream>
-#include "Image.h"
 
 
 Mesh::Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<Texture>& textures)
@@ -79,35 +78,50 @@ Mesh ModelMeshLoader::processMesh(aiMesh* mesh, const aiScene* scene) {
     // normal: texture_normalN
 
     // 1. diffuse maps
-    std::vector<Mesh::Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE, Mesh::Texture::Type::DIFFUSE);
+    std::vector<Mesh::Texture> diffuseMaps = loadMaterialTextures(material, aiTextureType_DIFFUSE);
     textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
     // 2. specular maps
-    std::vector<Mesh::Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, Mesh::Texture::Type::SPECULAR);
+    std::vector<Mesh::Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR);
     textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
     // 3. normal maps
-    std::vector<Mesh::Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT, Mesh::Texture::Type::NORMAL);
+    std::vector<Mesh::Texture> normalMaps = loadMaterialTextures(material, aiTextureType_HEIGHT);
     textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
     // 4. height maps
-    std::vector<Mesh::Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT, Mesh::Texture::Type::HEIGHT);
+    std::vector<Mesh::Texture> heightMaps = loadMaterialTextures(material, aiTextureType_AMBIENT);
     textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
     return Mesh(vertices, indices, textures);
 }
 
-std::vector<Mesh::Texture> ModelMeshLoader::loadMaterialTextures(aiMaterial* mat, aiTextureType aiType, Mesh::Texture::Type type) {
+std::vector<Mesh::Texture> ModelMeshLoader::loadMaterialTextures(aiMaterial* mat, aiTextureType aiType) {
+    Mesh::Texture::Type type = Mesh::Texture::Type::UNKNOWN;
+    switch (aiType) {
+        case aiTextureType_DIFFUSE:
+            type = Mesh::Texture::Type::DIFFUSE;
+            break;
+        case aiTextureType_SPECULAR:
+            type = Mesh::Texture::Type::SPECULAR;
+            break;
+        case aiTextureType_HEIGHT:
+            type = Mesh::Texture::Type::NORMAL;
+            break;
+        case aiTextureType_AMBIENT:
+            type = Mesh::Texture::Type::HEIGHT;
+            break;
+        default:
+            break;
+    }
+
     std::vector<Mesh::Texture> textures;
     for(unsigned int index = 0; index < mat->GetTextureCount(aiType); index++) {
         aiString aiTextureName;
         mat->GetTexture(aiType, index, &aiTextureName);
         std::string textureName = aiTextureName.C_Str();
         if (_texturesLoadedMap.find(textureName) == _texturesLoadedMap.end()) {
-            Mesh::Texture& texture = _texturesLoadedMap[textureName];
             LocalImage image(_directory + "/" + textureName);
-            texture.id = image.getTexture(ImageWrapMode::Repeat);
-            texture.type = type;
-            texture.key = textureName;
+            _texturesLoadedMap.emplace(textureName, Mesh::Texture(image, type));
         }
-        textures.push_back(_texturesLoadedMap[textureName]);
+        textures.push_back(_texturesLoadedMap.at(textureName));
     }
     return textures;
 }

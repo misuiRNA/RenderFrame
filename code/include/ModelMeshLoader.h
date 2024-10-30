@@ -2,6 +2,7 @@
 #define MODEL_OBJ_LOADER_H
 
 #include "BaseDefine.h"
+#include "Image.h"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
@@ -30,11 +31,13 @@ struct Mesh {
             SPECULAR = 1,
             NORMAL   = 2,
             HEIGHT   = 3,
+            UNKNOWN  = 4
         };
 
+        Texture(const LocalImage& image, Type type) : type(type), image(image) { }
+
         Type type;
-        unsigned int id;
-        std::string key;
+        LocalImage image;
     };
 
     Mesh(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices, const std::vector<Texture>& textures);
@@ -52,7 +55,7 @@ struct ModelMeshLoader {
 private:
     void processNode(aiNode* node, const aiScene* scene);
     Mesh processMesh(aiMesh* mesh, const aiScene* scene);
-    std::vector<Mesh::Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType aiType, Mesh::Texture::Type type);
+    std::vector<Mesh::Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType aiType);
 
 private:
     bool _gammaCorrection;

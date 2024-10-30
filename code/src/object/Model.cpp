@@ -1,49 +1,7 @@
 #include "object/Model.h"
 #include "ModelMeshLoader.h"
+#include "Utils.h"
 
-
-static std::vector<Model3D::Vertex> MeshVertex2Vertex(const std::vector<Mesh::Vertex>& meshVertices) {
-    std::vector<Model3D::Vertex> vertices;
-    vertices.reserve(meshVertices.size());
-    for (const Mesh::Vertex& meshVert : meshVertices) {
-        vertices.push_back({meshVert.position, meshVert.normal, meshVert.texCoords});
-    }
-    return vertices;
-}
-
-static std::map<std::string, unsigned int> MeshTextures2TextureMap(const std::vector<Mesh::Texture>& textures) {
-    std::map<std::string, unsigned int> textureMap;
-    unsigned int diffuseNr  = 0;
-    unsigned int specularNr = 0;
-    unsigned int normalNr   = 0;
-    unsigned int heightNr   = 0;
-    for(unsigned int index = 0; index < textures.size(); index++) {
-        std::string uniformName;
-        switch (textures[index].type) {
-            case Mesh::Texture::Type::DIFFUSE: {
-                uniformName = "diffuseTexture" + ShaderProgram::UniformArraySuffix(diffuseNr++);
-                break;
-            }
-            case Mesh::Texture::Type::SPECULAR: {
-                uniformName = "specularTexture" + ShaderProgram::UniformArraySuffix(specularNr++);
-                break;
-            }
-            case Mesh::Texture::Type::NORMAL: {
-                uniformName = "normalTexture" + ShaderProgram::UniformArraySuffix(normalNr++);
-                break;
-            }
-            case Mesh::Texture::Type::HEIGHT: {
-                uniformName = "heightTexture" + ShaderProgram::UniformArraySuffix(heightNr++);
-                break;
-            }
-            default:
-                // error log
-                break;
-        }
-        textureMap[uniformName] = textures[index].id;
-    }
-    return textureMap;
-}
 
 Model3DDrawObject::Model3DDrawObject(std::string const& path) {
     load(path);
@@ -80,14 +38,41 @@ void Model3DDrawObject::load(const std::string& modelPath) {
     const std::vector<Mesh>& meshes = loader.loadModelAsMeshes(modelPath);
 
     for (const Mesh& mesh : meshes) {
-        _meshDrawes.push_back(Model3D());
-        Model3D& obj = _meshDrawes.back();
+        _meshDrawes.push_back(Model3DShader());
+        Model3DShader& obj = _meshDrawes.back();
 
-        std::map<std::string, unsigned int> textureMap = MeshTextures2TextureMap(mesh.textures);
-        for (const auto& itr : textureMap) {
-            obj.setTexture(itr.first, itr.second);
+        std::function<Model3DVertex(const Mesh::Vertex&)> convert = [](const Mesh::Vertex& v) -> Model3DVertex { return {v.position, v.normal, v.texCoords}; };
+        std::vector<Model3DVertex> vertices = ConvertList(mesh.vertices, convert);
+        obj.setVertexData(vertices, mesh.indices);
+
+        unsigned int diffuseNr  = 0;
+        unsigned int specularNr = 0;
+        unsigned int normalNr   = 0;
+        unsigned int heightNr   = 0;
+        for(unsigned int index = 0; index < mesh.textures.size(); index++) {
+            const Mesh::Texture& texture = mesh.textures[index];
+            switch (texture.type) {
+                case Mesh::Texture::Type::DIFFUSE: {
+                    obj.setDiffuseImage(diffuseNr++, texture.image);
+                    break;
+                }
+                case Mesh::Texture::Type::SPECULAR: {
+                    obj.setSpecularImage(specularNr++, texture.image);
+                    break;
+                }
+                case Mesh::Texture::Type::NORMAL: {
+                    obj.setNormalImage(normalNr++, texture.image);
+                    break;
+                }
+                case Mesh::Texture::Type::HEIGHT: {
+                    obj.setHeightImage(heightNr++, texture.image);
+                    break;
+                }
+                default:
+                    // error log
+                    break;
+            }
         }
-        obj.setVertexData(MeshVertex2Vertex(mesh.vertices), mesh.indices);
     }
 }
 

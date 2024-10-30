@@ -41,6 +41,20 @@ static unsigned int GenTexture(const unsigned char* imageData, int width, int he
     return texture;
 }
 
+static unsigned int RrChannels2ImageFormat(int nrChannels) {
+    unsigned int format = GL_RGB;
+    if (nrChannels == 1) {
+        format = GL_RED;
+    }
+    else if (nrChannels == 3) {
+        format = GL_RGB;
+    }
+    else if (nrChannels == 4) {
+        format = GL_RGBA;
+    }
+    return format;
+}
+
 LocalImage::LocalImage(const std::string& path)
 : _width(0)
 , _height(0)
@@ -52,23 +66,15 @@ LocalImage::LocalImage(const std::string& path)
         std::cout << "Failed to load texture " << path << std::endl;
     }
 
-    if (nrChannels == 1) {
-        _format = GL_RED;
-    }
-    else if (nrChannels == 3) {
-        _format = GL_RGB;
-    }
-    else if (nrChannels == 4) {
-        _format = GL_RGBA;
-    }
+    _format = RrChannels2ImageFormat(nrChannels);
 
     _width = width;
     _height = height;
-    _data = data;
+    _dataHolder.reset(data, stbi_image_free);
 }
 
 LocalImage::~LocalImage() {
-    stbi_image_free(_data);
+    _dataHolder.reset();
 }
 
 int LocalImage::width() const {
@@ -80,14 +86,14 @@ int LocalImage::height() const {
 }
 
 unsigned char* LocalImage::data() const {
-    return _data;
+    return _dataHolder.get();
 }
 
 TextureId LocalImage::getTexture(ImageWrapMode wrapMode) const {
     auto it = _textureMap.find(wrapMode);
     if (it == _textureMap.end()) {
         unsigned int glWrapMode = WrapMode2GL(wrapMode);
-        _textureMap[wrapMode] = GenTexture(_data, _width, _height, _format, glWrapMode);
+        _textureMap[wrapMode] = GenTexture(_dataHolder.get(), _width, _height, _format, glWrapMode);
     }
     return _textureMap[wrapMode];
 }
@@ -99,11 +105,11 @@ static unsigned int CreateFrameBuffer() {
     return frameBuffer;
 }
 
-static unsigned int CreateTextureColorBuffer(unsigned int width, unsigned int height) {
+static unsigned int CreateTextureColorBuffer(unsigned int width, unsigned int height, unsigned int format) {
     unsigned int texColorBuffer;
     glGenTextures(1, &texColorBuffer);
     glBindTexture(GL_TEXTURE_2D, texColorBuffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glBindTexture(GL_TEXTURE_2D, 0);
@@ -119,7 +125,7 @@ static unsigned int CreateRenderBuffer(unsigned int width, unsigned int height) 
     return rbo;
 }
 
-PaintImage::PaintImage(unsigned int witdh, unsigned int height)
+PaintImage::PaintImage(unsigned int witdh, unsigned int height, int nrChannels)
 : _width(witdh)
 , _height(height)
 , _backgroundColor(0.0f, 0.0f, 0.0f)
@@ -129,7 +135,8 @@ PaintImage::PaintImage(unsigned int witdh, unsigned int height)
     glBindFramebuffer(GL_FRAMEBUFFER, _frameBuffer);
     // TODO: release frame buffer after use
 
-    _texColorBuffer = CreateTextureColorBuffer(_width, _height);
+    unsigned int format = RrChannels2ImageFormat(nrChannels);
+    _texColorBuffer = CreateTextureColorBuffer(_width, _height, format);
     // 将它附加到当前绑定的帧缓冲对象
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _texColorBuffer, 0);
     // TODO: release texture after use
@@ -151,7 +158,7 @@ void PaintImage::setBackgroundColor(const Color& color) {
 
 void PaintImage::paint(std::function<void()> painter) {
     glBindFramebuffer(GL_FRAMEBUFFER, _frameBuffer);
-    glClearColor(_backgroundColor.r, _backgroundColor.g, _backgroundColor.b, 1.0f);
+    glClearColor(_backgroundColor.r, _backgroundColor.g, _backgroundColor.b, 0.0f);
 
     painter();
 
@@ -196,5 +203,32 @@ TextureId CubeImage::getTexture(ImageWrapMode wrapMode) const {
     return _textureId;
 }
 
+
+#include "stb_image_write.h"  // 用于保存图像
+#include <vector>
+
+void Screenshot(const std::string& filename, int width, int height) {
+    const int formatSize = 3;
+    std::vector<unsigned char> pixels(width * height * formatSize);
+    glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, pixels.data());
+
+    // OpenGL 读取的数据是从左下角开始的，而大多数图像格式要求从左上角开始，因此需要翻转图像
+    for (int y = 0; y < height / 2; ++y) {
+        for (int x = 0; x < width * formatSize; ++x) {
+            std::swap(pixels[y * width * formatSize + x], pixels[(height - 1 - y) * width * formatSize + x]);
+        }
+    }
+
+    if (stbi_write_png(filename.c_str(), width, height, formatSize, pixels.data(), width * formatSize)) {
+        std::cout << "Screenshot done:  " << filename << std::endl;
+    } else {
+        std::cerr << "Screenshot failed!" << std::endl;
+    }
+}
+
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"

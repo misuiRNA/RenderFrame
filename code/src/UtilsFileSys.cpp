@@ -3,6 +3,7 @@
 #include <sstream>
 #include <unistd.h>
 #include <iostream>
+#include <vector>
 
 
 std::string GetCurPath() {

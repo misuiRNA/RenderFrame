@@ -1,4 +1,4 @@
-#include "RenderData.h"
+#include "RenderEngine.h"
 #include "glad/glad.h"
 #include <iostream>
 #include <glm/glm.hpp>
@@ -16,27 +16,9 @@ static void VAODeleter(unsigned int* VAOPtr) {
     delete VAOPtr;
 }
 
-unsigned int RenderDataMode2GLMode(RenderDataMode mode) {
-    static std::map<RenderDataMode, unsigned int> MODE_MAP = {
-        { RenderDataMode::POINTS,         GL_POINTS },
-        { RenderDataMode::LINES,          GL_LINES },
-        { RenderDataMode::LINE_LOOP,      GL_LINE_LOOP },
-        { RenderDataMode::LINE_STRIP,     GL_LINE_STRIP },
-        { RenderDataMode::TRIANGLES,      GL_TRIANGLES },
-        { RenderDataMode::TRIANGLE_FAN,   GL_TRIANGLE_FAN },
-        { RenderDataMode::TRIANGLE_STRIP, GL_TRIANGLE_STRIP }
-    };
-
-    unsigned int glMode = GL_POINTS;
-    if (MODE_MAP.find(mode) != MODE_MAP.end()) {
-        glMode = MODE_MAP[mode];
-    }
-    return glMode;
-}
-
-RenderData::RenderData(ShaderProgram& prog, RenderDataMode mode)
+RenderEngine::RenderEngine(ShaderProgram& prog)
 : _prog(prog)
-, _mode(RenderDataMode2GLMode(mode))
+, _mode(GL_TRIANGLES)
 , _VAOHolder(new unsigned int (0), VAODeleter)
 , _vertexCount(0)
 , _indexCount(0)
@@ -45,7 +27,7 @@ RenderData::RenderData(ShaderProgram& prog, RenderDataMode mode)
 }
 
 // remind: 浅拷贝VAO, 拷贝构造对象共用VAO
-RenderData::RenderData(const RenderData& oth)
+RenderEngine::RenderEngine(const RenderEngine& oth)
 : _prog(oth._prog)
 , _mode(oth._mode)
 , _VAOHolder(oth._VAOHolder)
@@ -57,7 +39,7 @@ RenderData::RenderData(const RenderData& oth)
 
 }
 
-RenderData::RenderData(RenderData&& oth) noexcept
+RenderEngine::RenderEngine(RenderEngine&& oth) noexcept
 : _prog(oth._prog)
 , _mode(oth._mode)
 , _VAOHolder(std::move(oth._VAOHolder))
@@ -72,14 +54,14 @@ RenderData::RenderData(RenderData&& oth) noexcept
     oth._VAOHolder.reset();
 }
 
-RenderData::~RenderData() {
+RenderEngine::~RenderEngine() {
     // remind: VAO 等 gl 资源释放交给 _VAOHolder 管理
     _textureMap.clear();
     _uniformFunctions.clear();
 }
 
-void RenderData::setVertices(size_t vertexCount, size_t verticeStride, const void* data, const std::vector<ShaderAttribDescriptor>& descs) {
-    unsigned int VBO = CreateVBO(vertexCount * verticeStride, data);
+void RenderEngine::setVertices(size_t vertexCount, const void* data, const ShaderAttribDescriptor& desc) {
+    unsigned int VBO = CreateVBO(vertexCount * desc.stride, data);
 
     if (VAOID() == 0) {
         glGenVertexArrays(1, _VAOHolder.get());
@@ -87,13 +69,10 @@ void RenderData::setVertices(size_t vertexCount, size_t verticeStride, const voi
     }
     glBindVertexArray(VAOID());
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    for (const ShaderAttribDescriptor& desc : descs)
+    for (const ShaderAttribDescriptor::AttribItem& item : desc.items)
     {
-        if (verticeStride != desc.stride) {
-            printf("Error: vertice buffer is not match with descriptor\n");
-        }
-        glVertexAttribPointer(desc.index, desc.size, GL_FLOAT, GL_FALSE, desc.stride, desc.pointer);
-        glEnableVertexAttribArray(desc.index);
+        glVertexAttribPointer(item.index, item.size, GL_FLOAT, GL_FALSE, desc.stride, item.data);
+        glEnableVertexAttribArray(item.index);
     }
     glBindVertexArray(0);
 
@@ -103,8 +82,8 @@ void RenderData::setVertices(size_t vertexCount, size_t verticeStride, const voi
     _vertexCount = vertexCount;
 }
 
-void RenderData::setInstanceVertices(size_t vertexCount, size_t verticeStride, const void* data, const std::vector<ShaderAttribDescriptor>& descs) {
-        unsigned int VBO = CreateVBO(vertexCount * verticeStride, data);
+void RenderEngine::setInstanceVertices(size_t vertexCount, const void* data, const ShaderAttribDescriptor& desc) {
+    unsigned int VBO = CreateVBO(vertexCount * desc.stride, data);
 
     if (VAOID() == 0) {
         glGenVertexArrays(1, _VAOHolder.get());
@@ -112,14 +91,11 @@ void RenderData::setInstanceVertices(size_t vertexCount, size_t verticeStride, c
     }
     glBindVertexArray(VAOID());
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    for (const ShaderAttribDescriptor& desc : descs)
+    for (const ShaderAttribDescriptor::AttribItem& item : desc.items)
     {
-        if (verticeStride != desc.stride) {
-            printf("Error: vertice buffer is not match with descriptor\n");
-        }
-        glVertexAttribPointer(desc.index, desc.size, GL_FLOAT, GL_FALSE, desc.stride, desc.pointer);
-        glEnableVertexAttribArray(desc.index);
-        glVertexAttribDivisor(desc.index, 1);
+        glVertexAttribPointer(item.index, item.size, GL_FLOAT, GL_FALSE, desc.stride, item.data);
+        glEnableVertexAttribArray(item.index);
+        glVertexAttribDivisor(item.index, 1);
     }
     glBindVertexArray(0);
 
@@ -129,7 +105,7 @@ void RenderData::setInstanceVertices(size_t vertexCount, size_t verticeStride, c
     _instanceCount = vertexCount;
 }
 
-void RenderData::setIndices(const std::vector<unsigned int>& indices) {
+void RenderEngine::setIndices(const std::vector<unsigned int>& indices) {
     unsigned int EBO = CreateEBO(indices);
 
     if (VAOID() == 0)
@@ -147,7 +123,7 @@ void RenderData::setIndices(const std::vector<unsigned int>& indices) {
     _indexCount = indices.size();
 }
 
-void RenderData::setTexture(const std::string& name, unsigned int textureId) {
+void RenderEngine::setTexture(const std::string& name, TextureId textureId) {
     // if (textureId == 0) {
     //     std::cout << "Failed to set texture! textureId is invalid: " << name  << " value=" << textureId << std::endl;
     //     return;
@@ -155,42 +131,42 @@ void RenderData::setTexture(const std::string& name, unsigned int textureId) {
     _textureMap[name] = textureId;
 }
 
-void RenderData::setUniform(const std::string& name, int value) {
+void RenderEngine::setUniform(const std::string& name, int value) {
     std::function<void(ShaderProgram& prog)> func = [name, value](ShaderProgram& prog) -> void {
         prog.setUniform(name, value);
     };
     setUniformFunc(name, func);
 }
 
-void RenderData::setUniform(const std::string& name, float value) {
+void RenderEngine::setUniform(const std::string& name, float value) {
     std::function<void(ShaderProgram& prog)> func = [name, value](ShaderProgram& prog) -> void {
         prog.setUniform(name, value);
     };
     setUniformFunc(name, func);
 }
 
-void RenderData::setUniform(const std::string& name, float v1, float v2, float v3) {
+void RenderEngine::setUniform(const std::string& name, float v1, float v2, float v3) {
     std::function<void(ShaderProgram& prog)> func = [name, v1, v2, v3](ShaderProgram& prog) -> void {
         prog.setUniform(name, v1, v2, v3);
     };
     setUniformFunc(name, func);
 }
 
-void RenderData::setUniform(const std::string& name, float v1, float v2, float v3, float v4) {
+void RenderEngine::setUniform(const std::string& name, float v1, float v2, float v3, float v4) {
     std::function<void(ShaderProgram& prog)> func = [name, v1, v2, v3, v4](ShaderProgram& prog) -> void {
         prog.setUniform(name, v1, v2, v3, v4);
     };
     setUniformFunc(name, func);
 }
 
-void RenderData::setUniform(const std::string& name, const Matrix4X4& mat) {
+void RenderEngine::setUniform(const std::string& name, const Matrix4X4& mat) {
     std::function<void(ShaderProgram& prog)> func = [name, mat](ShaderProgram& prog) -> void {
         prog.setUniform(name, mat);
     };
     setUniformFunc(name, func);
 }
 
-void RenderData::setUniform(const std::string& name, const XYZ& value)
+void RenderEngine::setUniform(const std::string& name, const XYZ& value)
 {
     std::function<void(ShaderProgram& prog)> func = [name, value](ShaderProgram& prog) -> void {
         prog.setUniform(name, value);
@@ -198,7 +174,7 @@ void RenderData::setUniform(const std::string& name, const XYZ& value)
     setUniformFunc(name, func);
 }
 
-void RenderData::setUniform(const std::string& name, const Color& color)
+void RenderEngine::setUniform(const std::string& name, const Color& color)
 {
     std::function<void(ShaderProgram& prog)> func = [name, color](ShaderProgram& prog) -> void {
         prog.setUniform(name, color);
@@ -206,7 +182,7 @@ void RenderData::setUniform(const std::string& name, const Color& color)
     setUniformFunc(name, func);
 }
 
-void RenderData::setUniform(const std::string& name, const ShaderMaterial& material) {
+void RenderEngine::setUniform(const std::string& name, const ShaderMaterial& material) {
     setTexture(name + ".diffuseTexture", material.diffuseTexture);
     setTexture(name + ".specularTexture", material.specularTexture);
     setUniform(name + ".ambient", material.ambient);
@@ -215,26 +191,26 @@ void RenderData::setUniform(const std::string& name, const ShaderMaterial& mater
     setUniform(name + ".shininess", material.shininess);
 }
 
-void RenderData::setUniformFunc(const std::string& name, const std::function<void(ShaderProgram& prog)>& func) {
+void RenderEngine::setUniformFunc(const std::string& name, const std::function<void(ShaderProgram& prog)>& func) {
     _uniformFunctions[name] = func;
 }
 
-ShaderProgram& RenderData::getShaderProgram() const {
+ShaderProgram& RenderEngine::getShaderProgram() const {
     return _prog;
 }
 
-void RenderData::useUniforms() {
+void RenderEngine::useUniforms() {
     for (auto& pair : _uniformFunctions) {
         auto& setUniformFunc = pair.second;
         setUniformFunc(_prog);
     }
 }
 
-void RenderData::useTextures() {
+void RenderEngine::useTextures() {
     int textureSlotIdx = 0;
     for (auto& itr : _textureMap) {
         const std::string& name = itr.first;
-        unsigned int textureId = itr.second;
+        TextureId textureId = itr.second;
 
         _prog.setUniform(name, textureSlotIdx);
         glActiveTexture(GL_TEXTURE0 + textureSlotIdx);
@@ -243,11 +219,11 @@ void RenderData::useTextures() {
     }
 }
 
-void RenderData::resetTextures() {
+void RenderEngine::resetTextures() {
     int textureSlotIdx = 0;
     for (auto& itr : _textureMap) {
         const std::string& name = itr.first;
-        unsigned int textureId = itr.second;
+        TextureId textureId = itr.second;
 
         _prog.setUniform(name, 0);
         glActiveTexture(GL_TEXTURE0 + textureSlotIdx);
@@ -256,7 +232,29 @@ void RenderData::resetTextures() {
     }
 }
 
-void RenderData::draw() {
+void RenderEngine::setDrawMode(RenderDataMode mode) {
+    static std::map<RenderDataMode, unsigned int> MODE_MAP = {
+        { RenderDataMode::POINTS,         GL_POINTS },
+        { RenderDataMode::LINES,          GL_LINES },
+        { RenderDataMode::LINE_LOOP,      GL_LINE_LOOP },
+        { RenderDataMode::LINE_STRIP,     GL_LINE_STRIP },
+        { RenderDataMode::TRIANGLES,      GL_TRIANGLES },
+        { RenderDataMode::TRIANGLE_FAN,   GL_TRIANGLE_FAN },
+        { RenderDataMode::TRIANGLE_STRIP, GL_TRIANGLE_STRIP }
+    };
+
+    unsigned int glMode = GL_TRIANGLES;
+    if (MODE_MAP.find(mode) != MODE_MAP.end()) {
+        glMode = MODE_MAP[mode];
+    }
+    _mode = glMode;
+
+    if (mode == RenderDataMode::POINTS) {
+        glEnable(GL_PROGRAM_POINT_SIZE);
+    }
+}
+
+void RenderEngine::draw() {
     _prog.enable();
 
     useTextures();
@@ -283,14 +281,14 @@ void RenderData::draw() {
         glBindVertexArray(0);
         glActiveTexture(GL_TEXTURE0);
     } else {
-        // std::cout << "RenderData: draw failed, VAOId is 0!" << std::endl;
+        // std::cout << "RenderEngine: draw failed, VAOId is 0!" << std::endl;
     }
 
     resetTextures();
 }
 
 
-unsigned int RenderData::CreateVBO(size_t size, const void* data) {
+unsigned int RenderEngine::CreateVBO(size_t size, const void* data) {
     unsigned int VBO;
     glGenBuffers(1, &VBO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -303,7 +301,7 @@ unsigned int RenderData::CreateVBO(size_t size, const void* data) {
     return VBO;
 }
 
-unsigned int RenderData::CreateEBO(const std::vector<unsigned int>& indices) {
+unsigned int RenderEngine::CreateEBO(const std::vector<unsigned int>& indices) {
     unsigned int EBO;
     glGenBuffers(1, &EBO);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);

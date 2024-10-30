@@ -21,7 +21,7 @@ ShaderMaterial::ShaderMaterial(const Color& ambient, const Color& diffuse, const
 
 }
 
-ShaderMaterial::ShaderMaterial(int diffuseTexture, int specularTextrue)
+ShaderMaterial::ShaderMaterial(TextureId diffuseTexture, TextureId specularTextrue)
 : diffuseTexture(diffuseTexture)
 , specularTexture(specularTextrue)
 , ambient(0.0f, 0.0f, 0.0f)

@@ -1,26 +1,27 @@
 #ifndef _HEAD_FLAG_MODEL_RECTANGLE_H
 #define _HEAD_FLAG_MODEL_RECTANGLE_H
 
-#include "shader/AbstractShader.h"
+#include "render/AbstractShader.h"
 #include "BaseDefine.h"
 #include "Image.h"
 #include "Attitude3DController.h"
 
-struct ColorTex3D : AbstractShader {
-    struct Vertex {
-        Vertex(Position pos, Vector2D texcoord) : pos(pos), texcoord(texcoord) { }
-        Position pos;
-        Vector2D texcoord;
-    };
+struct ColorTex3DVertex {
+    ColorTex3DVertex(const RenderShape::Vertex& data) : pos(data.pos), texcoord(data.texcoord), color(data.color) { }
+    Position pos;
+    Vector2D texcoord;
+    Color color;
 
-    ColorTex3D(const Size3D& size);
+    static const ShaderAttribDescriptor DESCRIPTOR;
+};
+
+struct ColorTex3DShader : AbstractShader<ColorTex3DVertex> {
+    ColorTex3DShader(const Size3D& size);
 
     void setPosition(const Position& pos);
     void setSize(const Size3D& size);
     void setImage(const AbstractImage& image);
     void setColor(const Color& color);
-    void setVertexData(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices = {});
-    void setVertexData(const RenderShape& shape);
     Attitude3DController& getAttituedeCtrl();
 
 private:

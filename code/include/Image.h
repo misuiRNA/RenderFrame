@@ -5,14 +5,14 @@
 #include <iostream> 
 #include <map>
 #include "BaseDefine.h"
+#include "Texture.h"
 #include <functional>
+#include <memory>
 
 enum class ImageWrapMode {
     Repeat      = 0,
     ClampToEdge = 1
 };
-
-using TextureId = unsigned int;
 
 struct AbstractImage {
     virtual ~AbstractImage() { }
@@ -32,14 +32,14 @@ private:
     int _width;
     int _height;
     unsigned int _format;
-    unsigned char* _data;
+    std::shared_ptr<unsigned char> _dataHolder;
 
     mutable std::map<ImageWrapMode, TextureId> _textureMap;
 };
 
 
 struct PaintImage : AbstractImage {
-    PaintImage(unsigned int witdh, unsigned int height);
+    PaintImage(unsigned int witdh, unsigned int height, int nrChannels = 3);
     void setBackgroundColor(const Color& color);
     void paint(std::function<void()> painter);
     // TODO: 优化, 离屏渲染纹理实现暂不支持选择环绕方式
@@ -66,5 +66,7 @@ private:
     mutable TextureId _textureId;
 };
 
+
+void Screenshot(const std::string& filename, int width, int height);
 
 #endif // _HEAD_FLAG_IMAGE_H
