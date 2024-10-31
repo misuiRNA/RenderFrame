@@ -37,21 +37,14 @@ private:
     void mirrorRender();
     void runAnimation();
 
+    void renderSolidObjs();
+    void renderTransparentObjs();
+
 private:
     LightSource parallelLight;
     std::vector<LightSource> pointLights;
     CameraFPS cameraFPS;
     CameraFPS mirrorCameraFPS;
-    LocalImage wallImage;
-    LocalImage awesomefaceImage;
-    LocalImage containerImage;
-    LocalImage containerImage2;
-    // LocalImage containerImage2_specular(GetCurPath() + "/resource/container2_specular.png");
-    LocalImage containerImage2_specular;
-    LocalImage matrixImage;
-    LocalImage grassImage;
-    LocalImage windowImage;
-    CubeImage cubeImage;
 
     Skybox skybox;
     ColorTex3DShader rectangle;

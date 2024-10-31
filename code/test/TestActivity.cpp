@@ -13,6 +13,22 @@ extern RenderShape circleShape;
 constexpr float MOVE_SPEED = 2.5f;
 constexpr float TURN_SPEED = 10.0f;
 
+static LocalImage wallImage(GetCurPath() + "/resource/wall.jpeg");
+static LocalImage awesomefaceImage(GetCurPath() + "/resource/awesomeface.png");
+static LocalImage containerImage(GetCurPath() + "/resource/container.jpeg");
+static LocalImage containerImage2(GetCurPath() + "/resource/container2.png");
+static LocalImage containerImage2_specular(GetCurPath() + "/resource/lighting_maps_specular_color.png");
+// static LocalImage containerImage2_specular(GetCurPath() + "/resource/container2_specular.png");;
+static LocalImage matrixImage(GetCurPath() + "/resource/matrix.jpeg");
+static LocalImage grassImage(GetCurPath() + "/resource/grass.png");
+static LocalImage windowImage(GetCurPath() + "/resource/blending_transparent_window.png");
+static CubeImage cubeImage(GetCurPath() + "/resource/skybox/right.jpg"
+                        , GetCurPath() + "/resource/skybox/left.jpg"
+                        , GetCurPath() + "/resource/skybox/bottom.jpg"
+                        , GetCurPath() + "/resource/skybox/top.jpg"
+                        , GetCurPath() + "/resource/skybox/front.jpg"
+                        , GetCurPath() + "/resource/skybox/back.jpg");
+
 
 static void SortWitDistance(std::vector<Position>& positions, Position centerPos) {
     auto dist = [](Position& a, Position& b) {
@@ -76,20 +92,6 @@ TestActivity::TestActivity(KeyboardEventHandler& keyboard)
 , pointLights({false, false})
 , cameraFPS()
 , mirrorCameraFPS()
-, wallImage(GetCurPath() + "/resource/wall.jpeg")
-, awesomefaceImage(GetCurPath() + "/resource/awesomeface.png")
-, containerImage(GetCurPath() + "/resource/container.jpeg")
-, containerImage2(GetCurPath() + "/resource/container2.png")
-, containerImage2_specular(GetCurPath() + "/resource/lighting_maps_specular_color.png")
-, matrixImage(GetCurPath() + "/resource/matrix.jpeg")
-, grassImage(GetCurPath() + "/resource/grass.png")
-, windowImage(GetCurPath() + "/resource/blending_transparent_window.png")
-, cubeImage(GetCurPath() + "/resource/skybox/right.jpg"
-          , GetCurPath() + "/resource/skybox/left.jpg"
-          , GetCurPath() + "/resource/skybox/bottom.jpg"
-          , GetCurPath() + "/resource/skybox/top.jpg"
-          , GetCurPath() + "/resource/skybox/front.jpg"
-          , GetCurPath() + "/resource/skybox/back.jpg")
 , skybox()
 , rectangle({0.6f, 0.6f})
 , rectangle1({1.0f, 1.0f})
@@ -112,7 +114,6 @@ TestActivity::TestActivity(KeyboardEventHandler& keyboard)
     initDrawObjects();
     registerKeyboardEvent(keyboard);
 
-    glEnable(GL_DEPTH_TEST);
     glEnable(GL_STENCIL_TEST);
     glStencilOp(GL_ZERO, GL_KEEP, GL_REPLACE);
     glDepthFunc(GL_LEQUAL);
@@ -124,6 +125,7 @@ void TestActivity::render() {
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
+    // TODO: 优化, 画布渲染完毕以后需要恢复原gl上下文状态, 如blend, cull_face等
     mirrorCanva.paint(std::bind(&TestActivity::mirrorRender, this));
 
     SetGlobalLights(parallelLight, pointLights);
@@ -133,14 +135,17 @@ void TestActivity::render() {
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); 
+    renderSolidObjs();
+    renderTransparentObjs();
+}
 
-
-    // EnableViewMask(rectangle1, rectangle);
-
-    // TODO: 优化, 封装到RenderData中, 渲染元素级别控制面剔除方式
+void TestActivity::renderSolidObjs() {
     glEnable(GL_CULL_FACE);
     // glFrontFace(GL_CW);
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
 
+    // EnableViewMask(rectangle1, rectangle);
     rectangle1.show();
     rectangle.show();
 
@@ -160,33 +165,31 @@ void TestActivity::render() {
         nanosuit.show();
     }
 
-    // TODO: 优化, 抽取透明元素的绘制流程pip
+    mirror.show();
+    // render skybox
+    skybox.show(cameraFPS.getPosition());
+
+    // glPointSize(100.0f);
+    // richPoints.show();
+}
+
+void TestActivity::renderTransparentObjs() {
+    glDisable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    grass.show();
 
+    grass.show();
     // TODO: 优化, 受混合+深度测试影响 透明物体需要按顺序绘制, 需要提供一个排序工具
     SortWitDistance(windowPositions, ((const ShaderCamera&)cameraFPS).getPosition());
     for (int index = 0; index < windowPositions.size(); ++index) {
         transparentWindow.setPosition(windowPositions[index]);
         transparentWindow.show();
     }
-    glDisable(GL_BLEND);
-    mirror.show();
-
-    // render skybox
-    skybox.show(cameraFPS.getPosition());
-
-    // glPointSize(100.0f);
-    // richPoints.show();
 
     // TODO: 优化, 1. 抽取抠图流程pip  2. 打开窗口透明后草地透明也会透明, 需要设置细粒度开关
     glDisable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
     glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
     winMask.show();
-    glDisable(GL_BLEND);
-    glEnable(GL_DEPTH_TEST);
 }
 
 void TestActivity::registerKeyboardEvent(KeyboardEventHandler& keyboardEventHandler) {
@@ -226,8 +229,8 @@ void TestActivity::runAnimation() {
     // l3DModel.setFront({x, y, 0.0f});
     // airplan.setFront({0.0f, y, x});
 
-    rectangle.setPosition({x, y, z});
-    rectangle1.setPosition({x - 1.0f, y, z});
+    // rectangle.setPosition({x, y, z});
+    // rectangle1.setPosition({x - 1.0f, y, z});
 
     cuboid1.getAttituedeCtrl().setFront({x, 0.0f, y});
 
@@ -235,6 +238,9 @@ void TestActivity::runAnimation() {
 
 void TestActivity::mirrorRender() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
+
     SetGlobalCamera(mirrorCameraFPS);
 
     rectangle1.show();
