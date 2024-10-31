@@ -1,17 +1,9 @@
 #include <iostream>
-#include <math.h>
-#include <glm/glm.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "ShaderProgram.h"
-#include "Camera.h"
 #include "Image.h"
-#include "Utils.h"
 #include "KeyboardEventHandler.h"
-#include "object/Model.h"
-#include "object/LightSource.h"
-#include "object/Skybox.h"
 #include "TestActivity.h"
 
 

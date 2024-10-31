@@ -72,8 +72,7 @@ static void EnableViewMask(ColorTex3DShader& outlineMask, ColorTex3DShader& thro
 
 
 TestActivity::TestActivity(KeyboardEventHandler& keyboard)
-: keyboardEventHandler(keyboard)
-, parallelLight(true)
+: parallelLight(true)
 , pointLights({false, false})
 , cameraFPS()
 , mirrorCameraFPS()
@@ -111,6 +110,7 @@ TestActivity::TestActivity(KeyboardEventHandler& keyboard)
     initLights();
     initCameras();
     initDrawObjects();
+    registerKeyboardEvent(keyboard);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_STENCIL_TEST);
@@ -124,36 +124,12 @@ void TestActivity::render() {
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
+    mirrorCanva.paint(std::bind(&TestActivity::mirrorRender, this));
+
     SetGlobalLights(parallelLight, pointLights);
     SetGlobalCamera(cameraFPS);
 
-    float time = (float)glfwGetTime();
-    float radian = (sin(time)) * M_PI * (cos(time) > 0 ? 1 : -1);
-    float sinV = sin(radian);
-    float cosV = cos(radian);
-    float x = sinV * 3;
-    float y = cosV * 3;
-    float z = 3.0f;
-
-    // light.setPosition({x, y, 3.0f});
-    // light.setPosition({3.0f, 2.0f, z + 3.0f});
-    // light.setDirection(Position(0.0f, 0.0f, z + light.getPosition().z) - light.getPosition());
-    // light.setColor(Color(ratio * 2.0f, (1.0f - ratio) * 0.3f, (0.5 + ratio) * 1.7f));
-
-    // light1.setPosition({x, y, 1.0f});
-    // light1.setDirection(Position(0.0f, 0.0f, z + light1.getPosition().z) - light1.getPosition());
-
-    // l3DModel.setPosition({x, y, 1.5f});
-    // l3DModel.setFront({x, y, 0.0f});
-    // airplan.setFront({0.0f, y, x});
-    rectangle.setPosition({x, y, z});
-    rectangle1.setPosition({x - 1.0f, y, z});
-
-    // cuboid1.getAttituedeCtrl().setFront({x, 0.0f, y});
-
-
-    mirrorCanva.paint(std::bind(&TestActivity::mirrorRender, this));
-
+    runAnimation();
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); 
@@ -211,6 +187,49 @@ void TestActivity::render() {
     winMask.show();
     glDisable(GL_BLEND);
     glEnable(GL_DEPTH_TEST);
+}
+
+void TestActivity::registerKeyboardEvent(KeyboardEventHandler& keyboardEventHandler) {
+    keyboardEventHandler.registerObserver(GLFW_KEY_W, GLFW_PRESS, [this]() { cameraFPS.goForward(deltaTime * MOVE_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_S, GLFW_PRESS, [this]() { cameraFPS.goBack(deltaTime * MOVE_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_A, GLFW_PRESS, [this]() { cameraFPS.goLeft(deltaTime * MOVE_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, [this]() { cameraFPS.goRight(deltaTime * MOVE_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_RIGHT, GLFW_PRESS, [this]() { cameraFPS.turnRight(deltaTime * TURN_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_LEFT, GLFW_PRESS, [this]() { cameraFPS.turnLeft(deltaTime * TURN_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_UP, GLFW_PRESS, [this]() { cameraFPS.turnUp(deltaTime * TURN_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_DOWN, GLFW_PRESS, [this]() { cameraFPS.turnDown(deltaTime * TURN_SPEED); });
+
+    keyboardEventHandler.registerObserver(GLFW_KEY_W, GLFW_PRESS, [this]() { mirrorCameraFPS.move(deltaTime * MOVE_SPEED * Vector3D(-1.0f, 0.0f, 0.0f)); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_S, GLFW_PRESS, [this]() { mirrorCameraFPS.move(deltaTime * MOVE_SPEED * Vector3D(1.0f, 0.0f, 0.0f)); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_A, GLFW_PRESS, [this]() { mirrorCameraFPS.move(deltaTime * MOVE_SPEED * Vector3D(0.0f, -1.0f, 0.0f)); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, [this]() { mirrorCameraFPS.move(deltaTime * MOVE_SPEED * Vector3D(0.0f, 1.0f, 0.0f)); });
+}
+
+void TestActivity::runAnimation() {
+    float time = (float)glfwGetTime();
+    float radian = (sin(time)) * M_PI * (cos(time) > 0 ? 1 : -1);
+    float sinV = sin(radian);
+    float cosV = cos(radian);
+    float x = sinV * 3;
+    float y = cosV * 3;
+    float z = 3.0f;
+
+    // light.setPosition({x, y, 3.0f});
+    // light.setPosition({3.0f, 2.0f, z + 3.0f});
+    // light.setDirection(Position(0.0f, 0.0f, z + light.getPosition().z) - light.getPosition());
+    // light.setColor(Color(ratio * 2.0f, (1.0f - ratio) * 0.3f, (0.5 + ratio) * 1.7f));
+
+    // light1.setPosition({x, y, 1.0f});
+    // light1.setDirection(Position(0.0f, 0.0f, z + light1.getPosition().z) - light1.getPosition());
+
+    // l3DModel.setPosition({x, y, 1.5f});
+    // l3DModel.setFront({x, y, 0.0f});
+    // airplan.setFront({0.0f, y, x});
+
+    rectangle.setPosition({x, y, z});
+    rectangle1.setPosition({x - 1.0f, y, z});
+
+    cuboid1.getAttituedeCtrl().setFront({x, 0.0f, y});
 
 }
 
@@ -282,23 +301,11 @@ void TestActivity::initLights() {
 void TestActivity::initCameras() {
     cameraFPS.setPosition({5.0f, 2.0f, 2.0f});
     cameraFPS.setAttitude(0.0f, 180.0f);
-    keyboardEventHandler.registerObserver(GLFW_KEY_W, GLFW_PRESS, [this]() { cameraFPS.goForward(deltaTime * MOVE_SPEED); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_S, GLFW_PRESS, [this]() { cameraFPS.goBack(deltaTime * MOVE_SPEED); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_A, GLFW_PRESS, [this]() { cameraFPS.goLeft(deltaTime * MOVE_SPEED); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, [this]() { cameraFPS.goRight(deltaTime * MOVE_SPEED); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_RIGHT, GLFW_PRESS, [this]() { cameraFPS.turnRight(deltaTime * TURN_SPEED); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_LEFT, GLFW_PRESS, [this]() { cameraFPS.turnLeft(deltaTime * TURN_SPEED); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_UP, GLFW_PRESS, [this]() { cameraFPS.turnUp(deltaTime * TURN_SPEED); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_DOWN, GLFW_PRESS, [this]() { cameraFPS.turnDown(deltaTime * TURN_SPEED); });
 
     mirrorCameraFPS = cameraFPS;
     mirrorCameraFPS.setFov(75.0f);
     mirrorCameraFPS.setAttitude(-80.0f, 180.0f);
     mirrorCameraFPS.setPosition({0.0f, 0.0f, 15.0f});
-    keyboardEventHandler.registerObserver(GLFW_KEY_W, GLFW_PRESS, [this]() { mirrorCameraFPS.move(deltaTime * MOVE_SPEED * Vector3D(-1.0f, 0.0f, 0.0f)); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_S, GLFW_PRESS, [this]() { mirrorCameraFPS.move(deltaTime * MOVE_SPEED * Vector3D(1.0f, 0.0f, 0.0f)); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_A, GLFW_PRESS, [this]() { mirrorCameraFPS.move(deltaTime * MOVE_SPEED * Vector3D(0.0f, -1.0f, 0.0f)); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, [this]() { mirrorCameraFPS.move(deltaTime * MOVE_SPEED * Vector3D(0.0f, 1.0f, 0.0f)); });
 }
 
 void TestActivity::initDrawObjects() {

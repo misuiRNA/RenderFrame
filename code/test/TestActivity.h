@@ -32,11 +32,12 @@ private:
     void buildNanosuit();
     void buildAirplan();
     void buildRichPoints();
+    void registerKeyboardEvent(KeyboardEventHandler& keyboardEventHandler);
 
     void mirrorRender();
+    void runAnimation();
 
 private:
-    KeyboardEventHandler& keyboardEventHandler;
     LightSource parallelLight;
     std::vector<LightSource> pointLights;
     CameraFPS cameraFPS;
