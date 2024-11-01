@@ -11,6 +11,7 @@
 #include "shader/IncorporateColorTex3DShader.h"
 #include "KeyboardEventHandler.h"
 #include "Camera.h"
+#include "FrameRateTimer.h"
 
 
 struct TestActivity {
@@ -41,6 +42,7 @@ private:
     void renderTransparentObjs();
 
 private:
+    FrameRateTimer frameTimer;
     LightSource parallelLight;
     std::vector<LightSource> pointLights;
     CameraFPS cameraFPS;
@@ -62,8 +64,6 @@ private:
     Model3DDrawObject airplan;
     ColorGeometryPointShader richPoints;
 
-    float deltaTime; // 当前帧与上一帧的时间差
-    float lastFrame; // 上一帧的时间
 
     std::vector<Position> windowPositions;
 };

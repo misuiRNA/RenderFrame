@@ -10,9 +10,6 @@ extern RenderShape tetrahedronShape;
 extern RenderShape rectShape;
 extern RenderShape circleShape;
 
-constexpr float MOVE_SPEED = 2.5f;
-constexpr float TURN_SPEED = 10.0f;
-
 static LocalImage wallImage(GetCurPath() + "/resource/wall.jpeg");
 static LocalImage awesomefaceImage(GetCurPath() + "/resource/awesomeface.png");
 static LocalImage containerImage(GetCurPath() + "/resource/container.jpeg");
@@ -88,7 +85,8 @@ static void EnableViewMask(ColorTex3DShader& outlineMask, ColorTex3DShader& thro
 
 
 TestActivity::TestActivity(KeyboardEventHandler& keyboard)
-: parallelLight(true)
+: frameTimer()
+, parallelLight(true)
 , pointLights({false, false})
 , cameraFPS()
 , mirrorCameraFPS()
@@ -106,9 +104,7 @@ TestActivity::TestActivity(KeyboardEventHandler& keyboard)
 , circle1({1.0f, 1.0f, 1.0f})
 , nanosuit(GetCurPath() + "/resource/models/nanosuit/nanosuit.obj")
 , airplan(GetCurPath() + "/resource/models/Airplane/11803_Airplane_v1_l1.obj")
-, richPoints()
-, deltaTime(0.0f)
-, lastFrame(0.0f) {
+, richPoints() {
     initLights();
     initCameras();
     initDrawObjects();
@@ -121,9 +117,7 @@ TestActivity::TestActivity(KeyboardEventHandler& keyboard)
 }
 
 void TestActivity::render() {
-    float currentFrame = glfwGetTime();
-    deltaTime = currentFrame - lastFrame;
-    lastFrame = currentFrame;
+    frameTimer.updateTime();
 
     // TODO: 优化, 画布渲染完毕以后需要恢复原gl上下文状态, 如blend, cull_face等
     mirrorCanva.paint(std::bind(&TestActivity::mirrorRender, this));
@@ -193,23 +187,26 @@ void TestActivity::renderTransparentObjs() {
 }
 
 void TestActivity::registerKeyboardEvent(KeyboardEventHandler& keyboardEventHandler) {
-    keyboardEventHandler.registerObserver(GLFW_KEY_W, GLFW_PRESS, [this]() { cameraFPS.goForward(deltaTime * MOVE_SPEED); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_S, GLFW_PRESS, [this]() { cameraFPS.goBack(deltaTime * MOVE_SPEED); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_A, GLFW_PRESS, [this]() { cameraFPS.goLeft(deltaTime * MOVE_SPEED); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, [this]() { cameraFPS.goRight(deltaTime * MOVE_SPEED); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_RIGHT, GLFW_PRESS, [this]() { cameraFPS.turnRight(deltaTime * TURN_SPEED); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_LEFT, GLFW_PRESS, [this]() { cameraFPS.turnLeft(deltaTime * TURN_SPEED); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_UP, GLFW_PRESS, [this]() { cameraFPS.turnUp(deltaTime * TURN_SPEED); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_DOWN, GLFW_PRESS, [this]() { cameraFPS.turnDown(deltaTime * TURN_SPEED); });
+    constexpr float MOVE_SPEED = 2.5f;
+    constexpr float TURN_SPEED = 10.0f;
 
-    keyboardEventHandler.registerObserver(GLFW_KEY_W, GLFW_PRESS, [this]() { mirrorCameraFPS.move(deltaTime * MOVE_SPEED * Vector3D(-1.0f, 0.0f, 0.0f)); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_S, GLFW_PRESS, [this]() { mirrorCameraFPS.move(deltaTime * MOVE_SPEED * Vector3D(1.0f, 0.0f, 0.0f)); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_A, GLFW_PRESS, [this]() { mirrorCameraFPS.move(deltaTime * MOVE_SPEED * Vector3D(0.0f, -1.0f, 0.0f)); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, [this]() { mirrorCameraFPS.move(deltaTime * MOVE_SPEED * Vector3D(0.0f, 1.0f, 0.0f)); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_W, GLFW_PRESS, [this]() { cameraFPS.goForward(frameTimer.getFrameTime() * MOVE_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_S, GLFW_PRESS, [this]() { cameraFPS.goBack(frameTimer.getFrameTime() * MOVE_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_A, GLFW_PRESS, [this]() { cameraFPS.goLeft(frameTimer.getFrameTime() * MOVE_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, [this]() { cameraFPS.goRight(frameTimer.getFrameTime() * MOVE_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_RIGHT, GLFW_PRESS, [this]() { cameraFPS.turnRight(frameTimer.getFrameTime() * TURN_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_LEFT, GLFW_PRESS, [this]() { cameraFPS.turnLeft(frameTimer.getFrameTime() * TURN_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_UP, GLFW_PRESS, [this]() { cameraFPS.turnUp(frameTimer.getFrameTime() * TURN_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_DOWN, GLFW_PRESS, [this]() { cameraFPS.turnDown(frameTimer.getFrameTime() * TURN_SPEED); });
+
+    keyboardEventHandler.registerObserver(GLFW_KEY_W, GLFW_PRESS, [this]() { mirrorCameraFPS.move(frameTimer.getFrameTime() * MOVE_SPEED * Vector3D(-1.0f, 0.0f, 0.0f)); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_S, GLFW_PRESS, [this]() { mirrorCameraFPS.move(frameTimer.getFrameTime() * MOVE_SPEED * Vector3D(1.0f, 0.0f, 0.0f)); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_A, GLFW_PRESS, [this]() { mirrorCameraFPS.move(frameTimer.getFrameTime() * MOVE_SPEED * Vector3D(0.0f, -1.0f, 0.0f)); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, [this]() { mirrorCameraFPS.move(frameTimer.getFrameTime() * MOVE_SPEED * Vector3D(0.0f, 1.0f, 0.0f)); });
 }
 
 void TestActivity::runAnimation() {
-    float time = (float)glfwGetTime();
+    float time = frameTimer.getCurTime();
     float radian = (sin(time)) * M_PI * (cos(time) > 0 ? 1 : -1);
     float sinV = sin(radian);
     float cosV = cos(radian);
@@ -229,8 +226,8 @@ void TestActivity::runAnimation() {
     // l3DModel.setFront({x, y, 0.0f});
     // airplan.setFront({0.0f, y, x});
 
-    // rectangle.setPosition({x, y, z});
-    // rectangle1.setPosition({x - 1.0f, y, z});
+    rectangle.setPosition({x, y, z});
+    rectangle1.setPosition({x - 1.0f, y, z});
 
     cuboid1.getAttituedeCtrl().setFront({x, 0.0f, y});
 
