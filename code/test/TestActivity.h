@@ -66,6 +66,8 @@ private:
 
 
     std::vector<Position> windowPositions;
+
+    KeyboardEventHandler bodyKeyboardEventHandler;
 };
 
 #endif

@@ -9,6 +9,7 @@ extern RenderShape cubeShape;
 extern RenderShape tetrahedronShape;
 extern RenderShape rectShape;
 extern RenderShape circleShape;
+extern void RegisterKeyboardHandler(KeyboardEventHandler* keyboard);
 
 static LocalImage wallImage(GetCurPath() + "/resource/wall.jpeg");
 static LocalImage awesomefaceImage(GetCurPath() + "/resource/awesomeface.png");
@@ -104,11 +105,13 @@ TestActivity::TestActivity(KeyboardEventHandler& keyboard)
 , circle1({1.0f, 1.0f, 1.0f})
 , nanosuit(GetCurPath() + "/resource/models/nanosuit/nanosuit.obj")
 , airplan(GetCurPath() + "/resource/models/Airplane/11803_Airplane_v1_l1.obj")
-, richPoints() {
+, richPoints()
+, bodyKeyboardEventHandler(keyboard) {
     initLights();
     initCameras();
     initDrawObjects();
     registerKeyboardEvent(keyboard);
+    RegisterKeyboardHandler(&bodyKeyboardEventHandler);
 
     glEnable(GL_STENCIL_TEST);
     glStencilOp(GL_ZERO, GL_KEEP, GL_REPLACE);
@@ -203,6 +206,12 @@ void TestActivity::registerKeyboardEvent(KeyboardEventHandler& keyboardEventHand
     keyboardEventHandler.registerObserver(GLFW_KEY_S, GLFW_PRESS, [this]() { mirrorCameraFPS.move(frameTimer.getFrameTime() * MOVE_SPEED * Vector3D(1.0f, 0.0f, 0.0f)); });
     keyboardEventHandler.registerObserver(GLFW_KEY_A, GLFW_PRESS, [this]() { mirrorCameraFPS.move(frameTimer.getFrameTime() * MOVE_SPEED * Vector3D(0.0f, -1.0f, 0.0f)); });
     keyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, [this]() { mirrorCameraFPS.move(frameTimer.getFrameTime() * MOVE_SPEED * Vector3D(0.0f, 1.0f, 0.0f)); });
+
+
+    bodyKeyboardEventHandler.registerObserver(GLFW_KEY_W, GLFW_PRESS, [this]() { airplan.move({frameTimer.getFrameTime() * MOVE_SPEED, 0.0f, 0.0f}); });
+    bodyKeyboardEventHandler.registerObserver(GLFW_KEY_S, GLFW_PRESS, [this]() { airplan.move({-frameTimer.getFrameTime() * MOVE_SPEED, 0.0f, 0.0f}); });
+    bodyKeyboardEventHandler.registerObserver(GLFW_KEY_A, GLFW_PRESS, [this]() { airplan.move({0.0f, frameTimer.getFrameTime() * MOVE_SPEED, 0.0f}); });
+    bodyKeyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, [this]() { airplan.move({0.0f, -frameTimer.getFrameTime() * MOVE_SPEED, 0.0f}); });
 }
 
 void TestActivity::runAnimation() {

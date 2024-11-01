@@ -13,6 +13,13 @@ void Model3DDrawObject::setPosition(const Position& pos) {
     }
 }
 
+void Model3DDrawObject::move(const Position& offset) {
+    for (auto& draw : _meshDrawes) {
+        Position pos = draw.getAttituedeCtrl().getPosition();
+        draw.setPosition(pos + offset);
+    }
+}
+
 void Model3DDrawObject::setSize(const Size3D& size) {
     for (auto& draw : _meshDrawes) {
         draw.setSize(size);
