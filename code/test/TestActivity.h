@@ -33,6 +33,7 @@ private:
     void buildNanosuit();
     void buildAirplan();
     void buildRichPoints();
+    void buildLane();
     void registerKeyboardEvent(KeyboardEventHandler& keyboardEventHandler);
 
     void mirrorRender();
@@ -63,6 +64,7 @@ private:
     Model3DDrawObject nanosuit;
     Model3DDrawObject airplan;
     ColorGeometryPointShader richPoints;
+    ColorTex3DShader lane;
 
 
     std::vector<Position> windowPositions;

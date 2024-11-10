@@ -106,6 +106,7 @@ TestActivity::TestActivity(KeyboardEventHandler& keyboard)
 , nanosuit(GetCurPath() + "/resource/models/nanosuit/nanosuit.obj")
 , airplan(GetCurPath() + "/resource/models/Airplane/11803_Airplane_v1_l1.obj")
 , richPoints()
+, lane({1.0f, 1.0f, 1.0f})
 , bodyKeyboardEventHandler(keyboard) {
     initLights();
     initCameras();
@@ -168,6 +169,9 @@ void TestActivity::renderSolidObjs() {
 
     // glPointSize(100.0f);
     // richPoints.show();
+
+    glDisable(GL_CULL_FACE);
+    lane.show();
 }
 
 void TestActivity::renderTransparentObjs() {
@@ -183,10 +187,10 @@ void TestActivity::renderTransparentObjs() {
         transparentWindow.show();
     }
 
-    // TODO: 优化, 1. 抽取抠图流程pip  2. 打开窗口透明后草地透明也会透明, 需要设置细粒度开关
-    glDisable(GL_DEPTH_TEST);
-    glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
-    winMask.show();
+    // // TODO: 优化, 1. 抽取抠图流程pip  2. 打开窗口透明后草地透明也会透明, 需要设置细粒度开关
+    // glDisable(GL_DEPTH_TEST);
+    // glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+    // winMask.show();
 }
 
 void TestActivity::registerKeyboardEvent(KeyboardEventHandler& keyboardEventHandler) {
@@ -311,7 +315,7 @@ void TestActivity::initLights() {
 }
 
 void TestActivity::initCameras() {
-    cameraFPS.setPosition({5.0f, 2.0f, 2.0f});
+    cameraFPS.setPosition({5.0f, 2.0f, 5.0f});
     cameraFPS.setAttitude(0.0f, 180.0f);
 
     mirrorCameraFPS = cameraFPS;
@@ -332,6 +336,7 @@ void TestActivity::initDrawObjects() {
     buildNanosuit();
     buildAirplan();
     buildRichPoints();
+    buildLane();
 }
 
 void TestActivity::buildSkybox() {
@@ -461,6 +466,23 @@ void TestActivity::buildAirplan() {
     airplan.setSize({0.001, 0.001, 0.001});
     airplan.setPosition({0.0f, 5.0f, 1.5f});
     airplan.setAttituedeCtrl({0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f});
+}
+
+void TestActivity::buildLane() {
+    std::vector<Position> laneMinLine = {
+        {0.0f, 0.0f, 0.0f},
+        {0.5f, 1.0f, 0.0f},
+        {0.0f, 2.0f, 1.0f},
+        {0.5f, 3.0f, 0.0f},
+        {0.0f, 4.0f, 0.0f},
+        {0.0f, 5.0f, 1.0f},
+    };
+    RenderShape laneShape = LineUtils::LineToLane(laneMinLine, 0.3f);
+    // lane.setDrawMode(RenderDataMode::LINE_STRIP);
+    lane.setPosition({-2.0f, 3.0f, 5.0f});
+    lane.setVertexData(laneShape);
+    lane.setColor(Color(0.0f, 1.0f, 0.0f));
+    lane.getAttituedeCtrl().setFront({1.0f, 0.0f, 0.0f}).setUp({0.0f, 1.0f, 0.0f});
 }
 
 void TestActivity::buildRichPoints() {
