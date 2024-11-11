@@ -11,10 +11,12 @@ struct Model3DDrawObject {
     void setSize(const Size3D& size);
     void setAttituedeCtrl(const Vector3D& up, const Vector3D& front);
     void show();
+    Position getPosition();
 
 private:
     void load(const std::string& modelPath);
 private:
+    Position _pos;
     std::vector<Model3DShader> _meshDrawes;
 };
 

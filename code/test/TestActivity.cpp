@@ -106,7 +106,7 @@ TestActivity::TestActivity(KeyboardEventHandler& keyboard)
 , nanosuit(GetCurPath() + "/resource/models/nanosuit/nanosuit.obj")
 , airplan(GetCurPath() + "/resource/models/Airplane/11803_Airplane_v1_l1.obj")
 , richPoints()
-, lane({1.0f, 1.0f, 1.0f})
+, airplanTrace()
 , bodyKeyboardEventHandler(keyboard) {
     initLights();
     initCameras();
@@ -171,7 +171,7 @@ void TestActivity::renderSolidObjs() {
     // richPoints.show();
 
     glDisable(GL_CULL_FACE);
-    lane.show();
+    airplanTrace.show();
 }
 
 void TestActivity::renderTransparentObjs() {
@@ -336,7 +336,7 @@ void TestActivity::initDrawObjects() {
     buildNanosuit();
     buildAirplan();
     buildRichPoints();
-    buildLane();
+    buildAirplanTrace();
 }
 
 void TestActivity::buildSkybox() {
@@ -468,21 +468,24 @@ void TestActivity::buildAirplan() {
     airplan.setAttituedeCtrl({0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f});
 }
 
-void TestActivity::buildLane() {
-    std::vector<Position> laneMinLine = {
-        {0.0f, 0.0f, 0.0f},
-        {0.5f, 1.0f, 0.0f},
-        {0.0f, 2.0f, 1.0f},
-        {0.5f, 3.0f, 0.0f},
-        {0.0f, 4.0f, 0.0f},
-        {0.0f, 5.0f, 1.0f},
+void TestActivity::buildAirplanTrace() {
+    airplanTrace.append({0.0f, 5.0f, 1.5f});
+    auto traceRecorder = [this]() {
+        Position last = airplanTrace.getPosition();
+        Position cur = airplan.getPosition();
+        float diffX = cur.x - last.x;
+        float diffY = cur.y - last.y;
+        float diffZ = cur.z - last.z;
+        float dist = std::sqrt(diffX * diffX + diffY * diffY + diffZ * diffZ);
+        if (dist >= 0.5)
+        {
+            airplanTrace.append(cur);
+        }
     };
-    RenderShape laneShape = LineUtils::LineToLane(laneMinLine, 0.3f);
-    // lane.setDrawMode(RenderDataMode::LINE_STRIP);
-    lane.setPosition({-2.0f, 3.0f, 5.0f});
-    lane.setVertexData(laneShape);
-    lane.setColor(Color(0.0f, 1.0f, 0.0f));
-    lane.getAttituedeCtrl().setFront({1.0f, 0.0f, 0.0f}).setUp({0.0f, 1.0f, 0.0f});
+    bodyKeyboardEventHandler.registerObserver(GLFW_KEY_W, GLFW_PRESS, [traceRecorder]() { traceRecorder(); });
+    bodyKeyboardEventHandler.registerObserver(GLFW_KEY_S, GLFW_PRESS, [traceRecorder]() { traceRecorder(); });
+    bodyKeyboardEventHandler.registerObserver(GLFW_KEY_A, GLFW_PRESS, [traceRecorder]() { traceRecorder(); });
+    bodyKeyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, [traceRecorder]() { traceRecorder(); });
 }
 
 void TestActivity::buildRichPoints() {

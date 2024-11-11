@@ -3,21 +3,20 @@
 #include "Utils.h"
 
 
-Model3DDrawObject::Model3DDrawObject(std::string const& path) {
+Model3DDrawObject::Model3DDrawObject(std::string const& path)
+: _pos({0.0f, 0.0f, 0.0f}) {
     load(path);
 }
 
 void Model3DDrawObject::setPosition(const Position& pos) {
+    _pos = pos;
     for (auto& draw : _meshDrawes) {
         draw.setPosition(pos);
     }
 }
 
 void Model3DDrawObject::move(const Position& offset) {
-    for (auto& draw : _meshDrawes) {
-        Position pos = draw.getAttituedeCtrl().getPosition();
-        draw.setPosition(pos + offset);
-    }
+    setPosition(_pos + offset);
 }
 
 void Model3DDrawObject::setSize(const Size3D& size) {
@@ -38,6 +37,10 @@ void Model3DDrawObject::show() {
     for (auto& draw : _meshDrawes) {
         draw.show();
     }
+}
+
+Position Model3DDrawObject::getPosition() {
+    return _pos;
 }
 
 void Model3DDrawObject::load(const std::string& modelPath) {
