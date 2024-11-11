@@ -4,6 +4,7 @@
 #include "object/Model.h"
 #include "object/LightSource.h"
 #include "object/Skybox.h"
+#include "object/Trace.h"
 #include "shader/ColorTex3DShader.h"
 #include "shader/ColorTex2DShader.h"
 #include "shader/ColorTexMulilight3DShader.h"
@@ -33,7 +34,7 @@ private:
     void buildNanosuit();
     void buildAirplan();
     void buildRichPoints();
-    void buildLane();
+    void buildAirplanTrace();
     void registerKeyboardEvent(KeyboardEventHandler& keyboardEventHandler);
 
     void mirrorRender();
@@ -64,7 +65,7 @@ private:
     Model3DDrawObject nanosuit;
     Model3DDrawObject airplan;
     ColorGeometryPointShader richPoints;
-    ColorTex3DShader lane;
+    Trace airplanTrace;
 
 
     std::vector<Position> windowPositions;
