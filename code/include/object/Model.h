@@ -7,6 +7,7 @@
 struct Model3DDrawObject {
     Model3DDrawObject(std::string const& path);
     void setPosition(const Position& pos);
+    void move(const Position& offset);
     void setSize(const Size3D& size);
     void setAttituedeCtrl(const Vector3D& up, const Vector3D& front);
     void show();

@@ -11,6 +11,7 @@
 #include "shader/IncorporateColorTex3DShader.h"
 #include "KeyboardEventHandler.h"
 #include "Camera.h"
+#include "FrameRateTimer.h"
 
 
 struct TestActivity {
@@ -32,25 +33,21 @@ private:
     void buildNanosuit();
     void buildAirplan();
     void buildRichPoints();
+    void buildLane();
+    void registerKeyboardEvent(KeyboardEventHandler& keyboardEventHandler);
 
     void mirrorRender();
+    void runAnimation();
+
+    void renderSolidObjs();
+    void renderTransparentObjs();
 
 private:
-    KeyboardEventHandler& keyboardEventHandler;
+    FrameRateTimer frameTimer;
     LightSource parallelLight;
     std::vector<LightSource> pointLights;
     CameraFPS cameraFPS;
     CameraFPS mirrorCameraFPS;
-    LocalImage wallImage;
-    LocalImage awesomefaceImage;
-    LocalImage containerImage;
-    LocalImage containerImage2;
-    // LocalImage containerImage2_specular(GetCurPath() + "/resource/container2_specular.png");
-    LocalImage containerImage2_specular;
-    LocalImage matrixImage;
-    LocalImage grassImage;
-    LocalImage windowImage;
-    CubeImage cubeImage;
 
     Skybox skybox;
     ColorTex3DShader rectangle;
@@ -67,11 +64,12 @@ private:
     Model3DDrawObject nanosuit;
     Model3DDrawObject airplan;
     ColorGeometryPointShader richPoints;
+    ColorTex3DShader lane;
 
-    float deltaTime; // 当前帧与上一帧的时间差
-    float lastFrame; // 上一帧的时间
 
     std::vector<Position> windowPositions;
+
+    KeyboardEventHandler bodyKeyboardEventHandler;
 };
 
 #endif

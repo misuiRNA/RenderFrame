@@ -32,6 +32,7 @@ struct XYZ {
 };
 
 inline XYZ operator*(float ratio, const XYZ& value) { return XYZ(value.x * ratio, value.y * ratio, value.z * ratio); }
+inline bool operator==(const XYZ& a, const XYZ& b) { return a.x == b.x && a.y == b.y && a.z == b.z; }
 
 typedef XYZ Position, Vector3D, Size3D;
 

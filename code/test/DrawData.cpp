@@ -103,3 +103,4 @@ std::vector<unsigned int> CalcCircleShapeIndices(int numSegments) {
 }
 
 RenderShape circleShape(CalcCircleShape({0, 0, 0}, 1.f, 256), CalcCircleShapeIndices(256));
+

@@ -1,23 +1,21 @@
 #include <iostream>
-#include <math.h>
-#include <glm/glm.hpp>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "ShaderProgram.h"
-#include "Camera.h"
 #include "Image.h"
-#include "Utils.h"
 #include "KeyboardEventHandler.h"
-#include <algorithm>
-#include "object/Model.h"
-#include "object/LightSource.h"
-#include "object/Skybox.h"
 #include "TestActivity.h"
+#include <algorithm>
 
 
 static unsigned int WINDOW_WIDTH = 800;
 static unsigned int WINDOW_HEIGHT = 600;
+
+std::vector<KeyboardEventHandler*> keyboardEventHandlers;
+void RegisterKeyboardHandler(KeyboardEventHandler* keyboard) {
+    keyboardEventHandlers.emplace_back(keyboard);
+}
+
 
 void FramebufferSizeCallback(GLFWwindow* window, int width, int height) {
     glViewport(0, 0, width, height);
@@ -63,18 +61,30 @@ int main() {
     const GLubyte* version = glGetString(GL_VERSION);
     std::cout << "OpenGL Version: " << version << std::endl;
 
-    std::string screenshotPath = GetCurPath() + "/resource/screenshot.png";
 
-    KeyboardEventHandler keyboardEventHandler([window](int keyCode, int eventCode){ return glfwGetKey(window, keyCode) == eventCode; });
-    keyboardEventHandler.registerObserver(GLFW_KEY_ESCAPE, GLFW_PRESS, [window]() { glfwSetWindowShouldClose(window, true); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_K,      GLFW_PRESS, [screenshotPath]() { Screenshot(screenshotPath, WINDOW_WIDTH, WINDOW_HEIGHT); });
+    int keybordIndex = 0;
+    int keybordIndexLastFrame = keybordIndex;
+    KeyboardEventHandler switchKeyboardEventHandler([window](int keyCode, int eventCode){ return glfwGetKey(window, keyCode) == eventCode; });
+    switchKeyboardEventHandler.registerObserver(GLFW_KEY_TAB,      GLFW_PRESS, [&keybordIndexLastFrame, &keybordIndex]() { 
+        if (keybordIndexLastFrame == keybordIndex) {
+                keybordIndex = (keybordIndex + 1) % keyboardEventHandlers.size();
+            }
+    });
+    switchKeyboardEventHandler.registerObserver(GLFW_KEY_TAB,      GLFW_RELEASE, [&keybordIndexLastFrame, &keybordIndex]() {
+        keybordIndexLastFrame = keybordIndex;
+    });
 
 
-    TestActivity activity(keyboardEventHandler);
+    KeyboardEventHandler cameraKeyboardEventHandler([window](int keyCode, int eventCode){ return glfwGetKey(window, keyCode) == eventCode; });
+    cameraKeyboardEventHandler.registerObserver(GLFW_KEY_ESCAPE, GLFW_PRESS, [window]() { glfwSetWindowShouldClose(window, true); });
+    cameraKeyboardEventHandler.registerObserver(GLFW_KEY_K,      GLFW_PRESS, []() { Screenshot(GetCurPath() + "/resource/screenshot.png", WINDOW_WIDTH, WINDOW_HEIGHT); });
+    RegisterKeyboardHandler(&cameraKeyboardEventHandler);
 
-    while(!glfwWindowShouldClose(window))
-    {
-        keyboardEventHandler.exrcute();
+    TestActivity activity(cameraKeyboardEventHandler);
+
+    while(!glfwWindowShouldClose(window)) {
+        switchKeyboardEventHandler.exrcute();
+        keyboardEventHandlers[keybordIndex]->exrcute();
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); 
 

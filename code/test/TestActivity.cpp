@@ -10,9 +10,23 @@ extern RenderShape cubeShape;
 extern RenderShape tetrahedronShape;
 extern RenderShape rectShape;
 extern RenderShape circleShape;
+extern void RegisterKeyboardHandler(KeyboardEventHandler* keyboard);
 
-constexpr float MOVE_SPEED = 2.5f;
-constexpr float TURN_SPEED = 10.0f;
+static LocalImage wallImage(GetCurPath() + "/resource/wall.jpeg");
+static LocalImage awesomefaceImage(GetCurPath() + "/resource/awesomeface.png");
+static LocalImage containerImage(GetCurPath() + "/resource/container.jpeg");
+static LocalImage containerImage2(GetCurPath() + "/resource/container2.png");
+static LocalImage containerImage2_specular(GetCurPath() + "/resource/lighting_maps_specular_color.png");
+// static LocalImage containerImage2_specular(GetCurPath() + "/resource/container2_specular.png");;
+static LocalImage matrixImage(GetCurPath() + "/resource/matrix.jpeg");
+static LocalImage grassImage(GetCurPath() + "/resource/grass.png");
+static LocalImage windowImage(GetCurPath() + "/resource/blending_transparent_window.png");
+static CubeImage cubeImage(GetCurPath() + "/resource/skybox/right.jpg"
+                        , GetCurPath() + "/resource/skybox/left.jpg"
+                        , GetCurPath() + "/resource/skybox/bottom.jpg"
+                        , GetCurPath() + "/resource/skybox/top.jpg"
+                        , GetCurPath() + "/resource/skybox/front.jpg"
+                        , GetCurPath() + "/resource/skybox/back.jpg");
 
 
 static void SortWitDistance(std::vector<Position>& positions, Position centerPos) {
@@ -73,25 +87,11 @@ static void EnableViewMask(ColorTex3DShader& outlineMask, ColorTex3DShader& thro
 
 
 TestActivity::TestActivity(KeyboardEventHandler& keyboard)
-: keyboardEventHandler(keyboard)
+: frameTimer()
 , parallelLight(true)
 , pointLights({false, false})
 , cameraFPS()
 , mirrorCameraFPS()
-, wallImage(GetCurPath() + "/resource/wall.jpeg")
-, awesomefaceImage(GetCurPath() + "/resource/awesomeface.png")
-, containerImage(GetCurPath() + "/resource/container.jpeg")
-, containerImage2(GetCurPath() + "/resource/container2.png")
-, containerImage2_specular(GetCurPath() + "/resource/lighting_maps_specular_color.png")
-, matrixImage(GetCurPath() + "/resource/matrix.jpeg")
-, grassImage(GetCurPath() + "/resource/grass.png")
-, windowImage(GetCurPath() + "/resource/blending_transparent_window.png")
-, cubeImage(GetCurPath() + "/resource/skybox/right.jpg"
-          , GetCurPath() + "/resource/skybox/left.jpg"
-          , GetCurPath() + "/resource/skybox/bottom.jpg"
-          , GetCurPath() + "/resource/skybox/top.jpg"
-          , GetCurPath() + "/resource/skybox/front.jpg"
-          , GetCurPath() + "/resource/skybox/back.jpg")
 , skybox()
 , rectangle({0.6f, 0.6f})
 , rectangle1({1.0f, 1.0f})
@@ -107,13 +107,14 @@ TestActivity::TestActivity(KeyboardEventHandler& keyboard)
 , nanosuit(GetCurPath() + "/resource/models/nanosuit/nanosuit.obj")
 , airplan(GetCurPath() + "/resource/models/Airplane/11803_Airplane_v1_l1.obj")
 , richPoints()
-, deltaTime(0.0f)
-, lastFrame(0.0f) {
+, lane({1.0f, 1.0f, 1.0f})
+, bodyKeyboardEventHandler(keyboard) {
     initLights();
     initCameras();
     initDrawObjects();
+    registerKeyboardEvent(keyboard);
+    RegisterKeyboardHandler(&bodyKeyboardEventHandler);
 
-    glEnable(GL_DEPTH_TEST);
     glEnable(GL_STENCIL_TEST);
     glStencilOp(GL_ZERO, GL_KEEP, GL_REPLACE);
     glDepthFunc(GL_LEQUAL);
@@ -121,51 +122,29 @@ TestActivity::TestActivity(KeyboardEventHandler& keyboard)
 }
 
 void TestActivity::render() {
-    float currentFrame = glfwGetTime();
-    deltaTime = currentFrame - lastFrame;
-    lastFrame = currentFrame;
+    frameTimer.updateTime();
+
+    // TODO: 优化, 画布渲染完毕以后需要恢复原gl上下文状态, 如blend, cull_face等
+    mirrorCanva.paint(std::bind(&TestActivity::mirrorRender, this));
 
     SetGlobalLights(parallelLight, pointLights);
     SetGlobalCamera(cameraFPS);
 
-    float time = (float)glfwGetTime();
-    float radian = (sin(time)) * M_PI * (cos(time) > 0 ? 1 : -1);
-    float sinV = sin(radian);
-    float cosV = cos(radian);
-    float x = sinV * 3;
-    float y = cosV * 3;
-    float z = 3.0f;
-
-    // light.setPosition({x, y, 3.0f});
-    // light.setPosition({3.0f, 2.0f, z + 3.0f});
-    // light.setDirection(Position(0.0f, 0.0f, z + light.getPosition().z) - light.getPosition());
-    // light.setColor(Color(ratio * 2.0f, (1.0f - ratio) * 0.3f, (0.5 + ratio) * 1.7f));
-
-    // light1.setPosition({x, y, 1.0f});
-    // light1.setDirection(Position(0.0f, 0.0f, z + light1.getPosition().z) - light1.getPosition());
-
-    // l3DModel.setPosition({x, y, 1.5f});
-    // l3DModel.setFront({x, y, 0.0f});
-    // airplan.setFront({0.0f, y, x});
-    rectangle.setPosition({x, y, z});
-    rectangle1.setPosition({x - 1.0f, y, z});
-
-    // cuboid1.getAttituedeCtrl().setFront({x, 0.0f, y});
-
-
-    mirrorCanva.paint(std::bind(&TestActivity::mirrorRender, this));
-
+    runAnimation();
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); 
+    renderSolidObjs();
+    renderTransparentObjs();
+}
 
-
-    // EnableViewMask(rectangle1, rectangle);
-
-    // TODO: 优化, 封装到RenderData中, 渲染元素级别控制面剔除方式
+void TestActivity::renderSolidObjs() {
     glEnable(GL_CULL_FACE);
     // glFrontFace(GL_CW);
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
 
+    // EnableViewMask(rectangle1, rectangle);
     rectangle1.show();
     rectangle.show();
 
@@ -185,38 +164,94 @@ void TestActivity::render() {
         nanosuit.show();
     }
 
-    // TODO: 优化, 抽取透明元素的绘制流程pip
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    grass.show();
-
-    // TODO: 优化, 受混合+深度测试影响 透明物体需要按顺序绘制, 需要提供一个排序工具
-    SortWitDistance(windowPositions, ((const ShaderCamera&)cameraFPS).getPosition());
-    for (int index = 0; index < windowPositions.size(); ++index) {
-        transparentWindow.setPosition(windowPositions[index]);
-        transparentWindow.show();
-    }
-    glDisable(GL_BLEND);
     mirror.show();
-
     // render skybox
     skybox.show(cameraFPS.getPosition());
 
     // glPointSize(100.0f);
     // richPoints.show();
 
-    // TODO: 优化, 1. 抽取抠图流程pip  2. 打开窗口透明后草地透明也会透明, 需要设置细粒度开关
-    glDisable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);
+    lane.show();
+}
+
+void TestActivity::renderTransparentObjs() {
+    glDisable(GL_CULL_FACE);
     glEnable(GL_BLEND);
-    glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
-    winMask.show();
-    glDisable(GL_BLEND);
-    glEnable(GL_DEPTH_TEST);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    grass.show();
+    // TODO: 优化, 受混合+深度测试影响 透明物体需要按顺序绘制, 需要提供一个排序工具
+    SortWitDistance(windowPositions, ((const ShaderCamera&)cameraFPS).getPosition());
+    for (int index = 0; index < windowPositions.size(); ++index) {
+        transparentWindow.setPosition(windowPositions[index]);
+        transparentWindow.show();
+    }
+
+    // // TODO: 优化, 1. 抽取抠图流程pip  2. 打开窗口透明后草地透明也会透明, 需要设置细粒度开关
+    // glDisable(GL_DEPTH_TEST);
+    // glBlendFunc(GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA);
+    // winMask.show();
+}
+
+void TestActivity::registerKeyboardEvent(KeyboardEventHandler& keyboardEventHandler) {
+    constexpr float MOVE_SPEED = 2.5f;
+    constexpr float TURN_SPEED = 10.0f;
+
+    keyboardEventHandler.registerObserver(GLFW_KEY_W, GLFW_PRESS, [this]() { cameraFPS.goForward(frameTimer.getFrameTime() * MOVE_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_S, GLFW_PRESS, [this]() { cameraFPS.goBack(frameTimer.getFrameTime() * MOVE_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_A, GLFW_PRESS, [this]() { cameraFPS.goLeft(frameTimer.getFrameTime() * MOVE_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, [this]() { cameraFPS.goRight(frameTimer.getFrameTime() * MOVE_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_RIGHT, GLFW_PRESS, [this]() { cameraFPS.turnRight(frameTimer.getFrameTime() * TURN_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_LEFT, GLFW_PRESS, [this]() { cameraFPS.turnLeft(frameTimer.getFrameTime() * TURN_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_UP, GLFW_PRESS, [this]() { cameraFPS.turnUp(frameTimer.getFrameTime() * TURN_SPEED); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_DOWN, GLFW_PRESS, [this]() { cameraFPS.turnDown(frameTimer.getFrameTime() * TURN_SPEED); });
+
+    keyboardEventHandler.registerObserver(GLFW_KEY_W, GLFW_PRESS, [this]() { mirrorCameraFPS.move(frameTimer.getFrameTime() * MOVE_SPEED * Vector3D(-1.0f, 0.0f, 0.0f)); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_S, GLFW_PRESS, [this]() { mirrorCameraFPS.move(frameTimer.getFrameTime() * MOVE_SPEED * Vector3D(1.0f, 0.0f, 0.0f)); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_A, GLFW_PRESS, [this]() { mirrorCameraFPS.move(frameTimer.getFrameTime() * MOVE_SPEED * Vector3D(0.0f, -1.0f, 0.0f)); });
+    keyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, [this]() { mirrorCameraFPS.move(frameTimer.getFrameTime() * MOVE_SPEED * Vector3D(0.0f, 1.0f, 0.0f)); });
+
+
+    bodyKeyboardEventHandler.registerObserver(GLFW_KEY_W, GLFW_PRESS, [this]() { airplan.move({frameTimer.getFrameTime() * MOVE_SPEED, 0.0f, 0.0f}); });
+    bodyKeyboardEventHandler.registerObserver(GLFW_KEY_S, GLFW_PRESS, [this]() { airplan.move({-frameTimer.getFrameTime() * MOVE_SPEED, 0.0f, 0.0f}); });
+    bodyKeyboardEventHandler.registerObserver(GLFW_KEY_A, GLFW_PRESS, [this]() { airplan.move({0.0f, frameTimer.getFrameTime() * MOVE_SPEED, 0.0f}); });
+    bodyKeyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, [this]() { airplan.move({0.0f, -frameTimer.getFrameTime() * MOVE_SPEED, 0.0f}); });
+}
+
+void TestActivity::runAnimation() {
+    float time = frameTimer.getCurTime();
+    float radian = (sin(time)) * M_PI * (cos(time) > 0 ? 1 : -1);
+    float sinV = sin(radian);
+    float cosV = cos(radian);
+    float x = sinV * 3;
+    float y = cosV * 3;
+    float z = 3.0f;
+
+    // light.setPosition({x, y, 3.0f});
+    // light.setPosition({3.0f, 2.0f, z + 3.0f});
+    // light.setDirection(Position(0.0f, 0.0f, z + light.getPosition().z) - light.getPosition());
+    // light.setColor(Color(ratio * 2.0f, (1.0f - ratio) * 0.3f, (0.5 + ratio) * 1.7f));
+
+    // light1.setPosition({x, y, 1.0f});
+    // light1.setDirection(Position(0.0f, 0.0f, z + light1.getPosition().z) - light1.getPosition());
+
+    // l3DModel.setPosition({x, y, 1.5f});
+    // l3DModel.setFront({x, y, 0.0f});
+    // airplan.setFront({0.0f, y, x});
+
+    rectangle.setPosition({x, y, z});
+    rectangle1.setPosition({x - 1.0f, y, z});
+
+    cuboid1.getAttituedeCtrl().setFront({x, 0.0f, y});
 
 }
 
 void TestActivity::mirrorRender() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_BLEND);
+
     SetGlobalCamera(mirrorCameraFPS);
 
     rectangle1.show();
@@ -281,25 +316,13 @@ void TestActivity::initLights() {
 }
 
 void TestActivity::initCameras() {
-    cameraFPS.setPosition({5.0f, 2.0f, 2.0f});
+    cameraFPS.setPosition({5.0f, 2.0f, 5.0f});
     cameraFPS.setAttitude(0.0f, 180.0f);
-    keyboardEventHandler.registerObserver(GLFW_KEY_W, GLFW_PRESS, [this]() { cameraFPS.goForward(deltaTime * MOVE_SPEED); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_S, GLFW_PRESS, [this]() { cameraFPS.goBack(deltaTime * MOVE_SPEED); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_A, GLFW_PRESS, [this]() { cameraFPS.goLeft(deltaTime * MOVE_SPEED); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, [this]() { cameraFPS.goRight(deltaTime * MOVE_SPEED); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_RIGHT, GLFW_PRESS, [this]() { cameraFPS.turnRight(deltaTime * TURN_SPEED); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_LEFT, GLFW_PRESS, [this]() { cameraFPS.turnLeft(deltaTime * TURN_SPEED); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_UP, GLFW_PRESS, [this]() { cameraFPS.turnUp(deltaTime * TURN_SPEED); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_DOWN, GLFW_PRESS, [this]() { cameraFPS.turnDown(deltaTime * TURN_SPEED); });
 
     mirrorCameraFPS = cameraFPS;
     mirrorCameraFPS.setFov(75.0f);
     mirrorCameraFPS.setAttitude(-80.0f, 180.0f);
     mirrorCameraFPS.setPosition({0.0f, 0.0f, 15.0f});
-    keyboardEventHandler.registerObserver(GLFW_KEY_W, GLFW_PRESS, [this]() { mirrorCameraFPS.move(deltaTime * MOVE_SPEED * Vector3D(-1.0f, 0.0f, 0.0f)); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_S, GLFW_PRESS, [this]() { mirrorCameraFPS.move(deltaTime * MOVE_SPEED * Vector3D(1.0f, 0.0f, 0.0f)); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_A, GLFW_PRESS, [this]() { mirrorCameraFPS.move(deltaTime * MOVE_SPEED * Vector3D(0.0f, -1.0f, 0.0f)); });
-    keyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, [this]() { mirrorCameraFPS.move(deltaTime * MOVE_SPEED * Vector3D(0.0f, 1.0f, 0.0f)); });
 }
 
 void TestActivity::initDrawObjects() {
@@ -314,6 +337,7 @@ void TestActivity::initDrawObjects() {
     buildNanosuit();
     buildAirplan();
     buildRichPoints();
+    buildLane();
 }
 
 void TestActivity::buildSkybox() {
@@ -443,6 +467,23 @@ void TestActivity::buildAirplan() {
     airplan.setSize({0.001, 0.001, 0.001});
     airplan.setPosition({0.0f, 5.0f, 1.5f});
     airplan.setAttituedeCtrl({0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f});
+}
+
+void TestActivity::buildLane() {
+    std::vector<Position> laneMinLine = {
+        {0.0f, 0.0f, 0.0f},
+        {0.5f, 1.0f, 0.0f},
+        {0.0f, 2.0f, 1.0f},
+        {0.5f, 3.0f, 0.0f},
+        {0.0f, 4.0f, 0.0f},
+        {0.0f, 5.0f, 1.0f},
+    };
+    RenderShape laneShape = LineUtils::LineToLane(laneMinLine, 0.3f);
+    // lane.setDrawMode(RenderDataMode::LINE_STRIP);
+    lane.setPosition({-2.0f, 3.0f, 5.0f});
+    lane.setVertexData(laneShape);
+    lane.setColor(Color(0.0f, 1.0f, 0.0f));
+    lane.getAttituedeCtrl().setFront({1.0f, 0.0f, 0.0f}).setUp({0.0f, 1.0f, 0.0f});
 }
 
 void TestActivity::buildRichPoints() {
