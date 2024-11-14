@@ -6,6 +6,7 @@ struct Trace {
     Trace();
     void show();
     void append(const Position& pos);
+    void append(const std::vector<Position>& points);
     Position getPosition();
 
 private:

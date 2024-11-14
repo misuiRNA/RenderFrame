@@ -17,21 +17,25 @@ RenderShape LineUtils::LineToLane(const std::vector<Position>& linePoints, float
 
     printf("===> orgPoints-size: %lu/%lu, lLine-size: %lu, rLine-size=%lu\n", orgPoints.size(), linePoints.size(), lLine.size(), rLine.size());
 
-    std::vector<Position> lanePoints = rLine;
-    lanePoints.insert(lanePoints.end(), lLine.begin(), lLine.end());
-
-    int orgSize = rLine.size();
-    std::vector<unsigned int> laneIndices;
-    for (int index = 1; index < orgSize; ++index) {
-        laneIndices.emplace_back(index - 1);
-        laneIndices.emplace_back(index + orgSize);
-        laneIndices.emplace_back(index + orgSize - 1);
-
-        laneIndices.emplace_back(index - 1);
-        laneIndices.emplace_back(index);
-        laneIndices.emplace_back(index + orgSize);
+    RenderShape res;
+    res.vertices.reserve(rLine.size() + lLine.size());
+    for (int rIndex = 0, lIndex = 0; rIndex < rLine.size() && lIndex < lLine.size(); ++rIndex, ++lIndex) {
+        res.vertices.emplace_back(RenderShape::Vertex{rLine[rIndex], Vector3D{0.0f, 0.0f, 1.0f}, Vector2D{0.0f, 0.0f}, Color{0.0f, 0.0f, 0.0f}});
+        res.vertices.emplace_back(RenderShape::Vertex{lLine[lIndex], Vector3D{0.0f, 0.0f, 1.0f}, Vector2D{0.0f, 0.0f}, Color{0.0f, 0.0f, 0.0f}});
     }
 
-    std::function<RenderShape::Vertex(const Position&)> pos2VetCvt = [](const Position& pos) -> RenderShape::Vertex { return {pos}; };
-    return RenderShape(ConvertList(lanePoints, pos2VetCvt), laneIndices);
+    unsigned long halfVetSize = res.vertices.size() / 2;
+    res.indices.reserve(halfVetSize * 6);
+    for (int count = 0; count < halfVetSize - 1; ++count) {
+        int index = count * 2;
+        res.indices.emplace_back(index);
+        res.indices.emplace_back(index + 3);
+        res.indices.emplace_back(index + 1);
+
+        res.indices.emplace_back(index);
+        res.indices.emplace_back(index + 2);
+        res.indices.emplace_back(index + 3);
+    }
+
+    return res;
 }
