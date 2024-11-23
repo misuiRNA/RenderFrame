@@ -342,6 +342,7 @@ struct LineUtils
     template<typename TPoint>
     static std::vector<TPoint> CalcExpandVectorByAngleBisector(const std::vector<TPoint>& orgPoints, const float width)
     {
+        // 法向量向左量为正
         std::vector<TPoint> expandVectors(orgPoints.size());
         if (orgPoints.size() < 2)
         {
@@ -454,8 +455,6 @@ struct LineUtils
             }
         }
     }
-
-    static RenderShape LineToLane(const std::vector<Position>& linePoints, float width);
 };
 
 

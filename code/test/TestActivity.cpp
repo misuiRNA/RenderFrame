@@ -107,6 +107,7 @@ TestActivity::TestActivity(KeyboardEventHandler& keyboard)
 , airplan(GetCurPath() + "/resource/models/Airplane/11803_Airplane_v1_l1.obj")
 , richPoints()
 , airplanTrace()
+, fence()
 , bodyKeyboardEventHandler(keyboard) {
     initLights();
     initCameras();
@@ -172,6 +173,7 @@ void TestActivity::renderSolidObjs() {
 
     glDisable(GL_CULL_FACE);
     airplanTrace.show();
+    fence.show();
 }
 
 void TestActivity::renderTransparentObjs() {
@@ -337,6 +339,7 @@ void TestActivity::initDrawObjects() {
     buildAirplan();
     buildRichPoints();
     buildAirplanTrace();
+    buildFence();
 }
 
 void TestActivity::buildSkybox() {
@@ -469,6 +472,7 @@ void TestActivity::buildAirplan() {
 }
 
 void TestActivity::buildAirplanTrace() {
+    
     airplanTrace.append({0.0f, 5.0f, 1.5f});
     auto traceRecorder = [this]() {
         Position last = airplanTrace.getPosition();
@@ -486,6 +490,42 @@ void TestActivity::buildAirplanTrace() {
     bodyKeyboardEventHandler.registerObserver(GLFW_KEY_S, GLFW_PRESS, [traceRecorder]() { traceRecorder(); });
     bodyKeyboardEventHandler.registerObserver(GLFW_KEY_A, GLFW_PRESS, [traceRecorder]() { traceRecorder(); });
     bodyKeyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, [traceRecorder]() { traceRecorder(); });
+}
+
+void TestActivity::buildFence() {
+    // fence.setPosition({-2.0f, 3.0f, 5.0f});
+    std::vector<RenderShape::Vertex> crossSection = {
+        // 后(环回)
+        {Position{0.0f, 0.0f, 0.0f}, Vector3D{0.0f, 0.0f, 1.0f}, Vector2D{0.0f, 0.0f}, Color{0.0f, 0.0f, 1.0f}},
+        // 底
+        {Position{0.0f, 0.0f, 0.0f}, Vector3D{0.0f, 0.0f, 1.0f}, Vector2D{0.0f, 0.0f}, Color{1.0f, 1.0f, 1.0f}},
+        {Position{0.0f, 1.5f, 0.0f}, Vector3D{0.0f, 0.0f, 1.0f}, Vector2D{0.0f, 0.0f}, Color{1.0f, 1.0f, 1.0f}},
+        // 前
+        {Position{0.0f, 1.5f, 0.5f}, Vector3D{0.0f, 0.0f, 1.0f}, Vector2D{0.0f, 0.0f}, Color{1.0f, 1.0f, 0.0f}},
+        {Position{0.0f, 1.0f, 0.8f}, Vector3D{0.0f, 0.0f, 1.0f}, Vector2D{0.0f, 0.0f}, Color{1.0f, 0.5f, 0.0f}},
+        {Position{0.0f, 1.0f, 1.5f}, Vector3D{0.0f, 0.0f, 1.0f}, Vector2D{0.0f, 0.0f}, Color{1.0f, 0.3f, 0.0f}},
+        // 顶
+        {Position{0.0f, 1.0f, 1.5f}, Vector3D{0.0f, 0.0f, 1.0f}, Vector2D{0.0f, 0.0f}, Color{0.0f, 1.0f, 1.0f}},
+        {Position{0.0f, 0.0f, 1.5f}, Vector3D{0.0f, 0.0f, 1.0f}, Vector2D{0.0f, 0.0f}, Color{0.0f, 1.0f, 1.0f}},
+        // 后
+        {Position{0.0f, 0.0f, 1.5f}, Vector3D{0.0f, 0.0f, 1.0f}, Vector2D{0.0f, 0.0f}, Color{0.0f, 0.0f, 1.0f}},
+    };
+    fence.setCrossSection(crossSection);
+
+    std::vector<Position> laneMinLine = {
+        {10.0f, -10.0f, 0.0f},
+        {10.0f, 10.0f, 0.0f},
+
+        {-10.f, 10.0f, 0.0f},
+        {-10.0f, 2.0f, 0.0f},
+        {-10.0f, 1.0f, 2.0f},
+        {-10.0f, -1.0f, 2.0f},
+        {-10.0f, -2.0f, 0.0f},
+        {-10.0f, -10.0f, 0.0f},
+        {10.0f, -10.0f, 0.0f},
+        {10.0f, 10.0f, 0.0f},
+    };
+    fence.append(laneMinLine);
 }
 
 void TestActivity::buildRichPoints() {
