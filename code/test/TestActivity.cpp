@@ -105,6 +105,7 @@ TestActivity::TestActivity(KeyboardEventHandler& keyboard)
 , circle1({1.0f, 1.0f, 1.0f})
 , nanosuit(GetCurPath() + "/resource/models/nanosuit/nanosuit.obj")
 , airplan(GetCurPath() + "/resource/models/Airplane/11803_Airplane_v1_l1.obj")
+, car(GetCurPath() + "/resource/models/car/model_car.obj")
 , richPoints()
 , airplanTrace()
 , fence()
@@ -157,6 +158,7 @@ void TestActivity::renderSolidObjs() {
 
     nanosuit.show();
     airplan.show();
+    car.show();
 
     for (int index = 0; index < cuboids.size(); ++index) {
         cuboids[index].show();
@@ -266,6 +268,7 @@ void TestActivity::mirrorRender() {
 
     nanosuit.show();
     airplan.show();
+    car.show();
 
     for (int index = 0; index < cuboids.size(); ++index) {
         cuboids[index].show();
@@ -337,6 +340,7 @@ void TestActivity::initDrawObjects() {
     buildCircle();
     buildNanosuit();
     buildAirplan();
+    buildCar();
     buildRichPoints();
     buildAirplanTrace();
     buildFence();
@@ -460,15 +464,23 @@ void TestActivity::buildCircle() {
 }
 
 void TestActivity::buildNanosuit() {
-    nanosuit.setSize({0.1, 0.1, 0.1});
+    nanosuit.setSize({0.0f, 3.0f});
     nanosuit.setPosition({0.0f, 1.5f, 1.5f});
     nanosuit.setAttituedeCtrl({0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f});
 }
 
 void TestActivity::buildAirplan() {
-    airplan.setSize({0.001, 0.001, 0.001});
+    // airplan.setSize({1.0f, 1.0f, 1.0f});
+    airplan.setSize({5.0f});
     airplan.setPosition({0.0f, 5.0f, 1.5f});
     airplan.setAttituedeCtrl({0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f});
+}
+
+void TestActivity::buildCar() {
+    // car.setSize({1.0f, 1.0f, 1.0f});
+    car.setSize({0.0f, 1.0f});
+    car.setPosition({0.0f, 8.0f, 1.5f});
+    car.setAttituedeCtrl({0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f});
 }
 
 void TestActivity::buildAirplanTrace() {

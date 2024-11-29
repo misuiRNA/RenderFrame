@@ -33,6 +33,7 @@ private:
     void buildCircle();
     void buildNanosuit();
     void buildAirplan();
+    void buildCar();
     void buildRichPoints();
     void buildAirplanTrace();
     void buildFence();
@@ -65,6 +66,7 @@ private:
     ColorTex3DShader circle1;
     Model3DDrawObject nanosuit;
     Model3DDrawObject airplan;
+    Model3DDrawObject car;
     ColorGeometryPointShader richPoints;
     SkeletonModel3D airplanTrace;
     SkeletonModel3D fence;

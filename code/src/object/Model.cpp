@@ -20,8 +20,23 @@ void Model3DDrawObject::move(const Position& offset) {
 }
 
 void Model3DDrawObject::setSize(const Size3D& size) {
+    float ratioX = size.x / _modelBox.lenX();
+    float ratioY = size.y / _modelBox.lenY();
+    float ratioZ = size.z / _modelBox.lenZ();
+    float ratioTemp = 0.0f;
+    ratioTemp = std::max(ratioX, ratioTemp);
+    ratioTemp = std::max(ratioY, ratioTemp);
+    ratioTemp = std::max(ratioZ, ratioTemp);
+    if (ratioTemp <= 1e-6) {
+        printf("Model3DDrawObject::setSize: size is zero\n");
+        return;
+    }
+    ratioX = ((ratioX > 1e-6) ? ratioX : ratioTemp);
+    ratioY = ((ratioY > 1e-6) ? ratioY : ratioTemp);
+    ratioZ = ((ratioZ > 1e-6) ? ratioZ : ratioTemp);
+    Size3D scale = Size3D(ratioX, ratioY, ratioZ);
     for (auto& draw : _meshDrawes) {
-        draw.setSize(size);
+        draw.setSize(scale);
     }
 }
 
@@ -83,6 +98,17 @@ void Model3DDrawObject::load(const std::string& modelPath) {
                     break;
             }
         }
+
+        for (const Mesh::Vertex& vert : mesh.vertices) {
+            _modelBox.right = std::max(_modelBox.right, vert.position.x);
+            _modelBox.left = std::min(_modelBox.right, vert.position.x);
+            _modelBox.top = std::max(_modelBox.top, vert.position.y);
+            _modelBox.bottom = std::min(_modelBox.bottom, vert.position.y);
+            _modelBox.front = std::max(_modelBox.front, vert.position.z);
+            _modelBox.back = std::min(_modelBox.back, vert.position.z);
+        }
     }
+
+    setSize({1.0f});
 }
 
