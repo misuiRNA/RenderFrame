@@ -6,6 +6,7 @@ gcc -xc++ \
  -Icode/include \
  -Icode/include/render \
  -L3rd/lib \
+ -rpath 3rd/lib \
  -lassimp.5 \
  -lglfw.3 \
  -lstdc++ \
