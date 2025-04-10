@@ -31,7 +31,7 @@ ColorTexMulilight3DShader::ColorTexMulilight3DShader(const ColorTexMulilight3DSh
 , _attitudeCtrl(oth._attitudeCtrl)
 , _imageEnable(oth._imageEnable)
 , _color(oth._color) {
-
+    new (&_engine)RenderEngine(oth._engine);    // 强制使用 RenderEngine 拷贝构造, 保证 _engine 可用
     _engine.setUniform("material", ShaderMaterial(_color * 0.2f, _color * 0.8f, _color * 1.0f));
 }
 
