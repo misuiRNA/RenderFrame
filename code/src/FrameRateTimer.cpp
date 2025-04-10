@@ -17,6 +17,10 @@ float FrameRateTimer::getFrameTime() {
 }
 
 void FrameRateTimer::updateTime() {
+    if (_currentTime <= 1e-6)
+    {
+        _currentTime = glfwGetTime();
+    }
     _lastTime = _currentTime;
     _currentTime = glfwGetTime();
     _deltaTime = _currentTime - _lastTime;
