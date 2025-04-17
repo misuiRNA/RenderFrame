@@ -4,14 +4,14 @@
 
 struct FrameRateTimer {
     FrameRateTimer();
-    float getCurTime();
-    float getFrameTime();
+    double getCurTime();
+    double getFrameTime();
     void updateTime();
 
 private:
-    float _currentTime;
-    float _lastTime;
-    float _deltaTime;
+    double _currentTime;
+    double _lastTime;
+    double _deltaTime;
 };
 
 #endif

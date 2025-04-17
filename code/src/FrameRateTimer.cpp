@@ -8,11 +8,11 @@ FrameRateTimer::FrameRateTimer()
 
 }
 
-float FrameRateTimer::getCurTime() {
+double FrameRateTimer::getCurTime() {
     return _currentTime;
 }
 
-float FrameRateTimer::getFrameTime() {
+double FrameRateTimer::getFrameTime() {
     return _deltaTime;
 }
 

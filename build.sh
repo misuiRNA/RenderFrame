@@ -9,6 +9,7 @@ gcc -xc++ \
  -rpath 3rd/lib \
  -lassimp.5 \
  -lglfw.3 \
+ -lreactphysics3d \
  -lstdc++ \
  -std=c++11 \
  -o bin/Render

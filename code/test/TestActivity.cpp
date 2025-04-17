@@ -4,6 +4,16 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <reactphysics3d/reactphysics3d.h>
+using namespace reactphysics3d;
+
+PhysicsCommon physicsCommon;
+PhysicsWorld* world;
+BoxShape* groundShape;
+RigidBody* ground;
+BoxShape* boxShape;
+RigidBody* box;
+
 
 extern RenderShape cubeShape;
 extern RenderShape tetrahedronShape;
@@ -120,6 +130,23 @@ TestActivity::TestActivity(KeyboardEventHandler& keyboard)
     glStencilOp(GL_ZERO, GL_KEEP, GL_REPLACE);
     glDepthFunc(GL_LEQUAL);
     // glEnable(GL_PROGRAM_POINT_SIZE);
+
+
+    world = physicsCommon.createPhysicsWorld();
+    world->setGravity(Vector3(0.0, 0.0, -9.81f));
+    // 创建地面
+    groundShape = physicsCommon.createBoxShape(Vector3(100.0, 100.0, 1.0));
+    Transform groundTransform(Vector3(0.0, 0.0, -1.0), Quaternion::identity());
+    ground = world->createRigidBody(groundTransform);
+    ground->addCollider(groundShape, Transform::identity());
+    ground->setType(BodyType::STATIC);
+
+    // 创建一个箱子
+    boxShape = physicsCommon.createBoxShape(Vector3(1.0, 1.0, 1.0));
+    Transform boxTransform(Vector3(0.0, 5.0, 5.0), Quaternion::identity());
+    box = world->createRigidBody(boxTransform);
+    box->addCollider(boxShape, Transform::identity());
+    box->setMass(1.0f); // 使其受重力影响
 }
 
 void TestActivity::render() {
@@ -223,7 +250,7 @@ void TestActivity::registerKeyboardEvent(KeyboardEventHandler& keyboardEventHand
 }
 
 void TestActivity::runAnimation() {
-    float time = frameTimer.getCurTime();
+    double time = frameTimer.getCurTime();
     float radian = (sin(time)) * M_PI * (cos(time) > 0 ? 1 : -1);
     float sinV = sin(radian);
     float cosV = cos(radian);
@@ -247,6 +274,17 @@ void TestActivity::runAnimation() {
     rectangle1.setPosition({x - 1.0f, y, z});
 
     cuboid1.getAttituedeCtrl().setFront({x, 0.0f, y});
+
+    // 模拟物理步骤（例如在你的游戏主循环里）
+    // float timeStep = 1.0f / 60.0f;
+    float timeStep = frameTimer.getFrameTime();
+    world->update(timeStep);
+
+    // 获取更新后的箱子位置
+    Transform newTransform = box->getTransform();
+    Vector3 newPosition = newTransform.getPosition();
+
+    pointLights[0].setPosition({newPosition.x, newPosition.y, newPosition.z});
 
 }
 
@@ -320,7 +358,7 @@ void TestActivity::initLights() {
 }
 
 void TestActivity::initCameras() {
-    cameraFPS.setPosition({5.0f, 2.0f, 5.0f});
+    cameraFPS.setPosition({15.0f, 2.0f, 5.0f});
     cameraFPS.setAttitude(0.0f, 180.0f);
 
     mirrorCameraFPS = cameraFPS;
