@@ -4,16 +4,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include <reactphysics3d/reactphysics3d.h>
-using namespace reactphysics3d;
-
-PhysicsCommon physicsCommon;
-PhysicsWorld* world;
-BoxShape* groundShape;
-RigidBody* ground;
-BoxShape* boxShape;
-RigidBody* box;
-
 
 extern RenderShape cubeShape;
 extern RenderShape tetrahedronShape;
@@ -122,6 +112,7 @@ TestActivity::TestActivity(KeyboardEventHandler& keyboard)
 , bodyKeyboardEventHandler(keyboard) {
     initLights();
     initCameras();
+    initCollisionHandle();
     initDrawObjects();
     registerKeyboardEvent(keyboard);
     RegisterKeyboardHandler(&bodyKeyboardEventHandler);
@@ -130,23 +121,6 @@ TestActivity::TestActivity(KeyboardEventHandler& keyboard)
     glStencilOp(GL_ZERO, GL_KEEP, GL_REPLACE);
     glDepthFunc(GL_LEQUAL);
     // glEnable(GL_PROGRAM_POINT_SIZE);
-
-
-    world = physicsCommon.createPhysicsWorld();
-    world->setGravity(Vector3(0.0, 0.0, -9.81f));
-    // 创建地面
-    groundShape = physicsCommon.createBoxShape(Vector3(100.0, 100.0, 1.0));
-    Transform groundTransform(Vector3(0.0, 0.0, -1.0), Quaternion::identity());
-    ground = world->createRigidBody(groundTransform);
-    ground->addCollider(groundShape, Transform::identity());
-    ground->setType(BodyType::STATIC);
-
-    // 创建一个箱子
-    boxShape = physicsCommon.createBoxShape(Vector3(1.0, 1.0, 1.0));
-    Transform boxTransform(Vector3(0.0, 5.0, 5.0), Quaternion::identity());
-    box = world->createRigidBody(boxTransform);
-    box->addCollider(boxShape, Transform::identity());
-    box->setMass(1.0f); // 使其受重力影响
 }
 
 void TestActivity::render() {
@@ -278,10 +252,10 @@ void TestActivity::runAnimation() {
     // 模拟物理步骤（例如在你的游戏主循环里）
     // float timeStep = 1.0f / 60.0f;
     float timeStep = frameTimer.getFrameTime();
-    world->update(timeStep);
+    _world->update(timeStep);
 
     // 获取更新后的箱子位置
-    Transform newTransform = box->getTransform();
+    Transform newTransform = _box->getTransform();
     Vector3 newPosition = newTransform.getPosition();
 
     pointLights[0].setPosition({newPosition.x, newPosition.y, newPosition.z});
@@ -365,6 +339,28 @@ void TestActivity::initCameras() {
     mirrorCameraFPS.setFov(75.0f);
     mirrorCameraFPS.setAttitude(-80.0f, 180.0f);
     mirrorCameraFPS.setPosition({0.0f, 0.0f, 15.0f});
+}
+
+void TestActivity::initCollisionHandle() {
+    std::shared_ptr<PhysicsWorld> world(_physicsCommon.createPhysicsWorld(), [this](PhysicsWorld* w) { _physicsCommon.destroyPhysicsWorld(w); });
+    world->setGravity(Vector3(0.0, 0.0, -9.81f));
+    // 创建地面
+    Transform groundTransform(Vector3(0.0, 0.0, -1.0), Quaternion::identity());
+    std::shared_ptr<RigidBody> ground(world->createRigidBody(groundTransform), [this](RigidBody* b) { if (_world) _world->destroyRigidBody(b); });
+    BoxShape* groundShape = _physicsCommon.createBoxShape(Vector3(100.0, 100.0, 1.0));    // 不需要手动释放, 由 _physicsCommon 管理
+    ground->addCollider(groundShape, Transform::identity());
+    ground->setType(BodyType::STATIC);
+
+    BoxShape* boxShape = _physicsCommon.createBoxShape(Vector3(0.25, 0.25, 0.25));
+    Transform boxTransform(Vector3(0, 5, 15), Quaternion::identity());
+    std::shared_ptr<RigidBody> box(world->createRigidBody(boxTransform), [this](RigidBody* rb) { if (_world) _world->destroyRigidBody(rb); });
+    box->addCollider(boxShape, Transform::identity());
+    // box->setLinearVelocity(Vector3(linearVelocity.x, linearVelocity.y, linearVelocity.z));
+    box->setMass(1.0f);
+
+    _world = world;
+    _ground = ground;
+    _box = box;
 }
 
 void TestActivity::initDrawObjects() {

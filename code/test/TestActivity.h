@@ -13,7 +13,10 @@
 #include "KeyboardEventHandler.h"
 #include "Camera.h"
 #include "FrameRateTimer.h"
+#include "reactphysics3d/reactphysics3d.h"
 
+
+using namespace reactphysics3d;
 
 struct TestActivity {
     TestActivity(KeyboardEventHandler& keyboard);
@@ -22,6 +25,7 @@ struct TestActivity {
 private:
     void initLights();
     void initCameras();
+    void initCollisionHandle();
     void initDrawObjects();
     void buildSkybox();
     void buildGrass();
@@ -75,6 +79,13 @@ private:
     std::vector<Position> windowPositions;
 
     KeyboardEventHandler bodyKeyboardEventHandler;
+
+    PhysicsCommon _physicsCommon;
+    BoxShape* _bulletBoxShape = nullptr;;    // 不需要手动管理内存, PhysicsCommon 会自动管理
+
+    std::shared_ptr<PhysicsWorld> _world;
+    std::shared_ptr<RigidBody> _ground;
+    std::shared_ptr<RigidBody> _box;
 };
 
 #endif
