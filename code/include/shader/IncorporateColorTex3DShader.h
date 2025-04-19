@@ -4,7 +4,7 @@
 #include "render/AbstractShader.h"
 #include "BaseDefine.h"
 #include "Image.h"
-#include "Attitude3DController.h"
+#include "Transform.h"
 
 struct IncorporateColorTex3DVertex {
     IncorporateColorTex3DVertex(const RenderShape::Vertex& data) : pos(data.pos), texcoord(data.texcoord) { }
@@ -24,13 +24,13 @@ struct IncorporateColorTex3DShader : AbstractShader<IncorporateColorTex3DVertex>
     void setSize(const Size3D& size);
     void setImage(const AbstractImage& image);
     void setColor(const Color& color);
-    Attitude3DController& getAttituedeCtrl();
+    Transform& getTransform();
 
 private:
     void updateUniformes() override;
 
 private:
-    Attitude3DController _attitudeCtrl;
+    Transform _trans;
     Color _color;
 
     bool _textureEnable;

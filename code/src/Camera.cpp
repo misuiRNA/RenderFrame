@@ -21,19 +21,19 @@ void CameraFPS::move(const Vector3D& vec) {
 }
 
 void CameraFPS::goForward(float stepLen) {
-    move(stepLen * _camera.getAttituedeCtrl().getFront());
+    move(stepLen * _camera.getTransform().getFront());
 }
 
 void CameraFPS::goBack(float stepLen) {
-    move(- stepLen * _camera.getAttituedeCtrl().getFront());
+    move(- stepLen * _camera.getTransform().getFront());
 }
 
 void CameraFPS::goLeft(float stepLen) {
-    move(- stepLen * _camera.getAttituedeCtrl().getRight());
+    move(- stepLen * _camera.getTransform().getRight());
 }
 
 void CameraFPS::goRight(float stepLen) {
-    move(stepLen * _camera.getAttituedeCtrl().getRight());
+    move(stepLen * _camera.getTransform().getRight());
 }
 
 // TODO: 优化 相机左转右转的行为与现实世界不一致, 相机俯视时明显, 与上向量取值有关
@@ -91,7 +91,7 @@ Position CameraFPS::getPosition() const {
 }
 
 Vector3D CameraFPS::getDirection() const {
-    return _camera.getAttituedeCtrl().getFront();
+    return _camera.getTransform().getFront();
 }
 
 float CameraFPS::normalYaw(float angel) {

@@ -16,7 +16,7 @@ static ShaderProgram& GetShaderProg() {
 
 ColorTexcubeShader::ColorTexcubeShader()
 : AbstractShader(GetShaderProg())
-, _attitudeCtrl({0.0f, 0.0f, -1.0f}, {-1.0f, 0.0f, 0.0f}) {
+, _trans({0.0f, 0.0f, -1.0f}, {-1.0f, 0.0f, 0.0f}) {
 
 }
 
@@ -25,9 +25,9 @@ void ColorTexcubeShader::setImage(const AbstractImage& image) {
 }
 
 void ColorTexcubeShader::setPosition(const Position& pos) {
-    _attitudeCtrl.setPosition(pos);
+    _trans.setPosition(pos);
 }
 
 void ColorTexcubeShader::updateUniformes() {
-    _engine.setUniform("modelMatrix", _attitudeCtrl.getMatrix());
+    _engine.setUniform("modelMatrix", _trans.getMatrix());
 }

@@ -42,7 +42,7 @@ void Model3DDrawObject::setSize(const Size3D& size) {
 
 void Model3DDrawObject::setAttituedeCtrl(const Vector3D& up, const Vector3D& front) {
     for (auto& draw : _meshDrawes) {
-        draw.getAttituedeCtrl()
+        draw.getTransform()
            .setUp(up)
            .setFront(front);
     }

@@ -23,7 +23,7 @@ private:
     void updateUniformes() override;
 
 private:
-    Attitude3DController _attitudeCtrl;
+    Transform _trans;
 };
 
 

@@ -247,15 +247,15 @@ void DemoActivity::runAnimation() {
     rectangle.setPosition({x, y, z});
     rectangle1.setPosition({x - 1.0f, y, z});
 
-    cuboid1.getAttituedeCtrl().setFront({x, 0.0f, y});
+    cuboid1.getTransform().setFront({x, 0.0f, y});
 
     // 模拟物理步骤（例如在你的游戏主循环里）
     // float timeStep = 1.0f / 60.0f;
     float timeStep = frameTimer.getFrameTime();
     CollisionSystem::getInstance().update(timeStep);
 
-    Attitude3DController atti = _light1Coll->getAttituedeCtrl();
-    pointLights[0].setPosition(atti.getPosition());
+    Transform trans = _light1Coll->getTransform();
+    pointLights[0].setPosition(trans.getPosition());
 
 }
 
@@ -339,8 +339,8 @@ void DemoActivity::initCameras() {
 }
 
 void DemoActivity::initCollisionHandle() {
-    Attitude3DController atti({1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0, 5, 15}, {0.25f, 0.25f, 0.25f});
-    _light1Coll = CollisionSystem::getInstance().createCollisionBody(atti);
+    Transform trans({1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0, 5, 15}, {0.25f, 0.25f, 0.25f});
+    _light1Coll = CollisionSystem::getInstance().createCollisionBody(trans);
 }
 
 void DemoActivity::initDrawObjects() {
@@ -368,7 +368,7 @@ void DemoActivity::buildGrass() {
     grass.setVertexData(rectShape);
     grass.setPosition({-1.0f, 3.0f, 2.0f});
     grass.setImage(grassImage);
-    grass.getAttituedeCtrl()
+    grass.getTransform()
          .setFront({1.0f, 0.0f, 0.0f});
     std::vector<IncorporateColorTex3DShader> grasses;
     grasses.reserve(100 * 100);
@@ -385,7 +385,7 @@ void DemoActivity::buildTransparentWindow() {
     transparentWindow.setVertexData(rectShape);
     transparentWindow.setPosition({0.0f, 0.0f});
     transparentWindow.setImage(windowImage);
-    transparentWindow.getAttituedeCtrl()
+    transparentWindow.getTransform()
                      .setFront({1.0f, 0.0f, 0.0f});
     windowPositions = {
         {1.1f, 1.0f, 0.0f},
@@ -440,7 +440,7 @@ void DemoActivity::buildCuboids() {
     cuboid1.setSize({1.25f, 5.0f, 0.75f});
     cuboid1.setPrimaryImage(wallImage);
     // cuboid1.setMaterial(material);
-    // cuboid1.getAttituedeCtrl().setFront({0.0f, 1.0f, 0.0f});
+    // cuboid1.getTransform().setFront({0.0f, 1.0f, 0.0f});
     cuboid1.setVertexData(tetrahedronShape);
 }
 
@@ -450,7 +450,7 @@ void DemoActivity::buildRectangle3D() {
     // rectangle.setColor(Color(0.8f, 0.3f, 0.2f));
     rectangle.setColor(Color(0.0f, 0.0f, 0.0f));
     rectangle.setImage(awesomefaceImage);
-    rectangle.getAttituedeCtrl()
+    rectangle.getTransform()
              .setFront({1.0f, 0.0f, 0.0f});
 
 
@@ -474,7 +474,7 @@ void DemoActivity::buildCircle() {
     circle1.setPosition({-1.0f, 3.0f, 2.0f});
     circle1.setVertexData(circleShape);
     circle1.setColor(Color(0.0f, 1.0f, 0.0f));
-    circle1.getAttituedeCtrl().setFront({1.0f, 0.0f, 0.0f}).setUp({0.0f, 0.0f, 1.0f});
+    circle1.getTransform().setFront({1.0f, 0.0f, 0.0f}).setUp({0.0f, 0.0f, 1.0f});
 }
 
 void DemoActivity::buildNanosuit() {

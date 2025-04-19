@@ -19,17 +19,17 @@ static ShaderProgram& GetShaderProg() {
 
 IncorporateColorTex3DShader::IncorporateColorTex3DShader(const Size3D& size)
 : AbstractShader(GetShaderProg())
-, _attitudeCtrl({0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {size.x, size.y, 1.0f})
+, _trans({0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, {size.x, size.y, 1.0f})
 , _textureEnable(false) {
 
 }
 
 void IncorporateColorTex3DShader::setPosition(const Position& pos) {
-    _attitudeCtrl.setPosition(pos);
+    _trans.setPosition(pos);
 }
 
 void IncorporateColorTex3DShader::setSize(const Size3D& size) {
-    _attitudeCtrl.setSize({size.x, size.y, 1.0f});
+    _trans.setSize({size.x, size.y, 1.0f});
 }
 
 void IncorporateColorTex3DShader::setImage(const AbstractImage& image) {
@@ -44,18 +44,18 @@ void IncorporateColorTex3DShader::setColor(const Color& color) {
 void IncorporateColorTex3DShader::updateUniformes() {
     _engine.setUniform("imageEnable", _textureEnable);
     _engine.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
-    _engine.setUniform("modelMatrix", _attitudeCtrl.getMatrix());
+    _engine.setUniform("modelMatrix", _trans.getMatrix());
 }
 
-Attitude3DController& IncorporateColorTex3DShader::getAttituedeCtrl() {
-    return _attitudeCtrl;
+Transform& IncorporateColorTex3DShader::getTransform() {
+    return _trans;
 }
 
 void IncorporateColorTex3DShader::mergeCopies(std::vector<IncorporateColorTex3DShader>& rectangles) {
     size_t instCount = rectangles.size();
     std::vector<Matrix4X4> modelMatrices(instCount);
     for (int i = 0; i < instCount; ++i) {
-        modelMatrices[i] = rectangles[i]._attitudeCtrl.getMatrix();
+        modelMatrices[i] = rectangles[i]._trans.getMatrix();
     }
 
     // OpenGL 不直接支持矩阵类型 mat4, 需要把它分成4个独立的 vec4 处理, 每个 vec4 必须单独绑定到一个顶点属性位置

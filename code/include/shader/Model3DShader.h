@@ -2,7 +2,7 @@
 #define MODEL3D_H
 
 #include "render/AbstractShader.h"
-#include "Attitude3DController.h"
+#include "Transform.h"
 #include "Image.h"
 #include <string>
 #include <map>
@@ -27,13 +27,13 @@ struct Model3DShader : AbstractShader<Model3DVertex> {
     void setSpecularImage(int index, const AbstractImage& image);
     void setNormalImage(int index, const AbstractImage& image);
     void setHeightImage(int index, const AbstractImage& image);
-    Attitude3DController& getAttituedeCtrl();
+    Transform& getTransform();
 
 private:
     void updateUniformes() override;
 
 private:
-    Attitude3DController _attitudeCtrl;
+    Transform _trans;
 };
 
 #endif

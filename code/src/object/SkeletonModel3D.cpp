@@ -7,7 +7,7 @@ SkeletonModel3D::SkeletonModel3D()
     // _shader.setDrawMode(RenderDataMode::LINE_STRIP);
     // _shader.setPosition({-2.0f, 3.0f, 5.0f});
     _shader.setColor(Color(0.0f, 0.0f, 0.0f));
-    _shader.getAttituedeCtrl().setFront({0.0f, 0.0f, 1.0f}).setUp({0.0f, 1.0f, 0.0f});
+    _shader.getTransform().setFront({0.0f, 0.0f, 1.0f}).setUp({0.0f, 1.0f, 0.0f});
 
     _crossSection = {
         {Position{0.0f, -1.0f, 0.0f}, Vector3D{0.0f, 0.0f, 1.0f}, Vector2D{0.0f, 0.0f}, Color{1.0f, 0.0f, 0.0f}},

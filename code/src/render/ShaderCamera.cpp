@@ -3,28 +3,28 @@
 #include <glm/gtc/type_ptr.hpp>
 
 ShaderCamera::ShaderCamera()
-: _attitudeCtrl({0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f})
+: _trans({0.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f})
 , _fov(45.0f) {
     updateMatrix();
 }
 
 ShaderCamera::ShaderCamera(const ShaderCamera& oth)
-: _attitudeCtrl(oth._attitudeCtrl)
+: _trans(oth._trans)
 , _fov(oth._fov) {
     updateMatrix();
 }
 
 void ShaderCamera::setPosition(const Position& pos) {
-    _attitudeCtrl.setPosition(pos);
+    _trans.setPosition(pos);
     updateMatrix();
 }
 
 void ShaderCamera::move(const Vector3D& vec) {
-    setPosition(_attitudeCtrl.getPosition() + vec);
+    setPosition(_trans.getPosition() + vec);
 }
 
 void ShaderCamera::setFront(const Vector3D& front) {
-    _attitudeCtrl.setFront(front);
+    _trans.setFront(front);
     updateMatrix();
 }
 
@@ -38,12 +38,12 @@ void ShaderCamera::setFov(float fov) {
     updateMatrix();
 }
 
-const Attitude3DController& ShaderCamera::getAttituedeCtrl() const {
-    return _attitudeCtrl;
+const Transform& ShaderCamera::getTransform() const {
+    return _trans;
 }
 
 const Position& ShaderCamera::getPosition() const {
-    return _attitudeCtrl.getPosition();
+    return _trans.getPosition();
 }
 
 const Matrix4X4& ShaderCamera::getMatrix() const {
@@ -53,9 +53,9 @@ const Matrix4X4& ShaderCamera::getMatrix() const {
 void ShaderCamera::updateMatrix() {
     glm::mat4 view;
 
-    const Position& pos = _attitudeCtrl.getPosition();
-    const Vector3D& front = _attitudeCtrl.getFront();
-    const Vector3D& up = _attitudeCtrl.getUp();
+    const Position& pos = _trans.getPosition();
+    const Vector3D& front = _trans.getFront();
+    const Vector3D& up = _trans.getUp();
     view = glm::lookAt(glm::vec3(pos.x, pos.y, pos.z),
                        glm::vec3(pos.x + front.x, pos.y + front.y, pos.z + front.z),
                        glm::vec3(up.x, up.y, up.z));

@@ -1,4 +1,4 @@
-#include "Attitude3DController.h"
+#include "Transform.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -9,7 +9,7 @@ static Vector3D Normalize(const Vector3D& vec) {
     return Vector3D(normalGlmVec.x, normalGlmVec.y, normalGlmVec.z);
 }
 
-Attitude3DController::Attitude3DController(const Vector3D& up, const Vector3D& front, const Position& pos, const Size3D& size)
+Transform::Transform(const Vector3D& up, const Vector3D& front, const Position& pos, const Size3D& size)
 : _pos(pos)
 , _up(Normalize(up))
 , _front(Normalize(front))
@@ -17,47 +17,47 @@ Attitude3DController::Attitude3DController(const Vector3D& up, const Vector3D& f
 
 }
 
-Attitude3DController& Attitude3DController::setPosition(const Position& pos) {
+Transform& Transform::setPosition(const Position& pos) {
     _pos = pos;
     attitudeChanged();
     return *this;
 }
 
-Attitude3DController& Attitude3DController::setFront(const Vector3D& front) {
+Transform& Transform::setFront(const Vector3D& front) {
     _front = Normalize(front);
     attitudeChanged();
     return *this;
 }
 
-Attitude3DController& Attitude3DController::setUp(const Vector3D& up) {
+Transform& Transform::setUp(const Vector3D& up) {
     _up = Normalize(up);
     attitudeChanged();
     return *this;
 }
 
-Attitude3DController& Attitude3DController::setSize(const Size3D& size) {
+Transform& Transform::setSize(const Size3D& size) {
     _size = size;
     attitudeChanged();
     return *this;
 }
 
-const Matrix4X4& Attitude3DController::getMatrix() const {
+const Matrix4X4& Transform::getMatrix() const {
     return _matrix;
 }
 
-const Position& Attitude3DController::getPosition() const {
+const Position& Transform::getPosition() const {
     return _pos;
 }
 
-const Vector3D& Attitude3DController::getFront() const {
+const Vector3D& Transform::getFront() const {
     return _front;
 }
 
-const Vector3D& Attitude3DController::getUp() const {
+const Vector3D& Transform::getUp() const {
     return _up;
 }
 
-Vector3D Attitude3DController::getRight() const {
+Vector3D Transform::getRight() const {
     glm::vec3 cameraUp = glm::vec3(_up.x, _up.y, _up.z);
     glm::vec3 cameraFront = glm::vec3(_front.x, _front.y, _front.z);
     glm::vec3 normalRight = glm::normalize(glm::cross(cameraFront, cameraUp));
@@ -65,7 +65,7 @@ Vector3D Attitude3DController::getRight() const {
     return rightVec;
 }
 
-const Size3D& Attitude3DController::getSize() const {
+const Size3D& Transform::getSize() const {
     return _size;
 }
 
@@ -82,7 +82,7 @@ static glm::mat4 GetAttitudeMatrix(const Vector3D& up, const Vector3D& front) {
     return attitudeMatrix;
 }
 
-void Attitude3DController::attitudeChanged() {
+void Transform::attitudeChanged() {
     glm::mat4 model;
     model = glm::translate(model, glm::vec3(_pos.x, _pos.y, _pos.z));
     model = model * GetAttitudeMatrix(_up, _front);

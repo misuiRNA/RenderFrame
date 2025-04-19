@@ -19,7 +19,7 @@ static ShaderProgram& GetShaderProg() {
 
 ColorTexMulilight3DShader::ColorTexMulilight3DShader(const Size3D& size)
 : AbstractShader(GetShaderProg())
-, _attitudeCtrl({0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, size)
+, _trans({0.0f, 1.0f, 0.0f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, size)
 , _imageEnable(false)
 , _color(1.0f, 1.0f, 1.0f) {
 
@@ -28,7 +28,7 @@ ColorTexMulilight3DShader::ColorTexMulilight3DShader(const Size3D& size)
 
 ColorTexMulilight3DShader::ColorTexMulilight3DShader(const ColorTexMulilight3DShader& oth)
 : AbstractShader(GetShaderProg())
-, _attitudeCtrl(oth._attitudeCtrl)
+, _trans(oth._trans)
 , _imageEnable(oth._imageEnable)
 , _color(oth._color) {
     new (&_engine)RenderEngine(oth._engine);    // 强制使用 RenderEngine 拷贝构造, 保证 _engine 可用
@@ -36,11 +36,11 @@ ColorTexMulilight3DShader::ColorTexMulilight3DShader(const ColorTexMulilight3DSh
 }
 
 void ColorTexMulilight3DShader::setPosition(const Position& pos) {
-    _attitudeCtrl.setPosition(pos);
+    _trans.setPosition(pos);
 }
 
 void ColorTexMulilight3DShader::setSize(const Size3D& size) {
-    _attitudeCtrl.setSize(size);
+    _trans.setSize(size);
 }
 
 void ColorTexMulilight3DShader::setColor(const Color& color) {
@@ -57,8 +57,8 @@ void ColorTexMulilight3DShader::setSecondaryImage(const AbstractImage& image) {
     _imageEnable = true;
 }
 
-Attitude3DController& ColorTexMulilight3DShader::getAttituedeCtrl() {
-    return _attitudeCtrl;
+Transform& ColorTexMulilight3DShader::getTransform() {
+    return _trans;
 }
 
 void ColorTexMulilight3DShader::setMaterial(const ShaderMaterial& material) {
@@ -68,5 +68,5 @@ void ColorTexMulilight3DShader::setMaterial(const ShaderMaterial& material) {
 void ColorTexMulilight3DShader::updateUniformes() {
     _engine.setUniform("imageEnable", _imageEnable);
     _engine.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
-    _engine.setUniform("modelMatrix", _attitudeCtrl.getMatrix());
+    _engine.setUniform("modelMatrix", _trans.getMatrix());
 }

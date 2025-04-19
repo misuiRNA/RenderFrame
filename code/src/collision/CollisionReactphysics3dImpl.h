@@ -5,27 +5,24 @@
 #include "reactphysics3d/reactphysics3d.h"
 
 
-using namespace reactphysics3d;
-
-
 struct CollisionBodyReactphysics3dImpl : CollisionBody {
-    CollisionBodyReactphysics3dImpl(const std::shared_ptr<RigidBody>& handle);
+    CollisionBodyReactphysics3dImpl(const std::shared_ptr<rp3d::RigidBody>& handle);
     void setSpeed(float speed) override;
-    Attitude3DController getAttituedeCtrl() const override;
+    Transform getTransform() const override;
 
 private:
-    std::shared_ptr<RigidBody> _handle;
+    std::shared_ptr<rp3d::RigidBody> _handle;
 };
 
 
 struct CollisionSystemReactphysics3dImpl : CollisionSystem {
     CollisionSystemReactphysics3dImpl();
-    std::shared_ptr<CollisionBody> createCollisionBody(const Attitude3DController& atti) override;
+    std::shared_ptr<CollisionBody> createCollisionBody(const Transform& trans) override;
     void update(double timeStep) override;
 
 private:
-    PhysicsCommon physicsCommon;
-    std::shared_ptr<PhysicsWorld> _world;
-    std::shared_ptr<RigidBody> _ground;
+    rp3d::PhysicsCommon physicsCommon;
+    std::shared_ptr<rp3d::PhysicsWorld> _world;
+    std::shared_ptr<rp3d::RigidBody> _ground;
 };
 #endif

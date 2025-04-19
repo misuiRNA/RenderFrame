@@ -4,7 +4,7 @@
 #include "render/AbstractShader.h"
 #include "BaseDefine.h"
 #include "Image.h"
-#include "Attitude3DController.h"
+#include "Transform.h"
 
 struct ColorTexMulilight3DVertex {
     ColorTexMulilight3DVertex(const RenderShape::Vertex& data) : pos(data.pos), texCoord(data.texcoord), normal(data.normal) { }
@@ -25,13 +25,13 @@ struct ColorTexMulilight3DShader : AbstractShader<ColorTexMulilight3DVertex> {
     void setPrimaryImage(const AbstractImage& image);
     void setSecondaryImage(const AbstractImage& image);
     void setMaterial(const ShaderMaterial& material);
-    Attitude3DController& getAttituedeCtrl();
+    Transform& getTransform();
 
 private:
     void updateUniformes() override;
 
 private:
-    Attitude3DController _attitudeCtrl;
+    Transform _trans;
     Color _color;
 
     bool _imageEnable;

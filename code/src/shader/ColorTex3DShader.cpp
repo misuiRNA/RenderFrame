@@ -20,17 +20,17 @@ static ShaderProgram& GetShaderProg() {
 
 ColorTex3DShader::ColorTex3DShader(const Size3D& size)
 : AbstractShader(GetShaderProg())
-, _attitudeCtrl({0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, size)
+, _trans({0.0f, 0.0f, 1.0f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 0.0f}, size)
 , _textureEnable(false) {
 
 }
 
 void ColorTex3DShader::setPosition(const Position& pos) {
-    _attitudeCtrl.setPosition(pos);
+    _trans.setPosition(pos);
 }
 
 void ColorTex3DShader::setSize(const Size3D& size) {
-    _attitudeCtrl.setSize(size);
+    _trans.setSize(size);
 }
 
 void ColorTex3DShader::setImage(const AbstractImage& image) {
@@ -45,9 +45,9 @@ void ColorTex3DShader::setColor(const Color& color) {
 void ColorTex3DShader::updateUniformes() {
     _engine.setUniform("imageEnable", _textureEnable);
     _engine.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
-    _engine.setUniform("modelMatrix", _attitudeCtrl.getMatrix());
+    _engine.setUniform("modelMatrix", _trans.getMatrix());
 }
 
-Attitude3DController& ColorTex3DShader::getAttituedeCtrl() {
-    return _attitudeCtrl;
+Transform& ColorTex3DShader::getTransform() {
+    return _trans;
 }

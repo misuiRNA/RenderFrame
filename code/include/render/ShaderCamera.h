@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "BaseDefine.h"
-#include "Attitude3DController.h"
+#include "Transform.h"
 
 struct ShaderCamera {
     ShaderCamera();
@@ -15,14 +15,14 @@ struct ShaderCamera {
     void setFront(const Vector3D& front);
     void setFov(float fov);
 
-    const Attitude3DController& getAttituedeCtrl() const;
+    const Transform& getTransform() const;
     const Position& getPosition() const;
 
 private:
     void updateMatrix();
 
 private:
-    Attitude3DController _attitudeCtrl;
+    Transform _trans;
     float _fov;
 
     Matrix4X4 _matrix;

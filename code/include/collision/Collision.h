@@ -3,18 +3,18 @@
 
 #include <memory>
 #include "BaseDefine.h"
-#include "Attitude3DController.h"
+#include "Transform.h"
 
 
 struct CollisionBody {
     virtual void setSpeed(float speed) = 0;
-    virtual Attitude3DController getAttituedeCtrl() const = 0;
+    virtual Transform getTransform() const = 0;
 };
 
 struct CollisionSystem {
     static CollisionSystem& getInstance();
 
-    virtual std::shared_ptr<CollisionBody> createCollisionBody(const Attitude3DController& atti) = 0;
+    virtual std::shared_ptr<CollisionBody> createCollisionBody(const Transform& trans) = 0;
     virtual void update(double timeStep) = 0;
 };
 

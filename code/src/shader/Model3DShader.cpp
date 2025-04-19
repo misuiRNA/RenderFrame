@@ -18,16 +18,16 @@ static ShaderProgram& GetShaderProg() {
 
 Model3DShader::Model3DShader()
 : AbstractShader(GetShaderProg())
-, _attitudeCtrl({0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}) {
+, _trans({0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f}) {
 
 }
 
 void Model3DShader::setPosition(const Position& pos) {
-    _attitudeCtrl.setPosition(pos);
+    _trans.setPosition(pos);
 }
 
 void Model3DShader::setSize(const Size3D& size) {
-    _attitudeCtrl.setSize(size);
+    _trans.setSize(size);
 }
 
 void Model3DShader::setDiffuseImage(int index, const AbstractImage& image) {
@@ -50,10 +50,10 @@ void Model3DShader::setHeightImage(int index, const AbstractImage& image) {
     _engine.setTexture(name, image.getTexture(ImageWrapMode::Repeat));
 }
 
-Attitude3DController& Model3DShader::getAttituedeCtrl() {
-    return _attitudeCtrl;
+Transform& Model3DShader::getTransform() {
+    return _trans;
 }
 
 void Model3DShader::updateUniformes() {
-    _engine.setUniform("model", _attitudeCtrl.getMatrix());
+    _engine.setUniform("model", _trans.getMatrix());
 }
