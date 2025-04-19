@@ -16,8 +16,8 @@
 #include "collision/Collision.h"
 
 
-struct TestActivity {
-    TestActivity(KeyboardEventHandler& keyboard);
+struct DemoActivity {
+    DemoActivity(KeyboardEventHandler& keyboard);
     void render();
 
 private:

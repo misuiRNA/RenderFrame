@@ -1,5 +1,5 @@
 gcc -xc++ \
- test/Main.cpp test/TestActivity.cpp test/DrawData.cpp \
+ test/Main.cpp test/DrawData.cpp test/demo/*.cpp test/lastbullet/*.cpp \
  code/src/*.cpp code/src/render/*.cpp code/src/shader/*.cpp code/src/object/*.cpp code/src/collision/*.cpp \
  3rd/src/glad.c \
  -I3rd/include \

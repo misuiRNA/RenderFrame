@@ -4,7 +4,8 @@
 
 #include "Image.h"
 #include "KeyboardEventHandler.h"
-#include "TestActivity.h"
+#include "demo/DemoActivity.h"
+#include "lastbullet/LastBulletActivity.h"
 
 
 static unsigned int WINDOW_WIDTH = 800;
@@ -79,7 +80,8 @@ int main() {
     cameraKeyboardEventHandler.registerObserver(GLFW_KEY_K,      GLFW_PRESS, []() { Screenshot(GetCurPath() + "/resource/screenshot.png", WINDOW_WIDTH, WINDOW_HEIGHT); });
     RegisterKeyboardHandler(&cameraKeyboardEventHandler);
 
-    TestActivity activity(cameraKeyboardEventHandler);
+    // DemoActivity activity(cameraKeyboardEventHandler);
+    LastBulletActivity activity(cameraKeyboardEventHandler);
 
     while(!glfwWindowShouldClose(window)) {
         switchKeyboardEventHandler.exrcute();

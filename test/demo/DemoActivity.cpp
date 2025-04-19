@@ -1,4 +1,4 @@
-#include "TestActivity.h"
+#include "DemoActivity.h"
 #include <math.h>
 #include <glm/glm.hpp>
 #include <glad/glad.h>
@@ -85,7 +85,7 @@ static void EnableViewMask(ColorTex3DShader& outlineMask, ColorTex3DShader& thro
 
 
 
-TestActivity::TestActivity(KeyboardEventHandler& keyboard)
+DemoActivity::DemoActivity(KeyboardEventHandler& keyboard)
 : frameTimer()
 , parallelLight(true)
 , pointLights({false, false})
@@ -123,11 +123,11 @@ TestActivity::TestActivity(KeyboardEventHandler& keyboard)
     // glEnable(GL_PROGRAM_POINT_SIZE);
 }
 
-void TestActivity::render() {
+void DemoActivity::render() {
     frameTimer.updateTime();
 
     // TODO: 优化, 画布渲染完毕以后需要恢复原gl上下文状态, 如blend, cull_face等
-    mirrorCanva.paint(std::bind(&TestActivity::mirrorRender, this));
+    mirrorCanva.paint(std::bind(&DemoActivity::mirrorRender, this));
 
     SetGlobalLights(parallelLight, pointLights);
     SetGlobalCamera(cameraFPS);
@@ -140,7 +140,7 @@ void TestActivity::render() {
     renderTransparentObjs();
 }
 
-void TestActivity::renderSolidObjs() {
+void DemoActivity::renderSolidObjs() {
     glEnable(GL_CULL_FACE);
     // glFrontFace(GL_CW);
     glEnable(GL_DEPTH_TEST);
@@ -179,7 +179,7 @@ void TestActivity::renderSolidObjs() {
     fence.show();
 }
 
-void TestActivity::renderTransparentObjs() {
+void DemoActivity::renderTransparentObjs() {
     glDisable(GL_CULL_FACE);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -198,7 +198,7 @@ void TestActivity::renderTransparentObjs() {
     // winMask.show();
 }
 
-void TestActivity::registerKeyboardEvent(KeyboardEventHandler& keyboardEventHandler) {
+void DemoActivity::registerKeyboardEvent(KeyboardEventHandler& keyboardEventHandler) {
     constexpr float MOVE_SPEED = 2.5f;
     constexpr float TURN_SPEED = 10.0f;
 
@@ -223,7 +223,7 @@ void TestActivity::registerKeyboardEvent(KeyboardEventHandler& keyboardEventHand
     bodyKeyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, [this]() { airplan.move({0.0f, -frameTimer.getFrameTime() * MOVE_SPEED, 0.0f}); });
 }
 
-void TestActivity::runAnimation() {
+void DemoActivity::runAnimation() {
     double time = frameTimer.getCurTime();
     float radian = (sin(time)) * M_PI * (cos(time) > 0 ? 1 : -1);
     float sinV = sin(radian);
@@ -259,7 +259,7 @@ void TestActivity::runAnimation() {
 
 }
 
-void TestActivity::mirrorRender() {
+void DemoActivity::mirrorRender() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
@@ -304,7 +304,7 @@ void TestActivity::mirrorRender() {
     SetGlobalCamera(cameraFPS);
 }
 
-void TestActivity::initLights() {
+void DemoActivity::initLights() {
     parallelLight.setDirection({-1.0f, 1.0f, -1.0f});
     // parallelLight.setColor({1.0f, 0.0f, 0.0f});
 
@@ -328,7 +328,7 @@ void TestActivity::initLights() {
     light1.setReach(100.0f);
 }
 
-void TestActivity::initCameras() {
+void DemoActivity::initCameras() {
     cameraFPS.setPosition({15.0f, 2.0f, 5.0f});
     cameraFPS.setAttitude(0.0f, 180.0f);
 
@@ -338,12 +338,12 @@ void TestActivity::initCameras() {
     mirrorCameraFPS.setPosition({0.0f, 0.0f, 15.0f});
 }
 
-void TestActivity::initCollisionHandle() {
+void DemoActivity::initCollisionHandle() {
     Attitude3DController atti({1.0f, 0.0f, 1.0f}, {0.0f, 0.0f, 1.0f}, {0, 5, 15}, {0.25f, 0.25f, 0.25f});
     _light1Coll = CollisionSystem::getInstance().createCollisionBody(atti);
 }
 
-void TestActivity::initDrawObjects() {
+void DemoActivity::initDrawObjects() {
     buildSkybox();
     buildRectangle3D();
     buildGrass();
@@ -360,11 +360,11 @@ void TestActivity::initDrawObjects() {
     buildFence();
 }
 
-void TestActivity::buildSkybox() {
+void DemoActivity::buildSkybox() {
     skybox.setImage(cubeImage);
 }
 
-void TestActivity::buildGrass() {
+void DemoActivity::buildGrass() {
     grass.setVertexData(rectShape);
     grass.setPosition({-1.0f, 3.0f, 2.0f});
     grass.setImage(grassImage);
@@ -381,7 +381,7 @@ void TestActivity::buildGrass() {
     grass.mergeCopies(grasses);
 }
 
-void TestActivity::buildTransparentWindow() {
+void DemoActivity::buildTransparentWindow() {
     transparentWindow.setVertexData(rectShape);
     transparentWindow.setPosition({0.0f, 0.0f});
     transparentWindow.setImage(windowImage);
@@ -395,12 +395,12 @@ void TestActivity::buildTransparentWindow() {
     };
 }
 
-void TestActivity::buildWinMask() {
+void DemoActivity::buildWinMask() {
     winMask.setVertexData(rectShape);
     winMask.setImage(awesomefaceImage);
 }
 
-void TestActivity::buildCuboids() {
+void DemoActivity::buildCuboids() {
     Position cuboidPositions[10] = {
         {0.0f, 0.0f, 0.0f},
         {0.0f, 0.0f, 1.0f},
@@ -444,7 +444,7 @@ void TestActivity::buildCuboids() {
     cuboid1.setVertexData(tetrahedronShape);
 }
 
-void TestActivity::buildRectangle3D() {
+void DemoActivity::buildRectangle3D() {
     rectangle.setVertexData(rectShape);
     rectangle.setPosition({0.0f, 0.0f});
     // rectangle.setColor(Color(0.8f, 0.3f, 0.2f));
@@ -461,7 +461,7 @@ void TestActivity::buildRectangle3D() {
     // rectangle1.setPosition({0.0f, 0.0f});
 }
 
-void TestActivity::buildMirror() {
+void DemoActivity::buildMirror() {
     mirrorCanva.setBackgroundColor({0.3f, 0.2f, 0.3f});
     mirror.setVertexData(rectShape);
     mirror.setPosition({-0.6f, 0.7f});
@@ -469,7 +469,7 @@ void TestActivity::buildMirror() {
     mirror.setImage(mirrorCanva);
 }
 
-void TestActivity::buildCircle() {
+void DemoActivity::buildCircle() {
     circle1.setDrawMode(RenderDataMode::LINE_STRIP);
     circle1.setPosition({-1.0f, 3.0f, 2.0f});
     circle1.setVertexData(circleShape);
@@ -477,27 +477,27 @@ void TestActivity::buildCircle() {
     circle1.getAttituedeCtrl().setFront({1.0f, 0.0f, 0.0f}).setUp({0.0f, 0.0f, 1.0f});
 }
 
-void TestActivity::buildNanosuit() {
+void DemoActivity::buildNanosuit() {
     nanosuit.setSize({0.0f, 3.0f});
     nanosuit.setPosition({0.0f, 1.5f, 1.5f});
     nanosuit.setAttituedeCtrl({0.0f, 0.0f, 1.0f}, {1.0f, 0.0f, 0.0f});
 }
 
-void TestActivity::buildAirplan() {
+void DemoActivity::buildAirplan() {
     // airplan.setSize({1.0f, 1.0f, 1.0f});
     airplan.setSize({5.0f});
     airplan.setPosition({0.0f, 5.0f, 1.5f});
     airplan.setAttituedeCtrl({0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f});
 }
 
-void TestActivity::buildCar() {
+void DemoActivity::buildCar() {
     // car.setSize({1.0f, 1.0f, 1.0f});
     car.setSize({0.0f, 1.0f});
     car.setPosition({0.0f, 8.0f, 1.5f});
     car.setAttituedeCtrl({0.0f, 1.0f, 0.0f}, {0.0f, 0.0f, 1.0f});
 }
 
-void TestActivity::buildAirplanTrace() {
+void DemoActivity::buildAirplanTrace() {
     
     airplanTrace.append({0.0f, 5.0f, 1.5f});
     auto traceRecorder = [this]() {
@@ -518,7 +518,7 @@ void TestActivity::buildAirplanTrace() {
     bodyKeyboardEventHandler.registerObserver(GLFW_KEY_D, GLFW_PRESS, [traceRecorder]() { traceRecorder(); });
 }
 
-void TestActivity::buildFence() {
+void DemoActivity::buildFence() {
     // fence.setPosition({-2.0f, 3.0f, 5.0f});
     std::vector<RenderShape::Vertex> crossSection = {
         // 后(环回)
@@ -554,6 +554,6 @@ void TestActivity::buildFence() {
     fence.append(laneMinLine);
 }
 
-void TestActivity::buildRichPoints() {
+void DemoActivity::buildRichPoints() {
     richPoints.setVertexData(rectShape);
 }
