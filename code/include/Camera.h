@@ -25,6 +25,7 @@ struct CameraFPS {
     void setFov(float fov);
 
     Position getPosition() const;
+    Vector3D getDirection() const;
 
 private:
 

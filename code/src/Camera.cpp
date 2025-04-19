@@ -90,6 +90,10 @@ Position CameraFPS::getPosition() const {
     return _camera.getPosition();
 }
 
+Vector3D CameraFPS::getDirection() const {
+    return _camera.getAttituedeCtrl().getFront();
+}
+
 float CameraFPS::normalYaw(float angel) {
     float res = angel - (int(angel / 360) * 360);
     if (res < 0.0f) {
