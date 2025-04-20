@@ -8,7 +8,7 @@ extern RenderShape cubeShape;
 
 Bullet::Bullet(const Position& pos, const Vector3D& front)
 : _shader(Size3D(0.5f, 0.5f, 0.5f))
-, _speed(10) {
+, _speed(0) {
     _shader.setVertexData(cubeShape);
     _shader.setPrimaryImage(awesomefaceImage);
     _shader.setPosition(pos);
@@ -26,8 +26,15 @@ void Bullet::enableCollision(bool enable) {
     }
     Transform trans = _shader.getTransform();
     _collision = CollisionSystem::getInstance().createCollisionBody(trans);
-    _collision->setSpeed(_speed);
+    // _collision->setSpeed(_speed);
 }
+
+void Bullet::setSpeed(float speed) { 
+    _speed = speed;
+    if (_collision) {
+        _collision->setSpeed(speed);
+    }
+ }
 
 void Bullet::doAmination() {
     if (!_collision) {

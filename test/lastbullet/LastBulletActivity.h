@@ -43,6 +43,7 @@ private:
     Skybox skybox;
     SkeletonModel3D fence;
     std::vector<Bullet> bullets;
+    std::vector<Bullet> boxes;
     
     KeyboardEventHandler bodyKeyboardEventHandler;
 };

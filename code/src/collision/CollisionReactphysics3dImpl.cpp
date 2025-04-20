@@ -53,8 +53,14 @@ std::shared_ptr<CollisionBody> CollisionSystemReactphysics3dImpl::createCollisio
     rp3d::BoxShape* boxShape = physicsCommon.createBoxShape(rp3d::Vector3(size.x, size.y, size.z));
     rp3d::Transform boxTransform(rp3d::Vector3(pos.x, pos.y, pos.z), rp3d::Quaternion(front.x, front.y, front.z, 1.0f));
     std::shared_ptr<rp3d::RigidBody> box(_world->createRigidBody(boxTransform), [this](rp3d::RigidBody* rb) { if (_world) _world->destroyRigidBody(rb); });
-    box->addCollider(boxShape, rp3d::Transform::identity());
+    rp3d::Collider* col =  box->addCollider(boxShape, rp3d::Transform::identity());
     box->setMass(1.0f);
+    box->setLinearDamping(0.5f);
+    box->setAngularDamping(1.0f);
+
+    // 设置摩擦力和无弹性
+    col->getMaterial().setFrictionCoefficient(0.8f);
+    col->getMaterial().setBounciness(0.0f);
 
     std::shared_ptr<CollisionBody> collision = std::make_shared<CollisionBodyReactphysics3dImpl>(box);
     return collision;

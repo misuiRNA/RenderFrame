@@ -107,8 +107,6 @@ LastBulletActivity::LastBulletActivity(KeyboardEventHandler& keyboard)
 }
 
 void LastBulletActivity::render() {
-    frameTimer.updateTime();
-
     // TODO: 优化, 画布渲染完毕以后需要恢复原gl上下文状态, 如blend, cull_face等
     SetGlobalLights(parallelLight, pointLights);
     SetGlobalCamera(cameraFPS);
@@ -119,6 +117,8 @@ void LastBulletActivity::render() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT); 
     renderSolidObjs();
     renderTransparentObjs();
+
+    frameTimer.updateTime();
 }
 
 void LastBulletActivity::renderSolidObjs() {
@@ -132,6 +132,10 @@ void LastBulletActivity::renderSolidObjs() {
     }
     for (Bullet& bullet : bullets) {
         bullet.show();
+    }
+
+    for (Bullet& box : boxes) {
+        box.show();
     }
 
     // render skybox
@@ -185,6 +189,7 @@ void LastBulletActivity::createBullet() {
     bullets.emplace_back(cameraFPS.getPosition(), cameraFPS.getDirection());
     Bullet& bullet = bullets.back();
     bullet.enableCollision(true);
+    bullet.setSpeed(20.0f);
     const Position& pos = bullet.getPosition();
     const Vector3D& front = bullet.getFront();
     printf("bullet count=%lu, pos=(%f, %f, %f), front=(%f, %f, %f)\n", bullets.size(), pos.x, pos.y, pos.z, front.x, front.y, front.z);
@@ -233,6 +238,17 @@ void LastBulletActivity::initDrawObjects() {
     buildSkybox();
     buildRectangle3D();
     buildFence();
+
+    boxes.reserve(100);
+    for (int i = 0; i < 10; ++i) {
+        for (int j = 0; j < 10; ++j) {
+            boxes.emplace_back(Position(0.0f, i * 0.51f, j * 0.51f + 0.5f), Vector3D(1.0f, 0.0f, 0.0f));
+        }
+    }
+
+    for (Bullet& box : boxes) {
+        box.enableCollision(true);
+    }
 }
 
 void LastBulletActivity::buildSkybox() {

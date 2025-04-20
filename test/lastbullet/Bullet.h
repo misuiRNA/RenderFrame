@@ -11,6 +11,7 @@ struct Bullet {
     void setPosition(const Position& pos);
     void show();
     void enableCollision(bool enable);
+    void setSpeed(float speed);
     
     const Position& getPosition();
     const Vector3D& getFront();
