@@ -2,8 +2,8 @@
 #define _HEAD_FLAG_MODEL_COLORTEXCUBE_H
 
 #include "render/AbstractShader.h"
-#include "BaseDefine.h"
-#include "Image.h"
+#include "base/BaseDefine.h"
+#include "assets/Image.h"
 
 struct ColorTexcubeVertex {
     ColorTexcubeVertex(const Position& pos) : pos(pos) { }

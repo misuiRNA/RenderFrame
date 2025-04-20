@@ -1,7 +1,7 @@
 #ifndef _HEAD_FLAG_UTILS_H
 #define _HEAD_FLAG_UTILS_H
 
-#include "BaseDefine.h"
+#include "base/BaseDefine.h"
 #include <string>
 #include <cmath>
 #include <vector>
@@ -232,11 +232,6 @@ struct LineUtils
     }
 
 };
-
-
-// file system utils
-std::string GetCurPath();
-std::string ReadFile(const std::string& path);
 
 
 // collection utils

@@ -2,8 +2,8 @@
 #define MODEL3D_H
 
 #include "render/AbstractShader.h"
-#include "Transform.h"
-#include "Image.h"
+#include "base/Transform.h"
+#include "assets/Image.h"
 #include <string>
 #include <map>
 #include <vector>

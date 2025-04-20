@@ -2,7 +2,7 @@
 #define _HEAD_FLAG_CAMERA_H
 
 #include <vector>
-#include "BaseDefine.h"
+#include "base/BaseDefine.h"
 #include "ShaderProgram.h"
 
 struct CameraFPS {

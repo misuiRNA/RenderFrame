@@ -1,4 +1,4 @@
-#include "Image.h"
+#include "assets/Image.h"
 #include "stb_image.h"
 #include "glad/glad.h"
 

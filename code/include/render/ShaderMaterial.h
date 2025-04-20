@@ -1,7 +1,7 @@
 #ifndef _HEAD_FLAG_SHADERMATERIAL_H
 #define _HEAD_FLAG_SHADERMATERIAL_H
 
-#include "BaseDefine.h"
+#include "base/BaseDefine.h"
 #include "Texture.h"
 
 struct ShaderMaterial {

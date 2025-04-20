@@ -2,8 +2,8 @@
 #define _HEAD_FLAG_SHADERCAMERA_H
 
 #include <vector>
-#include "BaseDefine.h"
-#include "Transform.h"
+#include "base/BaseDefine.h"
+#include "base/Transform.h"
 
 struct ShaderCamera {
     ShaderCamera();

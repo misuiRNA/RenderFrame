@@ -1,5 +1,5 @@
-#include "object/SkeletonModel3D.h"
-#include "ModelBuilder.h"
+#include "entity/SkeletonModel3D.h"
+#include "assets/ModelBuilder.h"
 
 
 SkeletonModel3D::SkeletonModel3D()

@@ -3,7 +3,7 @@
 
 #include <vector>
 #include <map>
-#include "BaseDefine.h"
+#include "base/BaseDefine.h"
 
 struct ShaderLight {
     ShaderLight(bool isParallel);

@@ -2,10 +2,11 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "Image.h"
+#include "assets/Image.h"
 #include "KeyboardEventHandler.h"
 #include "demo/DemoActivity.h"
 #include "lastbullet/LastBulletActivity.h"
+#include "assets/UtilsFileSys.h"
 
 
 static unsigned int WINDOW_WIDTH = 800;

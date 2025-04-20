@@ -1,5 +1,6 @@
 #include "shader/ColorTexcubeShader.h"
-#include "Utils.h"
+#include "base/Utils.h"
+#include "assets/UtilsFileSys.h"
 
 
 const ShaderAttribDescriptor ColorTexcubeVertex::DESCRIPTOR = DESC_NEW(ColorTexcubeVertex,

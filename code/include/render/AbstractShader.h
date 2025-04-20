@@ -2,7 +2,7 @@
 #define _HEAD_FLAG_MODEL_ABSTRACTMODEL_H
 
 #include "RenderEngine.h"
-#include "Utils.h"
+#include "base/Utils.h"
 
 template <typename VertexType>
 struct AbstractShader {

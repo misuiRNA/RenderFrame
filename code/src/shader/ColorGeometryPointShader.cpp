@@ -1,5 +1,6 @@
 #include "shader/ColorGeometryPointShader.h"
-#include "Utils.h"
+#include "base/Utils.h"
+#include "assets/UtilsFileSys.h"
 
 
 const ShaderAttribDescriptor ColorGeometryPointVertex::DESCRIPTOR = DESC_NEW(ColorGeometryPointVertex,

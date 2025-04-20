@@ -1,6 +1,6 @@
 gcc -xc++ \
  test/Main.cpp test/DrawData.cpp test/demo/*.cpp test/lastbullet/*.cpp \
- code/src/*.cpp code/src/render/*.cpp code/src/shader/*.cpp code/src/object/*.cpp code/src/collision/*.cpp \
+ code/src/*.cpp code/src/render/*.cpp code/src/shader/*.cpp code/src/entity/*.cpp code/src/collision/*.cpp code/src/assets/*.cpp code/src/base/*.cpp \
  3rd/src/glad.c \
  -I3rd/include \
  -Icode/include \

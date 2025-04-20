@@ -2,8 +2,8 @@
 #define _HEAD_FLAG_MODEL_RECTANGLE2D_H
 
 #include "render/AbstractShader.h"
-#include "BaseDefine.h"
-#include "Image.h"
+#include "base/BaseDefine.h"
+#include "assets/Image.h"
 
 struct ColorTex2DVertex {
     ColorTex2DVertex(const RenderShape::Vertex& data) : pos(data.pos), texCoord(data.texcoord) { }

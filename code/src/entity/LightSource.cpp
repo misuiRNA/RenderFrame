@@ -1,4 +1,4 @@
-#include "object/LightSource.h"
+#include "entity/LightSource.h"
 
 LightSource::LightSource(bool isParallel)
 : _shaderLight(isParallel)

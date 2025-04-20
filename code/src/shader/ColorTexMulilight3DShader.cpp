@@ -1,6 +1,7 @@
 #include "shader/ColorTexMulilight3DShader.h"
 #include "ShaderProgram.h"
-#include "Utils.h"
+#include "base/Utils.h"
+#include "assets/UtilsFileSys.h"
 
 
 const ShaderAttribDescriptor ColorTexMulilight3DVertex::DESCRIPTOR = DESC_NEW(ColorTexMulilight3DVertex,

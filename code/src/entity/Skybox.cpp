@@ -1,4 +1,4 @@
-#include "object/Skybox.h"
+#include "entity/Skybox.h"
 
 
 extern std::vector<ColorTexcubeVertex> CUBE_SKYBOX_VERTICES;

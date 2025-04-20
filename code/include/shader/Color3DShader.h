@@ -2,7 +2,7 @@
 #define _HEAD_FLAG_SHADER_COLOR3D_H
 
 #include "render/AbstractShader.h"
-#include "BaseDefine.h"
+#include "base/BaseDefine.h"
 
 struct Color3DVertex {
     Color3DVertex(const RenderShape::Vertex& data) : pos(data.pos) { }

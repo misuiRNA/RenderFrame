@@ -1,4 +1,5 @@
 #include "Bullet.h"
+#include "assets/UtilsFileSys.h"
 
 
 static LocalImage awesomefaceImage(GetCurPath() + "/resource/awesomeface.png");

@@ -1,6 +1,6 @@
-#include "object/Model.h"
-#include "ModelMeshLoader.h"
-#include "Utils.h"
+#include "entity/Model.h"
+#include "assets/ModelMeshLoader.h"
+#include "base/Utils.h"
 
 
 Model3DDrawObject::Model3DDrawObject(std::string const& path)

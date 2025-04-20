@@ -4,7 +4,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glad/glad.h>
 #include "ShaderProgram.h"
-#include "Utils.h"
+#include "base/Utils.h"
+#include "assets/UtilsFileSys.h"
 
 
 const ShaderAttribDescriptor ColorTex2DVertex::DESCRIPTOR = DESC_NEW(ColorTex2DVertex,

@@ -4,7 +4,7 @@
 #include <string>
 #include <iostream> 
 #include <map>
-#include "BaseDefine.h"
+#include "base/BaseDefine.h"
 #include "Texture.h"
 
 enum class ImageWrapMode {

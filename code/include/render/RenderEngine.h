@@ -5,7 +5,7 @@
 #include <map>
 #include <string>
 #include <functional>
-#include "BaseDefine.h"
+#include "base/BaseDefine.h"
 #include "ShaderProgram.h"
 #include "ShaderMaterial.h"
 #include "Texture.h"

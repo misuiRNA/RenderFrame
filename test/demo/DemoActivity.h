@@ -1,10 +1,10 @@
 #ifndef _HEAD_FLAG_TEST_ACTIVITY_H
 #define _HEAD_FLAG_TEST_ACTIVITY_H
 
-#include "object/Model.h"
-#include "object/LightSource.h"
-#include "object/Skybox.h"
-#include "object/SkeletonModel3D.h"
+#include "entity/Model.h"
+#include "entity/LightSource.h"
+#include "entity/Skybox.h"
+#include "entity/SkeletonModel3D.h"
 #include "shader/ColorTex3DShader.h"
 #include "shader/ColorTex2DShader.h"
 #include "shader/ColorTexMulilight3DShader.h"

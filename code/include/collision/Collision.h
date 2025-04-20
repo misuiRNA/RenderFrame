@@ -2,8 +2,8 @@
 #define _HEAD_FLAG_COLLISION_H
 
 #include <memory>
-#include "BaseDefine.h"
-#include "Transform.h"
+#include "base/BaseDefine.h"
+#include "base/Transform.h"
 
 
 struct CollisionBody {

@@ -1,8 +1,8 @@
-#include "ModelBuilder.h"
+#include "assets/ModelBuilder.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include "Utils.h"
+#include "base/Utils.h"
 
 
 static glm::mat4 GetRotationMatrix(const Vector3D& up, const Vector3D& front) {

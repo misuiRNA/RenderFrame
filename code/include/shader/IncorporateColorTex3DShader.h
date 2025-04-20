@@ -2,9 +2,9 @@
 #define _HEAD_FLAG_MODEL_INCORPORATERECTANGLE3D_H
 
 #include "render/AbstractShader.h"
-#include "BaseDefine.h"
-#include "Image.h"
-#include "Transform.h"
+#include "base/BaseDefine.h"
+#include "assets/Image.h"
+#include "base/Transform.h"
 
 struct IncorporateColorTex3DVertex {
     IncorporateColorTex3DVertex(const RenderShape::Vertex& data) : pos(data.pos), texcoord(data.texcoord) { }

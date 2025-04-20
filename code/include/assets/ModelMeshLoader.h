@@ -1,8 +1,8 @@
 #ifndef MODEL_OBJ_LOADER_H
 #define MODEL_OBJ_LOADER_H
 
-#include "BaseDefine.h"
-#include "Image.h"
+#include "base/BaseDefine.h"
+#include "assets/Image.h"
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>

@@ -1,6 +1,7 @@
 #include "shader/IncorporateColorTex3DShader.h"
 #include "ShaderProgram.h"
-#include "Utils.h"
+#include "base/Utils.h"
+#include "assets/UtilsFileSys.h"
 
 
 const ShaderAttribDescriptor IncorporateColorTex3DVertex::DESCRIPTOR = DESC_NEW(IncorporateColorTex3DVertex,
