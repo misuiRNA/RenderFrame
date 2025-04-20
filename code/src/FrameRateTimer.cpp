@@ -1,15 +1,19 @@
 #include "FrameRateTimer.h"
 #include <GLFW/glfw3.h>
+#include <thread>
+#include <chrono>
+
+
+static const int FPS = 30;
 
 FrameRateTimer::FrameRateTimer()
-: _currentTime(0.0f)
-, _lastTime(0.0f)
+: _lastTime(0.0f)
 , _deltaTime(0.0f) {
 
 }
 
 double FrameRateTimer::getCurTime() {
-    return _currentTime;
+    return _lastTime;
 }
 
 double FrameRateTimer::getFrameTime() {
@@ -17,12 +21,18 @@ double FrameRateTimer::getFrameTime() {
 }
 
 void FrameRateTimer::updateTime() {
-    if (_currentTime <= 1e-6)
+    const float FPS_TIME = 1.0f / FPS;
+
+    double diff = glfwGetTime() - _lastTime;
+    if (diff < FPS_TIME)
     {
-        _currentTime = glfwGetTime();
+        double sleepTime = FPS_TIME - diff;
+        std::this_thread::sleep_for(std::chrono::duration<double>(sleepTime));
     }
-    _lastTime = _currentTime;
-    _currentTime = glfwGetTime();
-    _deltaTime = _currentTime - _lastTime;
+    double curTime = glfwGetTime();
+    if (_lastTime > 1e-1) {
+        _deltaTime = curTime - _lastTime;
+    }
+    _lastTime = curTime;
 }
 

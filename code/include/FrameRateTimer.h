@@ -9,7 +9,6 @@ struct FrameRateTimer {
     void updateTime();
 
 private:
-    double _currentTime;
     double _lastTime;
     double _deltaTime;
 };
