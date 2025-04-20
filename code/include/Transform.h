@@ -3,7 +3,6 @@
 
 #include "BaseDefine.h"
 #include <vector>
-#include <functional>
 
 
 struct Transform {
