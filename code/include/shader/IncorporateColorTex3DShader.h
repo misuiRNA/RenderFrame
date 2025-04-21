@@ -14,7 +14,7 @@ struct IncorporateColorTex3DVertex {
     static const ShaderAttribDescriptor DESCRIPTOR;
 };
 
-struct IncorporateColorTex3DShader : AbstractShader<IncorporateColorTex3DVertex> {
+struct IncorporateColorTex3DShader : AbstractShader {
 
     IncorporateColorTex3DShader(const Size3D& size);
 

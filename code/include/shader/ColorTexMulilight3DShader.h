@@ -15,7 +15,7 @@ struct ColorTexMulilight3DVertex {
     static const ShaderAttribDescriptor DESCRIPTOR;
 };
 
-struct ColorTexMulilight3DShader : AbstractShader<ColorTexMulilight3DVertex> {
+struct ColorTexMulilight3DShader : AbstractShader {
     ColorTexMulilight3DShader(const Size3D& size);
     ColorTexMulilight3DShader(const ColorTexMulilight3DShader& oth);
 

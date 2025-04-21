@@ -26,12 +26,12 @@ ColorGeometryPointShader::ColorGeometryPointShader(const std::vector<ColorGeomet
 : AbstractShader(GetShaderProg())
 , _points(points) {
     setDrawMode(RenderDataMode::POINTS);
-    setVertexData(points, {});
+    setVertexData(points.size(), points.data(), ColorGeometryPointVertex::DESCRIPTOR, {});
 }
 
 void ColorGeometryPointShader::setPoints(const std::vector<ColorGeometryPointVertex>& points) {
     _points = points;
-    setVertexData(points, {});
+    setVertexData(points.size(), points.data(), ColorGeometryPointVertex::DESCRIPTOR, {});
 }
 
 void ColorGeometryPointShader::updateUniformes() {

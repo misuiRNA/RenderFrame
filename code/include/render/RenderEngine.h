@@ -27,6 +27,7 @@ struct ShaderAttribDescriptor {
         const void* data;
     };
 
+    ShaderAttribDescriptor() {}
     ShaderAttribDescriptor(unsigned int stride, const std::vector<AttribItem>& items)
     : stride(stride)
     , items(items) { }
@@ -63,8 +64,33 @@ struct RenderShape {
     RenderShape() {}
     RenderShape(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices = {}) : vertices(vertices), indices(indices) { }
 
+    int getVertexSize() const { return _vertexSize; }
+    const char* getVertexData() const { return _vertexData; }
+    const ShaderAttribDescriptor& getVertexDescriptor() const { return _vertexDescriptor; }
+
+    template<typename T>
+    void build() {
+        // TODO: 优化性能, 减少内存拷贝
+        std::function<T(const RenderShape::Vertex&)> convert = [](const RenderShape::Vertex& sv) -> T { return {sv}; };
+        std::vector<T> tempVert = ConvertList(vertices, convert);
+
+        _vertexSize = tempVert.size();
+        if (_vertexData) {
+            delete[] _vertexData;
+            _vertexData = nullptr;
+        }
+        _vertexData = (const char*)tempVert.data();
+        _vertexData = new char[tempVert.size() * sizeof(T)];
+        memcpy((void*)_vertexData, tempVert.data(), tempVert.size() * sizeof(T));
+        _vertexDescriptor = T::DESCRIPTOR;
+    }
+
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
+
+    int _vertexSize = 0;
+    const char* _vertexData = nullptr;
+    ShaderAttribDescriptor _vertexDescriptor;
 };
 
 

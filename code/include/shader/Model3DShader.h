@@ -18,7 +18,7 @@ struct Model3DVertex {
     static const ShaderAttribDescriptor DESCRIPTOR;
 };
 
-struct Model3DShader : AbstractShader<Model3DVertex> {
+struct Model3DShader : AbstractShader {
 
     Model3DShader();
     void setPosition(const Position& pos);

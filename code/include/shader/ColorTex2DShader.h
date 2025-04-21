@@ -13,7 +13,7 @@ struct ColorTex2DVertex {
     static const ShaderAttribDescriptor DESCRIPTOR;
 };
 
-struct ColorTex2DShader : AbstractShader<ColorTex2DVertex> {
+struct ColorTex2DShader : AbstractShader {
     ColorTex2DShader(float width, float height);
 
     void setPosition(const Position& pos);

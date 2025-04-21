@@ -23,12 +23,14 @@ void SkeletonModel3D::show() {
 void SkeletonModel3D::append(const Position& pos) {
     _MidLinePosits.emplace_back(pos);
     RenderShape laneShape = ModelBuilder::Build3DModelData(_MidLinePosits, _crossSection, 0.2f);
+    laneShape.build<ColorTex3DVertex>();
     _shader.setVertexData(laneShape);
 }
 
 void SkeletonModel3D::append(const std::vector<Position>& points) {
     _MidLinePosits.insert(_MidLinePosits.end(), points.begin(), points.end());
     RenderShape laneShape = ModelBuilder::Build3DModelData(_MidLinePosits, _crossSection, 0.3f);
+    laneShape.build<ColorTex3DVertex>();
     _shader.setVertexData(laneShape);
 }
 
