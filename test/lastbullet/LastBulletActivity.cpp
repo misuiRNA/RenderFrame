@@ -242,12 +242,11 @@ void LastBulletActivity::initDrawObjects() {
     boxes.reserve(100);
     for (int i = 0; i < 10; ++i) {
         for (int j = 0; j < 10; ++j) {
-            boxes.emplace_back(Position(0.0f, i * 0.51f, j * 0.51f + 0.5f), Vector3D(1.0f, 0.0f, 0.0f));
+            int gap = j % 2;
+            boxes.emplace_back(Position(0.0f, i * 0.51f + 0.255f * gap, j * 0.51f + 0.255f), Vector3D(1.0f, 0.0f, 0.0f));
+            Bullet& box = boxes.back();
+            box.enableCollision(true);
         }
-    }
-
-    for (Bullet& box : boxes) {
-        box.enableCollision(true);
     }
 }
 

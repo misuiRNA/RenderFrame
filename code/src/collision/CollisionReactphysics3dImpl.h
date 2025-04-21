@@ -24,5 +24,7 @@ private:
     rp3d::PhysicsCommon physicsCommon;
     std::shared_ptr<rp3d::PhysicsWorld> _world;
     std::shared_ptr<rp3d::RigidBody> _ground;
+
+    float _accTime;
 };
 #endif
