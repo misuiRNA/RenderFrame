@@ -4,13 +4,10 @@
 #include <vector>
 #include <map>
 #include <string>
-#include <functional>
 #include "base/BaseDefine.h"
 #include "ShaderProgram.h"
 #include "ShaderMaterial.h"
 #include "Texture.h"
-#include <shared_mutex>
-#include <iostream>
 
 
 struct ShaderAttribDescriptor {
@@ -67,23 +64,6 @@ struct RenderShape {
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
 };
-
-template<typename T>
-struct RenderShapeAdapter {
-    RenderShapeAdapter(const RenderShape& data)
-    :  _vertices(ConvertList(data.vertices, convert))
-    , _indices(data.indices) {}
-
-    const std::vector<T>& getVertex() const { return _vertices; }
-    const std::vector<unsigned int> getIndices() const { return _indices; }
-    const ShaderAttribDescriptor& getVertexDescriptor() const { return T::DESCRIPTOR; }
-
-private:
-    const std::function<T(const RenderShape::Vertex&)> convert = [](const RenderShape::Vertex& sv) -> T { return {sv}; };
-    std::vector<T> _vertices;
-    std::vector<unsigned int> _indices;
-};
-
 
 struct RenderEngine {
     RenderEngine(ShaderProgram& prog);
