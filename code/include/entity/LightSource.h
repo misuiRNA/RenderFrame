@@ -13,7 +13,7 @@ struct LightSource {
     void setSize(const Size3D& size);
     void setSpotFacor(float angle, float expandSmoothRatio = 0.1f);
     void setReach(float distance);
-    void setVertexData(const RenderShape& shape);
+    void setVertexData(const RenderShapeAdapter<Color3DVertex>& shape);
     const Position& getPosition() const;
     Color getColor() const;
     bool isParallel() const;

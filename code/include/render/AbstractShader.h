@@ -20,14 +20,18 @@ struct AbstractShader {
 
     // TODO: 优化, 重新设置顶点数据后需要清除旧顶点VBO等
     void setVertexData(size_t vertexCount, const void* vvertexData, const ShaderAttribDescriptor& desc, const std::vector<unsigned int>& indices) {
+        if (vvertexData == nullptr) {
+            return;
+        }
         _engine.setVertices(vertexCount, vvertexData, desc);
         if (!indices.empty()) {
             _engine.setIndices(indices);
         }
     }
 
-    void setVertexData(const RenderShape& shape) {
-        setVertexData(shape.getVertexSize(), shape.getVertexData(), shape.getVertexDescriptor(), shape.indices);
+    template<typename T>
+    void setVertexData(const RenderShapeAdapter<T>& shape) {
+        setVertexData(shape.getVertex().size(), shape.getVertex().data(), shape.getVertexDescriptor(), shape.getIndices());
     }
 
 private:

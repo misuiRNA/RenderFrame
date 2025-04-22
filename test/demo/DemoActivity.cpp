@@ -310,9 +310,7 @@ void DemoActivity::initLights() {
     // parallelLight.setColor({1.0f, 0.0f, 0.0f});
 
     LightSource& light = pointLights[0];
-    tetrahedronShape.build<Color3DVertex>();
-    light.setVertexData(cubeShape);
-    light.setVertexData(tetrahedronShape);
+    light.setVertexData(RenderShapeAdapter<Color3DVertex>(tetrahedronShape));
     light.setPosition({-1.0f, 2.0f, 2.0f});
     light.setSize({0.5f, 0.5f, 0.5f});
     light.setDirection(Position(0.0f, 0.0f, 0.0f) - light.getPosition());
@@ -322,8 +320,7 @@ void DemoActivity::initLights() {
     light.setReach(50.0f);
 
     LightSource& light1 = pointLights[1];
-    cubeShape.build<Color3DVertex>();
-    light1.setVertexData(cubeShape);
+    light1.setVertexData(RenderShapeAdapter<Color3DVertex>(cubeShape));
     light1.setPosition({1.0f, -2.0f, 2.0f});
     light1.setSize({0.5f, 0.5f, 0.5f});
     light1.setDirection(Position(0.0f, 0.0f, 2.0f) - light1.getPosition());
@@ -369,8 +366,7 @@ void DemoActivity::buildSkybox() {
 }
 
 void DemoActivity::buildGrass() {
-    rectShape.build<IncorporateColorTex3DVertex>();
-    grass.setVertexData(rectShape);
+    grass.setVertexData(RenderShapeAdapter<IncorporateColorTex3DVertex>(rectShape));
     grass.setPosition({-1.0f, 3.0f, 2.0f});
     grass.setImage(grassImage);
     grass.getTransform()
@@ -387,8 +383,7 @@ void DemoActivity::buildGrass() {
 }
 
 void DemoActivity::buildTransparentWindow() {
-    rectShape.build<ColorTex3DVertex>();
-    transparentWindow.setVertexData(rectShape);
+    transparentWindow.setVertexData(RenderShapeAdapter<ColorTex3DVertex>(rectShape));
     transparentWindow.setPosition({0.0f, 0.0f});
     transparentWindow.setImage(windowImage);
     transparentWindow.getTransform()
@@ -402,8 +397,7 @@ void DemoActivity::buildTransparentWindow() {
 }
 
 void DemoActivity::buildWinMask() {
-    rectShape.build<ColorTex2DVertex>();
-    winMask.setVertexData(rectShape);
+    winMask.setVertexData(RenderShapeAdapter<ColorTex2DVertex>(rectShape));
     winMask.setImage(awesomefaceImage);
 }
 
@@ -429,8 +423,7 @@ void DemoActivity::buildCuboids() {
         cuboid.setPrimaryImage(awesomefaceImage);
         cuboid.setSecondaryImage(containerImage);
         // cuboid.setSecondaryImage(matrixImage);
-        cubeShape.build<ColorTexMulilight3DVertex>();
-        cuboid.setVertexData(cubeShape);
+        cuboid.setVertexData(RenderShapeAdapter<ColorTexMulilight3DVertex>(cubeShape));
     }
 
 
@@ -441,8 +434,7 @@ void DemoActivity::buildCuboids() {
     // cuboid.setPrimaryImage(containerImage);
     // cuboid.setSecondaryImage(awesomefaceImage);
     cuboid.setMaterial(material);
-    cubeShape.build<ColorTexMulilight3DVertex>();
-    cuboid.setVertexData(cubeShape);
+    cuboid.setVertexData(RenderShapeAdapter<ColorTexMulilight3DVertex>(cubeShape));
 
 
     cuboid1.setPosition({1.0f, -3.5f, 0.0f});
@@ -450,13 +442,11 @@ void DemoActivity::buildCuboids() {
     cuboid1.setPrimaryImage(wallImage);
     // cuboid1.setMaterial(material);
     // cuboid1.getTransform().setFront({0.0f, 1.0f, 0.0f});
-    tetrahedronShape.build<ColorTexMulilight3DVertex>();
-    cuboid1.setVertexData(tetrahedronShape);
+    cuboid1.setVertexData(RenderShapeAdapter<ColorTexMulilight3DVertex>(tetrahedronShape));
 }
 
 void DemoActivity::buildRectangle3D() {
-    rectShape.build<ColorTex3DVertex>();
-    rectangle.setVertexData(rectShape);
+    rectangle.setVertexData(RenderShapeAdapter<ColorTex3DVertex>(rectShape));
     rectangle.setPosition({0.0f, 0.0f});
     // rectangle.setColor(Color(0.8f, 0.3f, 0.2f));
     rectangle.setColor(Color(0.0f, 0.0f, 0.0f));
@@ -465,8 +455,7 @@ void DemoActivity::buildRectangle3D() {
              .setFront({1.0f, 0.0f, 0.0f});
 
 
-    rectShape.build<ColorTex3DVertex>();
-    rectangle1.setVertexData(rectShape);
+    rectangle1.setVertexData(RenderShapeAdapter<ColorTex3DVertex>(rectShape));
     rectangle1.setPosition({-1.0, 0.0f});
     rectangle1.setColor(Color(0.8f, 0.3f, 0.2f));
     // rectangle1.setImage(containerImage);
@@ -475,8 +464,7 @@ void DemoActivity::buildRectangle3D() {
 
 void DemoActivity::buildMirror() {
     mirrorCanva.setBackgroundColor({0.3f, 0.2f, 0.3f});
-    rectShape.build<ColorTex2DVertex>();
-    mirror.setVertexData(rectShape);
+    mirror.setVertexData(RenderShapeAdapter<ColorTex2DVertex>(rectShape));
     mirror.setPosition({-0.6f, 0.7f});
     mirror.setColor(Color(0.8f, 0.3f, 0.2f));
     mirror.setImage(mirrorCanva);
@@ -485,8 +473,7 @@ void DemoActivity::buildMirror() {
 void DemoActivity::buildCircle() {
     circle1.setDrawMode(RenderDataMode::LINE_STRIP);
     circle1.setPosition({-1.0f, 3.0f, 2.0f});
-    circleShape.build<ColorTex3DVertex>();
-    circle1.setVertexData(circleShape);
+    circle1.setVertexData(RenderShapeAdapter<ColorTex3DVertex>(circleShape));
     circle1.setColor(Color(0.0f, 1.0f, 0.0f));
     circle1.getTransform().setFront({1.0f, 0.0f, 0.0f}).setUp({0.0f, 0.0f, 1.0f});
 }
@@ -569,6 +556,5 @@ void DemoActivity::buildFence() {
 }
 
 void DemoActivity::buildRichPoints() {
-    rectShape.build<ColorGeometryPointVertex>();
-    richPoints.setVertexData(rectShape);
+    richPoints.setVertexData(RenderShapeAdapter<ColorGeometryPointVertex>(rectShape));
 }

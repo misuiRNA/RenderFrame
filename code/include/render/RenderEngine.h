@@ -64,33 +64,24 @@ struct RenderShape {
     RenderShape() {}
     RenderShape(const std::vector<Vertex>& vertices, const std::vector<unsigned int>& indices = {}) : vertices(vertices), indices(indices) { }
 
-    int getVertexSize() const { return _vertexSize; }
-    const char* getVertexData() const { return _vertexData; }
-    const ShaderAttribDescriptor& getVertexDescriptor() const { return _vertexDescriptor; }
-
-    template<typename T>
-    void build() {
-        // TODO: 优化性能, 减少内存拷贝
-        std::function<T(const RenderShape::Vertex&)> convert = [](const RenderShape::Vertex& sv) -> T { return {sv}; };
-        std::vector<T> tempVert = ConvertList(vertices, convert);
-
-        _vertexSize = tempVert.size();
-        if (_vertexData) {
-            delete[] _vertexData;
-            _vertexData = nullptr;
-        }
-        _vertexData = (const char*)tempVert.data();
-        _vertexData = new char[tempVert.size() * sizeof(T)];
-        memcpy((void*)_vertexData, tempVert.data(), tempVert.size() * sizeof(T));
-        _vertexDescriptor = T::DESCRIPTOR;
-    }
-
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
+};
 
-    int _vertexSize = 0;
-    const char* _vertexData = nullptr;
-    ShaderAttribDescriptor _vertexDescriptor;
+template<typename T>
+struct RenderShapeAdapter {
+    RenderShapeAdapter(const RenderShape& data)
+    :  _vertices(ConvertList(data.vertices, convert))
+    , _indices(data.indices) {}
+
+    const std::vector<T>& getVertex() const { return _vertices; }
+    const std::vector<unsigned int> getIndices() const { return _indices; }
+    const ShaderAttribDescriptor& getVertexDescriptor() const { return T::DESCRIPTOR; }
+
+private:
+    const std::function<T(const RenderShape::Vertex&)> convert = [](const RenderShape::Vertex& sv) -> T { return {sv}; };
+    std::vector<T> _vertices;
+    std::vector<unsigned int> _indices;
 };
 
 
