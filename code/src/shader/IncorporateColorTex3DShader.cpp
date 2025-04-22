@@ -4,7 +4,7 @@
 #include "assets/UtilsFileSys.h"
 
 
-const ShaderAttribDescriptor IncorporateColorTex3DVertex::DESCRIPTOR = DESC_NEW(IncorporateColorTex3DVertex,
+const ShaderAttribDescriptor IncorporateColorTex3DShader::DESCRIPTOR = DESC_NEW(IncorporateColorTex3DVertex,
     ITEM(IncorporateColorTex3DVertex, 0, "aPos",      pos),
     ITEM(IncorporateColorTex3DVertex, 1, "aTexCoord", texcoord),
 );

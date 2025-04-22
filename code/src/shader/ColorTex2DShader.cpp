@@ -8,7 +8,7 @@
 #include "assets/UtilsFileSys.h"
 
 
-const ShaderAttribDescriptor ColorTex2DVertex::DESCRIPTOR = DESC_NEW(ColorTex2DVertex,
+const ShaderAttribDescriptor ColorTex2DShader::DESCRIPTOR = DESC_NEW(ColorTex2DVertex,
     ITEM(ColorTex2DVertex, 0, "aPos",      pos),
     ITEM(ColorTex2DVertex, 1, "aTexCoord", texCoord),
 );

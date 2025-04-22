@@ -7,18 +7,16 @@
 #include "base/Transform.h"
 
 struct ColorTexMulilight3DVertex {
-    ColorTexMulilight3DVertex(const RenderShape::Vertex& data) : pos(data.pos), texCoord(data.texcoord), normal(data.normal) { }
     Position pos;
     Vector2D texCoord;
     Vector3D normal;
-
-    static const ShaderAttribDescriptor DESCRIPTOR;
 };
 
 struct ColorTexMulilight3DShader : AbstractShader {
+     using Vertex = ColorTexMulilight3DVertex;
+
     ColorTexMulilight3DShader(const Size3D& size);
     ColorTexMulilight3DShader(const ColorTexMulilight3DShader& oth);
-
     void setPosition(const Position& pos);
     void setSize(const Size3D& size);
     void setColor(const Color& color);
@@ -35,6 +33,16 @@ private:
     Color _color;
 
     bool _imageEnable;
+
+public:
+    static const ShaderAttribDescriptor DESCRIPTOR;
+    static ColorTexMulilight3DVertex BuildVertex(const RenderShape::Vertex& data) {
+        ColorTexMulilight3DVertex vertex;
+        vertex.pos = data.pos;
+        vertex.texCoord = data.texcoord;
+        vertex.normal = data.normal;
+        return vertex;
+    }
 };
 
 #endif

@@ -7,15 +7,13 @@
 
 struct ColorTexcubeVertex {
     ColorTexcubeVertex(const Position& pos) : pos(pos) { }
-    ColorTexcubeVertex(const RenderShape::Vertex& data) : pos(data.pos) { }
     Position pos;
-
-    static const ShaderAttribDescriptor DESCRIPTOR;
 };
 
 struct ColorTexcubeShader : public AbstractShader {
-    ColorTexcubeShader();
+     using Vertex = ColorTexcubeVertex;
 
+    ColorTexcubeShader();
     void setImage(const AbstractImage& image);
     void setPosition(const Position& pos);
 
@@ -24,6 +22,14 @@ private:
 
 private:
     Transform _trans;
+
+public:
+    static const ShaderAttribDescriptor DESCRIPTOR;
+    static ColorTexcubeVertex BuildVertex(const RenderShape::Vertex& data) {
+        ColorTexcubeVertex vertex(data.pos);
+        // vertex.pos = data.pos;
+        return vertex;
+    }
 };
 
 

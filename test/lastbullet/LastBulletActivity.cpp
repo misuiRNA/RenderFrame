@@ -205,7 +205,7 @@ void LastBulletActivity::initLights() {
     // parallelLight.setColor({1.0f, 0.0f, 0.0f});
 
     LightSource& light = pointLights[0];
-    light.setVertexData(RenderShapeAdapter<Color3DVertex>(tetrahedronShape));
+    light.setVertexData(RenderShapeAdapter<Color3DShader>(tetrahedronShape));
     light.setPosition({-1.0f, 2.0f, 2.0f});
     light.setSize({0.5f, 0.5f, 0.5f});
     light.setDirection(Position(0.0f, 0.0f, 0.0f) - light.getPosition());
@@ -215,7 +215,7 @@ void LastBulletActivity::initLights() {
     light.setReach(50.0f);
 
     LightSource& light1 = pointLights[1];
-    light1.setVertexData(RenderShapeAdapter<Color3DVertex>(cubeShape));
+    light1.setVertexData(RenderShapeAdapter<Color3DShader>(cubeShape));
     light1.setPosition({1.0f, -2.0f, 2.0f});
     light1.setSize({0.5f, 0.5f, 0.5f});
     light1.setDirection(Position(0.0f, 0.0f, 2.0f) - light1.getPosition());

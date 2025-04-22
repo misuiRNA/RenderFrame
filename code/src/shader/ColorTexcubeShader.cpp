@@ -3,7 +3,7 @@
 #include "assets/UtilsFileSys.h"
 
 
-const ShaderAttribDescriptor ColorTexcubeVertex::DESCRIPTOR = DESC_NEW(ColorTexcubeVertex,
+const ShaderAttribDescriptor ColorTexcubeShader::DESCRIPTOR = DESC_NEW(ColorTexcubeVertex,
     ITEM(ColorTexcubeVertex, 0, "aPos", pos),
 );
 

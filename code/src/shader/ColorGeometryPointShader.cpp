@@ -3,7 +3,7 @@
 #include "assets/UtilsFileSys.h"
 
 
-const ShaderAttribDescriptor ColorGeometryPointVertex::DESCRIPTOR = DESC_NEW(ColorGeometryPointVertex,
+const ShaderAttribDescriptor ColorGeometryPointShader::DESCRIPTOR = DESC_NEW(ColorGeometryPointVertex,
     ITEM(ColorGeometryPointVertex, 0, "aPos",   pos),
     ITEM(ColorGeometryPointVertex, 1, "aColor", color)
 );
@@ -26,12 +26,12 @@ ColorGeometryPointShader::ColorGeometryPointShader(const std::vector<ColorGeomet
 : AbstractShader(GetShaderProg())
 , _points(points) {
     setDrawMode(RenderDataMode::POINTS);
-    setVertexData(points.size(), points.data(), ColorGeometryPointVertex::DESCRIPTOR, {});
+    setVertexData(points.size(), points.data(), ColorGeometryPointShader::DESCRIPTOR, {});
 }
 
 void ColorGeometryPointShader::setPoints(const std::vector<ColorGeometryPointVertex>& points) {
     _points = points;
-    setVertexData(points.size(), points.data(), ColorGeometryPointVertex::DESCRIPTOR, {});
+    setVertexData(points.size(), points.data(), ColorGeometryPointShader::DESCRIPTOR, {});
 }
 
 void ColorGeometryPointShader::updateUniformes() {

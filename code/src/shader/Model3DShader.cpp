@@ -3,7 +3,7 @@
 #include "assets/UtilsFileSys.h"
 
 
-const ShaderAttribDescriptor Model3DVertex::DESCRIPTOR = DESC_NEW(Model3DVertex,
+const ShaderAttribDescriptor Model3DShader::DESCRIPTOR = DESC_NEW(Model3DVertex,
     ITEM(Model3DVertex, 0, "aPos",       pos),
     ITEM(Model3DVertex, 1, "aNormal",    normal),
     ITEM(Model3DVertex, 2, "aTexCoords", texCoords)

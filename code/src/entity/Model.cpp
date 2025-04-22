@@ -68,7 +68,7 @@ void Model3DDrawObject::load(const std::string& modelPath) {
 
         std::function<Model3DVertex(const Mesh::Vertex&)> convert = [](const Mesh::Vertex& v) -> Model3DVertex { return {v.position, v.normal, v.texCoords}; };
         std::vector<Model3DVertex> vertices = ConvertList(mesh.vertices, convert);
-        obj.setVertexData(vertices.size(), vertices.data(), Model3DVertex::DESCRIPTOR, mesh.indices);
+        obj.setVertexData(vertices.size(), vertices.data(), Model3DShader::DESCRIPTOR, mesh.indices);
 
         unsigned int diffuseNr  = 0;
         unsigned int specularNr = 0;

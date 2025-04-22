@@ -7,7 +7,7 @@
 #include "base/Utils.h"
 
 
-const ShaderAttribDescriptor Color3DVertex::DESCRIPTOR = DESC_NEW(Color3DVertex,
+const ShaderAttribDescriptor Color3DShader::DESCRIPTOR = DESC_NEW(Color3DVertex,
     ITEM(Color3DVertex, 0, "aPos", pos)
 );
 

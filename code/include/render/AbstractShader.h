@@ -7,18 +7,18 @@
 
 template<typename T>
 struct RenderShapeAdapter {
+    using VertexType = typename T::Vertex;
+    using ConvertFunc = std::function<VertexType(const RenderShape::Vertex&)>;
+
     RenderShapeAdapter(const RenderShape& data)
-    :  _vertices(ConvertList(data.vertices, convert))
-    // :  _vertices(std::vector<T>(data.vertices.begin(), data.vertices.end()))
+    :  _vertices(ConvertList(data.vertices, (ConvertFunc)T::BuildVertex))
     , _indices(data.indices) {}
 
-    const std::vector<T>& getVertex() const { return _vertices; }
+    const std::vector<VertexType>& getVertex() const { return _vertices; }
     const std::vector<unsigned int> getIndices() const { return _indices; }
-    const ShaderAttribDescriptor& getVertexDescriptor() const { return T::DESCRIPTOR; }
 
 private:
-    const std::function<T(const RenderShape::Vertex&)> convert = [](const RenderShape::Vertex& sv) -> T { return {sv}; };
-    std::vector<T> _vertices;
+    std::vector<VertexType> _vertices;
     std::vector<unsigned int> _indices;
 };
 
@@ -32,7 +32,7 @@ struct AbstractShader {
 
     template<typename T>
     void setVertexData(const RenderShapeAdapter<T>& shape) {
-        setVertexData(shape.getVertex().size(), shape.getVertex().data(), shape.getVertexDescriptor(), shape.getIndices());
+        setVertexData(shape.getVertex().size(), shape.getVertex().data(), T::DESCRIPTOR, shape.getIndices());
     }
 
 private:

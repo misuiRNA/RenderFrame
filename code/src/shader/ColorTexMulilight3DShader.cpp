@@ -4,7 +4,7 @@
 #include "assets/UtilsFileSys.h"
 
 
-const ShaderAttribDescriptor ColorTexMulilight3DVertex::DESCRIPTOR = DESC_NEW(ColorTexMulilight3DVertex,
+const ShaderAttribDescriptor ColorTexMulilight3DShader::DESCRIPTOR = DESC_NEW(ColorTexMulilight3DVertex,
     ITEM(ColorTexMulilight3DVertex, 0, "aPos",      pos),
     ITEM(ColorTexMulilight3DVertex, 1, "aTexCoord", texCoord),
     ITEM(ColorTexMulilight3DVertex, 2, "aNormal",   normal)

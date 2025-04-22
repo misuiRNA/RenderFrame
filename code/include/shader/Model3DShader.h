@@ -10,15 +10,13 @@
 
 struct Model3DVertex {
     Model3DVertex(Position pos, Vector3D normal, Vector2D texCoord) : pos(pos), texCoords(texCoord), normal(normal) { }
-    Model3DVertex(const RenderShape::Vertex& data) : pos(data.pos), normal(data.normal), texCoords(data.texcoord) { }
     Vector3D pos;
     Vector3D normal;
     Vector2D texCoords;
-
-    static const ShaderAttribDescriptor DESCRIPTOR;
 };
 
 struct Model3DShader : AbstractShader {
+     using Vertex = Model3DVertex;
 
     Model3DShader();
     void setPosition(const Position& pos);
@@ -34,6 +32,16 @@ private:
 
 private:
     Transform _trans;
+
+public:
+    static const ShaderAttribDescriptor DESCRIPTOR;
+    static Model3DVertex BuildVertex(const RenderShape::Vertex& data) {
+        Model3DVertex vertex(data.pos, data.normal, data.texcoord);
+        // vertex.pos = data.pos;
+        // vertex.normal = data.normal;
+        // vertex.texCoords = data.texcoord;
+        return vertex;
+    }
 };
 
 #endif

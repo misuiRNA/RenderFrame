@@ -7,17 +7,14 @@
 #include "base/Transform.h"
 
 struct IncorporateColorTex3DVertex {
-    IncorporateColorTex3DVertex(const RenderShape::Vertex& data) : pos(data.pos), texcoord(data.texcoord) { }
     Position pos;
     Vector2D texcoord;
-
-    static const ShaderAttribDescriptor DESCRIPTOR;
 };
 
 struct IncorporateColorTex3DShader : AbstractShader {
+     using Vertex = IncorporateColorTex3DVertex;
 
     IncorporateColorTex3DShader(const Size3D& size);
-
     // TODO: 优化, 考虑优化设计提升opengl实例化属性的可复用性
     void mergeCopies(std::vector<IncorporateColorTex3DShader>& rectangles);
     void setPosition(const Position& pos);
@@ -34,6 +31,15 @@ private:
     Color _color;
 
     bool _textureEnable;
+
+public:
+    static const ShaderAttribDescriptor DESCRIPTOR;
+    static IncorporateColorTex3DVertex BuildVertex(const RenderShape::Vertex& data) {
+        IncorporateColorTex3DVertex vertex;
+        vertex.pos = data.pos;
+        vertex.texcoord = data.texcoord;
+        return vertex;
+    }
 };
 
 #endif

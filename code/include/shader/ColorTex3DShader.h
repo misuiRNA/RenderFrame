@@ -7,17 +7,15 @@
 #include "base/Transform.h"
 
 struct ColorTex3DVertex {
-    ColorTex3DVertex(const RenderShape::Vertex& data) : pos(data.pos), texcoord(data.texcoord), color(data.color) { }
     Position pos;
     Vector2D texcoord;
     Color color;
-
-    static const ShaderAttribDescriptor DESCRIPTOR;
 };
 
 struct ColorTex3DShader : AbstractShader {
-    ColorTex3DShader(const Size3D& size);
+     using Vertex = ColorTex3DVertex;
 
+    ColorTex3DShader(const Size3D& size);
     void setPosition(const Position& pos);
     void setSize(const Size3D& size);
     void setImage(const AbstractImage& image);
@@ -32,6 +30,16 @@ private:
     Color _color;
 
     bool _textureEnable;
+
+public:
+    static const ShaderAttribDescriptor DESCRIPTOR;
+    static ColorTex3DVertex BuildVertex(const RenderShape::Vertex& data) {
+        ColorTex3DVertex vertex;
+        vertex.pos = data.pos;
+        vertex.texcoord = data.texcoord;
+        vertex.color = data.color;
+        return vertex;
+    }
 };
 
 #endif

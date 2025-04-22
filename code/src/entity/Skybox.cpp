@@ -4,7 +4,7 @@
 extern std::vector<ColorTexcubeVertex> CUBE_SKYBOX_VERTICES;
 
 Skybox::Skybox() {
-    _shader.setVertexData(CUBE_SKYBOX_VERTICES.size(), CUBE_SKYBOX_VERTICES.data(), ColorTexcubeVertex::DESCRIPTOR, {});
+    _shader.setVertexData(CUBE_SKYBOX_VERTICES.size(), CUBE_SKYBOX_VERTICES.data(), ColorTexcubeShader::DESCRIPTOR, {});
 }
 
 void Skybox::setImage(const AbstractImage& image) {

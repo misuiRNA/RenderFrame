@@ -6,16 +6,14 @@
 #include "assets/Image.h"
 
 struct ColorTex2DVertex {
-    ColorTex2DVertex(const RenderShape::Vertex& data) : pos(data.pos), texCoord(data.texcoord) { }
     Vector3D pos;
     Vector2D texCoord;
-
-    static const ShaderAttribDescriptor DESCRIPTOR;
 };
 
 struct ColorTex2DShader : AbstractShader {
-    ColorTex2DShader(float width, float height);
+     using Vertex = ColorTex2DVertex;
 
+    ColorTex2DShader(float width, float height);
     void setPosition(const Position& pos);
     void setImage(const AbstractImage& image);
     void setColor(const Color& color);
@@ -30,6 +28,15 @@ private:
     Color _color;
 
     bool _textureEnable;
+
+public:
+    static const ShaderAttribDescriptor DESCRIPTOR;
+    static ColorTex2DVertex BuildVertex(const RenderShape::Vertex& data) {
+        ColorTex2DVertex vertex;
+        vertex.pos = data.pos;
+        vertex.texCoord = data.texcoord;
+        return vertex;
+    }
 };
 
 #endif
