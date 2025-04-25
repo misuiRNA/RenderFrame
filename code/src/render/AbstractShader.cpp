@@ -6,6 +6,16 @@ AbstractShader::AbstractShader(ShaderProgram& prog)
 
 }
 
+AbstractShader::AbstractShader(const AbstractShader& oth)
+: _engine(oth._engine) {
+
+}
+
+AbstractShader::AbstractShader(AbstractShader&& oth) noexcept
+: _engine(std::move(oth._engine)) {
+
+}
+
 AbstractShader::~AbstractShader() {
 
 }

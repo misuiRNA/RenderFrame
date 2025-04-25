@@ -25,6 +25,8 @@ private:
 
 struct AbstractShader {
     AbstractShader(ShaderProgram& prog);
+    AbstractShader(const AbstractShader& oth);
+    AbstractShader(AbstractShader&& oth) noexcept;    // remind: 声明为 noexcept 系统才会优先使用移动构造函数
     virtual ~AbstractShader();
     void show();
     void setDrawMode(RenderDataMode mode);

@@ -28,11 +28,10 @@ ColorTexMulilight3DShader::ColorTexMulilight3DShader(const Size3D& size)
 }
 
 ColorTexMulilight3DShader::ColorTexMulilight3DShader(const ColorTexMulilight3DShader& oth)
-: AbstractShader(GetShaderProg())
+: AbstractShader(oth)
 , _trans(oth._trans)
 , _imageEnable(oth._imageEnable)
 , _color(oth._color) {
-    new (&_engine)RenderEngine(oth._engine);    // 强制使用 RenderEngine 拷贝构造, 保证 _engine 可用
     _engine.setUniform("material", ShaderMaterial(_color * 0.2f, _color * 0.8f, _color * 1.0f));
 }
 
