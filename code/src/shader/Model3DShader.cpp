@@ -33,22 +33,22 @@ void Model3DShader::setSize(const Size3D& size) {
 
 void Model3DShader::setDiffuseImage(int index, const AbstractImage& image) {
     std::string name = "diffuseTexture" + ShaderProgram::UniformArraySuffix(index);
-    _engine.setTexture(name, image.getTexture(ImageWrapMode::Repeat));
+    setTexture(name, image.getTexture(ImageWrapMode::Repeat));
 }
 
 void Model3DShader::setSpecularImage(int index, const AbstractImage& image) {
     std::string name = "specularTexture" + ShaderProgram::UniformArraySuffix(index);
-    _engine.setTexture(name, image.getTexture(ImageWrapMode::Repeat));
+    setTexture(name, image.getTexture(ImageWrapMode::Repeat));
 }
 
 void Model3DShader::setNormalImage(int index, const AbstractImage& image) {
     std::string name = "normalTexture" + ShaderProgram::UniformArraySuffix(index);
-    _engine.setTexture(name, image.getTexture(ImageWrapMode::Repeat));
+    setTexture(name, image.getTexture(ImageWrapMode::Repeat));
 }
 
 void Model3DShader::setHeightImage(int index, const AbstractImage& image) {
     std::string name = "heightTexture" + ShaderProgram::UniformArraySuffix(index);
-    _engine.setTexture(name, image.getTexture(ImageWrapMode::Repeat));
+    setTexture(name, image.getTexture(ImageWrapMode::Repeat));
 }
 
 Transform& Model3DShader::getTransform() {
@@ -56,5 +56,5 @@ Transform& Model3DShader::getTransform() {
 }
 
 void Model3DShader::updateUniformes() {
-    _engine.setUniform("model", _trans.getMatrix());
+    setUniform("model", _trans.getMatrix());
 }

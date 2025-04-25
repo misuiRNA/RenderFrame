@@ -35,7 +35,7 @@ void ColorTex3DShader::setSize(const Size3D& size) {
 }
 
 void ColorTex3DShader::setImage(const AbstractImage& image) {
-    _engine.setTexture("texture1", image.getTexture(ImageWrapMode::ClampToEdge));
+    setTexture("texture1", image.getTexture(ImageWrapMode::ClampToEdge));
     _textureEnable = true;
 }
 
@@ -44,9 +44,9 @@ void ColorTex3DShader::setColor(const Color& color) {
 }
 
 void ColorTex3DShader::updateUniformes() {
-    _engine.setUniform("imageEnable", _textureEnable);
-    _engine.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
-    _engine.setUniform("modelMatrix", _trans.getMatrix());
+    setUniform("imageEnable", _textureEnable);
+    setUniform("color", _color.r, _color.g, _color.b, 1.0f);
+    setUniform("modelMatrix", _trans.getMatrix());
 }
 
 Transform& ColorTex3DShader::getTransform() {

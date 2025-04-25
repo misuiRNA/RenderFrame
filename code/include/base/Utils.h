@@ -5,7 +5,7 @@
 #include <string>
 #include <cmath>
 #include <vector>
-#include "RenderEngine.h"
+#include <functional>
 
 // math units
 struct MathUtils {

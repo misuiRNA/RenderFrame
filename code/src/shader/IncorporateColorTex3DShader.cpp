@@ -34,7 +34,7 @@ void IncorporateColorTex3DShader::setSize(const Size3D& size) {
 }
 
 void IncorporateColorTex3DShader::setImage(const AbstractImage& image) {
-    _engine.setTexture("texture1", image.getTexture(ImageWrapMode::ClampToEdge));
+    setTexture("texture1", image.getTexture(ImageWrapMode::ClampToEdge));
     _textureEnable = true;
 }
 
@@ -43,9 +43,9 @@ void IncorporateColorTex3DShader::setColor(const Color& color) {
 }
 
 void IncorporateColorTex3DShader::updateUniformes() {
-    _engine.setUniform("imageEnable", _textureEnable);
-    _engine.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
-    _engine.setUniform("modelMatrix", _trans.getMatrix());
+    setUniform("imageEnable", _textureEnable);
+    setUniform("color", _color.r, _color.g, _color.b, 1.0f);
+    setUniform("modelMatrix", _trans.getMatrix());
 }
 
 Transform& IncorporateColorTex3DShader::getTransform() {
@@ -66,5 +66,5 @@ void IncorporateColorTex3DShader::mergeCopies(std::vector<IncorporateColorTex3DS
         ITEM(Matrix4X4, 5, "aInstanceMat-2", _data2),
         ITEM(Matrix4X4, 6, "aInstanceMat-3", _data3),
     );
-    _engine.setInstanceVertices(modelMatrices.size(), modelMatrices.data(), desc);
+    setInstanceVertices(modelMatrices.size(), modelMatrices.data(), desc);
 }

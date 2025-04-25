@@ -35,7 +35,7 @@ void ColorTex2DShader::setPosition(const Position& pos) {
 }
 
 void ColorTex2DShader::setImage(const AbstractImage& image) {
-    _engine.setTexture("texture1", image.getTexture(ImageWrapMode::ClampToEdge));
+    setTexture("texture1", image.getTexture(ImageWrapMode::ClampToEdge));
     _textureEnable = true;
 }
 
@@ -44,13 +44,13 @@ void ColorTex2DShader::setColor(const Color& color) {
 }
 
 void ColorTex2DShader::updateUniformes() {
-    _engine.setUniform("imageEnable", _textureEnable);
-    _engine.setUniform("color", _color.r, _color.g, _color.b, 1.0f);
+    setUniform("imageEnable", _textureEnable);
+    setUniform("color", _color.r, _color.g, _color.b, 1.0f);
 
     glm::mat4 model;
     model = glm::translate(model, glm::vec3(_pos.x, _pos.y, 0.0f));
     model = glm::scale(model, glm::vec3(_width, _height, 1.0f));
     Matrix4X4 modelMatrix;
     memcpy(&modelMatrix, glm::value_ptr(model), sizeof(glm::mat4));
-    _engine.setUniform("modelMatrix", modelMatrix);
+    setUniform("modelMatrix", modelMatrix);
 }

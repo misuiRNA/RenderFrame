@@ -41,7 +41,7 @@ void Color3DShader::setPosition(const Position& pos) {
 
 void Color3DShader::updateUniformes() {
     const Color& orgColor = _color;
-    _engine.setUniform("color", orgColor.r, orgColor.g, orgColor.b, 1.0f);
+    setUniform("color", orgColor.r, orgColor.g, orgColor.b, 1.0f);
 
     glm::mat4 model;
     const Position& pos = _pos;
@@ -49,5 +49,5 @@ void Color3DShader::updateUniformes() {
     model = glm::scale(model, glm::vec3(_size.x, _size.y, _size.z));
     Matrix4X4 modelMatrix;
     memcpy(&modelMatrix, glm::value_ptr(model), sizeof(glm::mat4));
-    _engine.setUniform("modelMatrix", modelMatrix);
+    setUniform("modelMatrix", modelMatrix);
 }
