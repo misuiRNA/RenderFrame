@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Render",
+      "type": "lldb", // mac 使用lldb, windows使用gdb
+      "request": "launch",
+      "program": "${workspaceFolder}/bin/Render",
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    }
+  ]
+}
