@@ -12,6 +12,9 @@ gcc -xc++ \
  -lreactphysics3d \
  -lstdc++ \
  -std=c++11 \
+  -g \
+ -O0 \
+ -Wall \
  -o bin/Render
 
 
